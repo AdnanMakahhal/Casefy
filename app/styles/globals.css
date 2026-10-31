@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+/* ==========================================
+   BASE STYLES
+   ========================================== */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100vh;
+    background: #010101;
+    /* color */
+    /* font-family */
+  }
+
+  /* ==========================================
+   SCROLLBAR
+   ========================================== */
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--background);
+  }
+}
