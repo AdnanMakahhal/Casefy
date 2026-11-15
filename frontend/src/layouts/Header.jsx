@@ -17,7 +17,11 @@ function Header() {
       }}
       className="sticky top-0 z-50 flex min-h-[78px] items-center justify-between gap-4 border-b border-[#e5e7eb] bg-[#ffffff] px-4 py-3.5 sm:px-8 lg:grid lg:grid-cols-[150px_minmax(0,1fr)_auto] lg:gap-6"
     >
-      <Link to="/" aria-label="Casefy home" className="flex w-fit shrink-0 items-center rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]">
+      <Link
+        to="/"
+        aria-label="Casefy home"
+        className="flex w-fit shrink-0 items-center rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+      >
         <img
           src="/Logo/Logo_Casefy.svg"
           alt="Casefy logo"
@@ -52,8 +56,18 @@ function Header() {
         </button>
         {!isLoading && !user && (
           <div className="hidden items-center gap-2 lg:flex">
-            <Link to="/signin" className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#CFDDD5] bg-[#edf3ef] px-4 text-sm font-semibold whitespace-nowrap text-[#14231c] transition-colors hover:bg-[#e2ece6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]">Sign in</Link>
-            <Link to="/signup" className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#2941372e] bg-[#294137] px-4 text-sm font-semibold whitespace-nowrap text-white transition-colors hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]">Sign up</Link>
+            <Link
+              to="/signin"
+              className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#CFDDD5] bg-[#edf3ef] px-4 text-sm font-semibold whitespace-nowrap text-[#14231c] transition-colors hover:bg-[#e2ece6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+            >
+              Sign in
+            </Link>
+            <Link
+              to="/signup"
+              className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#2941372e] bg-[#294137] px-4 text-sm font-semibold whitespace-nowrap text-white transition-colors hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+            >
+              Sign up
+            </Link>
           </div>
         )}
         {!isLoading && user && (
@@ -67,11 +81,7 @@ function Header() {
           aria-controls="header-navigation"
           className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-[#CFDDD5] bg-[#ffffff] text-[#294137] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] lg:hidden"
         >
-          {isMenuOpen ? (
-            <X size={20} aria-hidden="true" />
-          ) : (
-            <Menu size={20} aria-hidden="true" />
-          )}
+          {isMenuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
         </button>
       </div>
     </header>

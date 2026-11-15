@@ -9,8 +9,8 @@ function Signup() {
             Build better tests, faster.
           </h1>
           <p className="mt-5 max-w-md text-base leading-7 text-[#526159]">
-            Create your workspace and turn requirements, user flows, and real
-            web pages into organized test coverage.
+            Create your workspace and turn requirements, user flows, and real web pages into
+            organized test coverage.
           </p>
 
           <div className="mt-8 grid grid-cols-2 rounded-xl border border-[#CFDDD5] bg-[#FFFFFF] p-5 sm:p-6">
@@ -25,10 +25,16 @@ function Signup() {
           </div>
         </div>
         <div className="min-h-[calc(100svh-78px)] w-full bg-[#FFFFFF] p-6 sm:p-10">
-          <p className="text-xs font-semibold tracking-widest text-[#526159]">CREATE YOUR WORKSPACE</p>
+          <p className="text-xs font-semibold tracking-widest text-[#526159]">
+            CREATE YOUR WORKSPACE
+          </p>
           <h2 className="mt-3 text-3xl leading-tight font-semibold">Create account</h2>
-          <p className="mt-3 text-sm leading-6 text-[#526159]">Start organizing automated QA in minutes.</p>
-          <p className="my-8 text-center text-xs font-medium tracking-wider text-[#526159]">OR CREATE WITH</p>
+          <p className="mt-3 text-sm leading-6 text-[#526159]">
+            Start organizing automated QA in minutes.
+          </p>
+          <p className="my-8 text-center text-xs font-medium tracking-wider text-[#526159]">
+            OR CREATE WITH
+          </p>
           <SignupForm />
         </div>
       </div>

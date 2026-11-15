@@ -27,8 +27,7 @@ WebDriverWait(driver, 10).until(EC.text_to_be_present_in_element(
 ))`,
 };
 
-const cardClass =
-  "min-w-0 rounded-2xl border border-[#CFDDD5] bg-white p-6 sm:p-8";
+const cardClass = "min-w-0 rounded-2xl border border-[#CFDDD5] bg-white p-6 sm:p-8";
 const iconClass =
   "mb-6 flex size-12 items-center justify-center rounded-xl bg-[#294137] text-white";
 
@@ -72,8 +71,8 @@ function PrecisionQA() {
             AI requirement analysis
           </h3>
           <p className="mt-3 text-sm leading-6 text-[#526159]">
-            Turn Jira tickets, PRDs, and raw text into testing criteria. Find
-            the edge cases before they become bugs.
+            Turn Jira tickets, PRDs, and raw text into testing criteria. Find the edge cases before
+            they become bugs.
           </p>
           <div className="mt-7 flex-1 rounded-xl border border-[#CFDDD5] bg-[#f6f8f7] p-5">
             <div className="mb-5 flex items-center justify-between gap-3 border-b border-[#CFDDD5] pb-3 text-xs font-semibold text-[#526159]">
@@ -106,8 +105,8 @@ function PrecisionQA() {
             Live exploration
           </h3>
           <p className="mt-3 text-sm leading-6 text-[#526159]">
-            Start with a URL. Explore page structure and user journeys to
-            uncover what needs testing across your web application.
+            Start with a URL. Explore page structure and user journeys to uncover what needs testing
+            across your web application.
           </p>
           <div className="mt-7 flex flex-1 flex-col rounded-xl border border-[#CFDDD5] bg-[#f6f8f7]">
             <div className="flex items-center gap-2 border-b border-[#CFDDD5] px-4 py-3 text-xs font-medium text-[#526159]">
@@ -142,14 +141,10 @@ function PrecisionQA() {
               Automated test generation
             </h3>
             <p className="mt-3 text-sm leading-6 text-[#526159]">
-              Take your test cases into the tools you already use. Preview an
-              example in your preferred framework.
+              Take your test cases into the tools you already use. Preview an example in your
+              preferred framework.
             </p>
-            <div
-              className="mt-6 flex flex-wrap gap-2"
-              role="group"
-              aria-label="Preview framework"
-            >
+            <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Preview framework">
               {Object.keys(examples).map((name) => (
                 <button
                   key={name}

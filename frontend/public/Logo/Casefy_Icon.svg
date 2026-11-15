@@ -2,14 +2,14 @@
   <title id="title">Casefy</title>
   <rect width="150" height="50" fill="#FFFFFF"/>
   <g stroke="#294137" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Browser window represents the web application. -->
+
     <path d="M30 10H9a4 4 0 0 0-4 4v23a4 4 0 0 0 4 4h26a4 4 0 0 0 4-4V25"/>
     <path d="M5 19h23"/>
     <path d="M10 14.5h.1m4.4 0h.1m4.4 0h.1"/>
-    <!-- A check and result lines represent a generated test case. -->
+
     <path d="m11 28 3 3 5-6" stroke-width="2.4"/>
     <path d="M24 28h8M24 33h5M11 36h8"/>
-    <!-- Sparkle represents automatic generation. -->
+
     <path d="m35 7 1.8 5.2L42 14l-5.2 1.8L35 21l-1.8-5.2L28 14l5.2-1.8Z" fill="#294137" stroke-width="1.3"/>
   </g>
 </svg>

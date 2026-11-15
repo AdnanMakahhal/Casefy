@@ -10,17 +10,23 @@ function SignupForm() {
   const [error, setError] = useState("");
 
   return (
-    <form onSubmit={(event) => {
-      event.preventDefault();
-      const data = new FormData(event.currentTarget);
-      const name = data.get("fullName").trim();
-      if (!name) {
-        setError("Please enter your full name.");
-        return;
-      }
-      setSignupDraft({ name, email: data.get("email").trim().toLowerCase(), password: data.get("password") });
-      navigate("/select-role", { state: location.state });
-    }}>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        const name = data.get("fullName").trim();
+        if (!name) {
+          setError("Please enter your full name.");
+          return;
+        }
+        setSignupDraft({
+          name,
+          email: data.get("email").trim().toLowerCase(),
+          password: data.get("password"),
+        });
+        navigate("/select-role", { state: location.state });
+      }}
+    >
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <button
           type="button"
@@ -47,10 +53,7 @@ function SignupForm() {
       </div>
       <div className="mt-8 space-y-6">
         <div>
-          <label
-            htmlFor="full-name"
-            className="mb-2 block text-sm font-medium text-[#102018]"
-          >
+          <label htmlFor="full-name" className="mb-2 block text-sm font-medium text-[#102018]">
             Full name
           </label>
           <input
@@ -64,10 +67,7 @@ function SignupForm() {
           />
         </div>
         <div>
-          <label
-            htmlFor="email"
-            className="mb-2 block text-sm font-medium text-[#102018]"
-          >
+          <label htmlFor="email" className="mb-2 block text-sm font-medium text-[#102018]">
             Email address
           </label>
           <input
@@ -81,10 +81,7 @@ function SignupForm() {
           />
         </div>
         <div>
-          <label
-            htmlFor="password"
-            className="mb-2 block text-sm font-medium text-[#102018]"
-          >
+          <label htmlFor="password" className="mb-2 block text-sm font-medium text-[#102018]">
             Password
           </label>
           <div className="relative">
@@ -118,7 +115,11 @@ function SignupForm() {
           />
           <span>I agree to the Terms and Privacy Policy.</span>
         </label>
-        {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+        {error && (
+          <p role="alert" className="text-sm text-red-700">
+            {error}
+          </p>
+        )}
         <button
           type="submit"
           className="min-h-14 w-full cursor-pointer rounded-lg bg-[#294137] px-6 py-3 text-base font-semibold text-[#ffffff] transition-colors hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"

@@ -37,50 +37,57 @@ function App() {
   const [supportOpen, setSupportOpen] = useState(false);
   const openChat = useCallback(() => setSupportOpen(true), []);
   const closeChat = useCallback(() => setSupportOpen(false), []);
-  const supportChat = useMemo(() => ({ open: supportOpen, openChat, closeChat }), [supportOpen, openChat, closeChat]);
+  const supportChat = useMemo(
+    () => ({ open: supportOpen, openChat, closeChat }),
+    [supportOpen, openChat, closeChat],
+  );
   return (
     <BrowserRouter>
       <SupportChatContext.Provider value={supportChat}>
-      <Routes>
-        <Route element={<AppLayout />}>
-          <Route index element={<Home />} />
-          <Route path="features" element={<Features />} />
-          <Route path="how-it-works" element={<HowItWorks />} />
-          <Route path="use-cases" element={<UseCases />} />
-          <Route path="pricing" element={<Pricing />} />
-          <Route path="support" element={<Support />} />
-          <Route path="docs" element={<Docs />} />
-          <Route path="policy" element={<Policy />} />
-          <Route path="privacy" element={<Privacy />} />
-          <Route path="terms" element={<Terms />} />
-          <Route element={<GuestRoute />}>
-            <Route path="signup" element={<Signup />} />
-            <Route path="signin" element={<Signin />} />
+        <Routes>
+          <Route element={<AppLayout />}>
+            <Route index element={<Home />} />
+            <Route path="features" element={<Features />} />
+            <Route path="how-it-works" element={<HowItWorks />} />
+            <Route path="use-cases" element={<UseCases />} />
+            <Route path="pricing" element={<Pricing />} />
+            <Route path="support" element={<Support />} />
+            <Route path="docs" element={<Docs />} />
+            <Route path="policy" element={<Policy />} />
+            <Route path="privacy" element={<Privacy />} />
+            <Route path="terms" element={<Terms />} />
+            <Route element={<GuestRoute />}>
+              <Route path="signup" element={<Signup />} />
+              <Route path="signin" element={<Signin />} />
+            </Route>
+            <Route
+              element={<ProtectedRoute loginNotice="Please sign in to continue to checkout." />}
+            >
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="checkout/success" element={<CheckoutSuccess />} />
+            </Route>
+            <Route path="select-role" element={<SelectRole key={user?.id || "signup"} />} />
+            <Route path="*" element={<PageNotFound />} />
           </Route>
-          <Route element={<ProtectedRoute loginNotice="Please sign in to continue to checkout." />}>
-            <Route path="checkout" element={<Checkout />} />
-            <Route path="checkout/success" element={<CheckoutSuccess />} />
+          <Route
+            element={<ProtectedRoute roles={["qa_engineer", "student", "employee", "developer"]} />}
+          >
+            <Route path="dashboard" element={<Dashboard user={user} />} />
           </Route>
-          <Route path="select-role" element={<SelectRole key={user?.id || "signup"} />} />
-          <Route path="*" element={<PageNotFound />} />
-        </Route>
-        <Route element={<ProtectedRoute roles={["qa_engineer", "student", "employee", "developer"]} />}>
-          <Route path="dashboard" element={<Dashboard user={user} />} />
-        </Route>
-        <Route element={<ProtectedRoute roles={["admin", "manager"]} />}>
-          <Route path="admin" element={<Admin />} />
-        </Route>
-        <Route element={<ProtectedRoute />}>
-          <Route path="profile" element={<Profile user={user} />} />
-          <Route path="test-generator" element={<TestGenerator user={user} />} />
-          <Route path="messages" element={<Messages user={user} />} />
-          <Route path="reports" element={<Reports user={user} />} />
-          <Route path="workspaces" element={<Workspaces user={user} />} />
-          <Route path="workspace-invite" element={<WorkspaceInvite />} />
-          <Route path="workspaces/:workspaceKey" element={<WorkspaceProjects user={user} />} />
-        </Route>
-      </Routes>
-      <SupportChat />
+          <Route element={<ProtectedRoute roles={["admin", "manager"]} />}>
+            <Route path="admin" element={<Admin />} />
+          </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route path="profile" element={<Profile user={user} />} />
+            <Route path="test-generator" element={<TestGenerator user={user} />} />
+            <Route path="messages" element={<Messages user={user} />} />
+            <Route path="reports" element={<Reports user={user} />} />
+            <Route path="workspaces" element={<Workspaces user={user} />} />
+            <Route path="workspace-invite" element={<WorkspaceInvite />} />
+            <Route path="workspaces/:workspaceKey" element={<WorkspaceProjects user={user} />} />
+          </Route>
+        </Routes>
+        <SupportChat />
       </SupportChatContext.Provider>
     </BrowserRouter>
   );

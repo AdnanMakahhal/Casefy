@@ -38,8 +38,8 @@ function Home() {
         <br className="hidden sm:block" /> Reliable Test Cases.
       </h1>
       <p className="mx-auto mt-6 max-w-[600px] text-base leading-6 font-medium text-[#526159]">
-        Casefy helps QA engineers generate, discover, and execute test cases
-        from requirements, diagrams, user stories, and real web pages.
+        Casefy helps QA engineers generate, discover, and execute test cases from requirements,
+        diagrams, user stories, and real web pages.
       </p>
 
       <div className="mt-8 flex flex-wrap justify-center gap-3.5">
@@ -80,10 +80,7 @@ function Home() {
           className="block h-auto w-full"
         />
       </figure>
-      <section
-        aria-label="Partner logos"
-        className="mx-auto mt-12 max-w-[1040px] py-8"
-      >
+      <section aria-label="Partner logos" className="mx-auto mt-12 max-w-[1040px] py-8">
         <h2 className="mb-12 text-4xl leading-[1.12] font-extrabold tracking-tight text-[#102019] sm:text-5xl">
           Partners
         </h2>
@@ -172,9 +169,8 @@ function Home() {
             Meet our dedicated team
           </h2>
           <p className="mx-auto mt-6 max-w-[600px] text-base leading-6 font-medium text-[#526159]">
-            Our team of innovative professionals works tirelessly to deliver
-            exceptional experiences and drive successful outcomes for every
-            project.
+            Our team of innovative professionals works tirelessly to deliver exceptional experiences
+            and drive successful outcomes for every project.
           </p>
         </div>
         <ul

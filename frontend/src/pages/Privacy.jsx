@@ -1,2 +1,4 @@
 import LegalPage from "./LegalPage";
-export default function Privacy() { return <LegalPage kind="privacy" />; }
+export default function Privacy() {
+  return <LegalPage kind="privacy" />;
+}

@@ -1,11 +1,4 @@
-import {
-  BarChart3,
-  LayoutDashboard,
-  PlayCircle,
-  Settings2,
-  Sparkles,
-  X,
-} from "lucide-react";
+import { BarChart3, LayoutDashboard, PlayCircle, Settings2, Sparkles, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import WorkspaceMenu from "./WorkspaceMenu";
 import { homeForRole } from "../features/authentication/authContext";
@@ -67,33 +60,39 @@ function DashboardSidebar({ isOpen, onClose, user, items }) {
           </button>
         </div>
         <nav className="mt-6 space-y-2" aria-label="Dashboard navigation">
-          {links.map(({ label, icon: Icon, active, to, selected, section }) => <Fragment key={label}>
-            {section && <p className="px-3 pt-4 pb-1 text-[10px] font-semibold tracking-widest text-[#718578]">{section.toUpperCase()}</p>}
-            {
-            active || to ? (
-              <Link
-                key={label}
-                to={to || home}
-                onClick={onClose}
-                aria-current={(selected ?? pathname === (to || home)) ? "page" : undefined}
-                className={`flex min-h-12 items-center gap-3 rounded-lg px-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137] ${(selected ?? pathname === (to || home)) ? "bg-[#294137] text-white" : "text-[#526159] hover:bg-[#edf3ef]"}`}
-              >
-                <Icon size={19} aria-hidden="true" />
-                {!to && home === "/admin" ? "Admin" : label}
-              </Link>
-            ) : (
-              <button
-                key={label}
-                type="button"
-                disabled
-                title={`${label} is coming soon`}
-                className="flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left text-sm text-[#526159]"
-              >
-                <Icon size={19} aria-hidden="true" />
-                {label}
-                <span className="ml-auto text-[10px] text-[#526159]">Soon</span>
-              </button>
-            )}</Fragment>)}
+          {links.map(({ label, icon: Icon, active, to, selected, section }) => (
+            <Fragment key={label}>
+              {section && (
+                <p className="px-3 pt-4 pb-1 text-[10px] font-semibold tracking-widest text-[#718578]">
+                  {section.toUpperCase()}
+                </p>
+              )}
+              {active || to ? (
+                <Link
+                  key={label}
+                  to={to || home}
+                  onClick={onClose}
+                  aria-current={(selected ?? pathname === (to || home)) ? "page" : undefined}
+                  className={`flex min-h-12 items-center gap-3 rounded-lg px-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137] ${(selected ?? pathname === (to || home)) ? "bg-[#294137] text-white" : "text-[#526159] hover:bg-[#edf3ef]"}`}
+                >
+                  <Icon size={19} aria-hidden="true" />
+                  {!to && home === "/admin" ? "Admin" : label}
+                </Link>
+              ) : (
+                <button
+                  key={label}
+                  type="button"
+                  disabled
+                  title={`${label} is coming soon`}
+                  className="flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left text-sm text-[#526159]"
+                >
+                  <Icon size={19} aria-hidden="true" />
+                  {label}
+                  <span className="ml-auto text-[10px] text-[#526159]">Soon</span>
+                </button>
+              )}
+            </Fragment>
+          ))}
         </nav>
         <WorkspaceMenu user={user} />
       </aside>

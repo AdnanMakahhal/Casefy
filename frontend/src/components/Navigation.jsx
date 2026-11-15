@@ -1,11 +1,6 @@
 import { Link, NavLink } from "react-router-dom";
 
-function Navigation({
-  isMenuOpen,
-  onNavigate,
-  isAuthenticated = false,
-  isAuthLoading = false,
-}) {
+function Navigation({ isMenuOpen, onNavigate, isAuthenticated = false, isAuthLoading = false }) {
   return (
     <nav
       id="header-navigation"
