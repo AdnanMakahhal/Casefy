@@ -12,7 +12,10 @@
   ShieldCheck,
   Workflow,
 } from "lucide-react";
-import MarketingPage, { MarketingCard, MarketingCta } from "../components/marketing/MarketingPage";
+import MarketingPage, {
+  MarketingCard,
+  MarketingCta,
+} from "../components/marketing/MarketingPage";
 
 const current = [
   {
@@ -93,7 +96,10 @@ export default function Features() {
     >
       <section aria-labelledby="current-features">
         <div className="mb-7 flex flex-wrap items-center justify-between gap-3">
-          <h2 id="current-features" className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+          <h2
+            id="current-features"
+            className="text-2xl font-extrabold tracking-tight sm:text-3xl"
+          >
             What you can use today
           </h2>
           <span className="rounded-full border border-[#CFDDD5] bg-white px-3 py-1.5 text-xs font-medium text-[#526159]">
@@ -110,12 +116,15 @@ export default function Features() {
       </section>
       <section aria-labelledby="planned-features">
         <div className="mb-7">
-          <h2 id="planned-features" className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+          <h2
+            id="planned-features"
+            className="text-2xl font-extrabold tracking-tight sm:text-3xl"
+          >
             Where Casefy is heading
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-[#526159]">
-            These features are planned and are not available yet. Scope and release timing may
-            change.
+            These features are planned and are not available yet. Scope and
+            release timing may change.
           </p>
         </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -127,10 +136,15 @@ export default function Features() {
         </div>
       </section>
       <div className="flex items-start gap-3 rounded-xl border border-[#CFDDD5] bg-white p-5 text-sm leading-7 text-[#526159]">
-        <Settings2 size={19} aria-hidden="true" className="mt-1 shrink-0 text-[#294137]" />
+        <Settings2
+          size={19}
+          aria-hidden="true"
+          className="mt-1 shrink-0 text-[#294137]"
+        />
         <p>
-          Today, the generator lets you prepare, review, and download a request. AI generation,
-          document parsing, test execution, and run reports will be added later.
+          Today, the generator lets you prepare, review, and download a request.
+          AI generation, document parsing, test execution, and run reports will
+          be added later.
         </p>
       </div>
       <MarketingCta />

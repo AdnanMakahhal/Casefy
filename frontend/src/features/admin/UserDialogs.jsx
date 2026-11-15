@@ -43,7 +43,13 @@ function Modal({ title, children, onClose, busy }) {
   );
 }
 
-export function UserEditor({ account, onClose, onSaved, currentId, actorRole }) {
+export function UserEditor({
+  account,
+  onClose,
+  onSaved,
+  currentId,
+  actorRole,
+}) {
   const creating = !account.id;
   const [values, setValues] = useState({
     name: "",
@@ -69,17 +75,25 @@ export function UserEditor({ account, onClose, onSaved, currentId, actorRole }) 
     setBusy(true);
     setError("");
     const body = Object.fromEntries(
-      ["name", "email", "workspaceName", "role", "plan"].map((key) => [key, values[key]]),
+      ["name", "email", "workspaceName", "role", "plan"].map((key) => [
+        key,
+        values[key],
+      ]),
     );
     for (const key of ["seatLimit", "projectLimit", "monthlyCreditLimit"])
-      body[key] = values[key] === "" || values[key] == null ? null : Number(values[key]);
+      body[key] =
+        values[key] === "" || values[key] == null ? null : Number(values[key]);
     if (creating) body.password = values.password;
     try {
       await request(creating ? "/users" : `/users/${account.id}`, {
         method: creating ? "POST" : "PATCH",
         body: JSON.stringify(body),
       });
-      onSaved(creating ? "Account created successfully." : "Account updated successfully.");
+      onSaved(
+        creating
+          ? "Account created successfully."
+          : "Account updated successfully.",
+      );
     } catch (err) {
       setError(err.message);
     } finally {
@@ -87,16 +101,32 @@ export function UserEditor({ account, onClose, onSaved, currentId, actorRole }) 
     }
   }
   return (
-    <Modal title={creating ? "Create a new user" : "Edit user"} onClose={onClose} busy={busy}>
+    <Modal
+      title={creating ? "Create a new user" : "Edit user"}
+      onClose={onClose}
+      busy={busy}
+    >
       <form onSubmit={save}>
         <fieldset disabled={busy} className="admin-form-grid">
           <label>
             Full name
-            <input {...field("name")} autoComplete="name" required maxLength={100} autoFocus />
+            <input
+              {...field("name")}
+              autoComplete="name"
+              required
+              maxLength={100}
+              autoFocus
+            />
           </label>
           <label>
             Email address
-            <input {...field("email")} type="email" autoComplete="email" required maxLength={254} />
+            <input
+              {...field("email")}
+              type="email"
+              autoComplete="email"
+              required
+              maxLength={254}
+            />
           </label>
           {creating && (
             <label className="admin-span">
@@ -119,7 +149,11 @@ export function UserEditor({ account, onClose, onSaved, currentId, actorRole }) 
             Role
             <select {...field("role")} disabled={account.id === currentId}>
               {roles
-                .filter((role) => actorRole === "admin" || !["admin", "manager"].includes(role))
+                .filter(
+                  (role) =>
+                    actorRole === "admin" ||
+                    !["admin", "manager"].includes(role),
+                )
                 .map((role) => (
                   <option key={role} value={role}>
                     {label(role)}
@@ -138,8 +172,8 @@ export function UserEditor({ account, onClose, onSaved, currentId, actorRole }) 
             </select>
           </label>
           <p className="admin-form-note admin-span">
-            Account plan and limits control app entitlements. Changes here do not update Stripe
-            billing.
+            Account plan and limits control app entitlements. Changes here do
+            not update Stripe billing.
           </p>
           {[
             ["seatLimit", "Seats"],
@@ -158,7 +192,9 @@ export function UserEditor({ account, onClose, onSaved, currentId, actorRole }) 
               />
             </label>
           ))}
-          <p className="admin-form-note admin-span">Leave a limit blank to use the plan default.</p>
+          <p className="admin-form-note admin-span">
+            Leave a limit blank to use the plan default.
+          </p>
         </fieldset>
         {error && (
           <p role="alert" className="admin-error">
@@ -166,7 +202,12 @@ export function UserEditor({ account, onClose, onSaved, currentId, actorRole }) 
           </p>
         )}
         <footer>
-          <button type="button" className="admin-button" onClick={onClose} disabled={busy}>
+          <button
+            type="button"
+            className="admin-button"
+            onClick={onClose}
+            disabled={busy}
+          >
             Cancel
           </button>
           <button className="admin-button primary" disabled={busy}>
@@ -196,8 +237,9 @@ export function DeleteUser({ account, onClose, onSaved }) {
   return (
     <Modal title="Delete this account?" onClose={onClose} busy={busy}>
       <p className="admin-delete-copy">
-        This permanently deletes <strong>{account.email}</strong>, their workspaces, and all{" "}
-        {number(account._count.projects)} projects. This action cannot be undone.
+        This permanently deletes <strong>{account.email}</strong>, their
+        workspaces, and all {number(account._count.projects)} projects. This
+        action cannot be undone.
       </p>
       {error && (
         <p role="alert" className="admin-error">
@@ -208,7 +250,11 @@ export function DeleteUser({ account, onClose, onSaved }) {
         <button className="admin-button" disabled={busy} onClick={onClose}>
           Cancel
         </button>
-        <button className="admin-button danger" disabled={busy} onClick={remove}>
+        <button
+          className="admin-button danger"
+          disabled={busy}
+          onClick={remove}
+        >
           {busy ? "Deleting…" : "Delete account"}
         </button>
       </footer>
@@ -273,14 +319,23 @@ export function BlockUser({ account, onClose, onSaved }) {
           </p>
         )}
         <footer>
-          <button type="button" className="admin-button" disabled={busy} onClick={onClose}>
+          <button
+            type="button"
+            className="admin-button"
+            disabled={busy}
+            onClick={onClose}
+          >
             Cancel
           </button>
           <button
             className={`admin-button ${account.blockedAt ? "primary" : "danger"}`}
             disabled={busy}
           >
-            {busy ? "Updating..." : account.blockedAt ? "Unblock user" : "Block user"}
+            {busy
+              ? "Updating..."
+              : account.blockedAt
+                ? "Unblock user"
+                : "Block user"}
           </button>
         </footer>
       </form>

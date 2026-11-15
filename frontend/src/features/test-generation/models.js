@@ -28,4 +28,7 @@
   },
 ];
 
-export const DEFAULT_MODEL_CONFIGURATION = { detail: "standard", reasoning: "medium" };
+export const DEFAULT_MODEL_CONFIGURATION = {
+  detail: "standard",
+  reasoning: "medium",
+};

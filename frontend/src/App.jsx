@@ -61,16 +61,25 @@ function App() {
               <Route path="signin" element={<Signin />} />
             </Route>
             <Route
-              element={<ProtectedRoute loginNotice="Please sign in to continue to checkout." />}
+              element={
+                <ProtectedRoute loginNotice="Please sign in to continue to checkout." />
+              }
             >
               <Route path="checkout" element={<Checkout />} />
               <Route path="checkout/success" element={<CheckoutSuccess />} />
             </Route>
-            <Route path="select-role" element={<SelectRole key={user?.id || "signup"} />} />
+            <Route
+              path="select-role"
+              element={<SelectRole key={user?.id || "signup"} />}
+            />
             <Route path="*" element={<PageNotFound />} />
           </Route>
           <Route
-            element={<ProtectedRoute roles={["qa_engineer", "student", "employee", "developer"]} />}
+            element={
+              <ProtectedRoute
+                roles={["qa_engineer", "student", "employee", "developer"]}
+              />
+            }
           >
             <Route path="dashboard" element={<Dashboard user={user} />} />
           </Route>
@@ -79,12 +88,18 @@ function App() {
           </Route>
           <Route element={<ProtectedRoute />}>
             <Route path="profile" element={<Profile user={user} />} />
-            <Route path="test-generator" element={<TestGenerator user={user} />} />
+            <Route
+              path="test-generator"
+              element={<TestGenerator user={user} />}
+            />
             <Route path="messages" element={<Messages user={user} />} />
             <Route path="reports" element={<Reports user={user} />} />
             <Route path="workspaces" element={<Workspaces user={user} />} />
             <Route path="workspace-invite" element={<WorkspaceInvite />} />
-            <Route path="workspaces/:workspaceKey" element={<WorkspaceProjects user={user} />} />
+            <Route
+              path="workspaces/:workspaceKey"
+              element={<WorkspaceProjects user={user} />}
+            />
           </Route>
         </Routes>
         <SupportChat />

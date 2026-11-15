@@ -30,7 +30,8 @@ export default function GenerationResults({ run }) {
         </button>
       </div>
       <p className="rounded-lg bg-[#edf3ef] p-3 text-xs leading-5 text-[#526159]">
-        These are generated test cases. Review them before use; they have not been executed.
+        These are generated test cases. Review them before use; they have not
+        been executed.
       </p>
       {run.error && (
         <p role="alert" className="text-sm text-red-700">

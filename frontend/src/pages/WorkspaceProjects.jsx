@@ -10,7 +10,8 @@ import { useUndoDeletion } from "../context/undoDeletionContext";
 
 function WorkspaceProjectsView({ user, workspaceKey }) {
   const { getWorkspaceProjects, deleteProject } = useAuth();
-  const { scheduleDeletion, pendingId, deletedProjectIds, deletionBusy } = useUndoDeletion();
+  const { scheduleDeletion, pendingId, deletedProjectIds, deletionBusy } =
+    useUndoDeletion();
   const [editing, setEditing] = useState(null);
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState(null);
@@ -23,7 +24,8 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
   const canEdit = !error && ["owner", "editor"].includes(workspace?.role);
   const projects = (result?.projects || []).filter(
     (project) =>
-      pendingId !== `project:${project.id}` && !deletedProjectIds.includes(`project:${project.id}`),
+      pendingId !== `project:${project.id}` &&
+      !deletedProjectIds.includes(`project:${project.id}`),
   );
 
   useEffect(() => {
@@ -88,12 +90,16 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
               Private | {workspace?.role || "Members only"}
             </p>
             {workspace?.id && (
-              <p className="mt-2 break-all text-xs text-[#526159]">Workspace ID: {workspace.id}</p>
+              <p className="mt-2 break-all text-xs text-[#526159]">
+                Workspace ID: {workspace.id}
+              </p>
             )}
           </div>
         </header>
 
-        {!error && workspace?.role === "owner" && <WorkspaceAccess workspace={workspace} />}
+        {!error && workspace?.role === "owner" && (
+          <WorkspaceAccess workspace={workspace} />
+        )}
         <section
           aria-labelledby="workspace-projects-heading"
           aria-busy={isLoading}
@@ -108,10 +114,15 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
               New project
             </button>
           )}
-          <h2 id="workspace-projects-heading" className="mb-5 text-lg font-bold tracking-tight">
+          <h2
+            id="workspace-projects-heading"
+            className="mb-5 text-lg font-bold tracking-tight"
+          >
             Projects
             {result && !error && (
-              <span className="ml-2 text-sm font-medium text-[#526159]">({projects.length})</span>
+              <span className="ml-2 text-sm font-medium text-[#526159]">
+                ({projects.length})
+              </span>
             )}
           </h2>
           {isLoading ? (
@@ -143,11 +154,16 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
           ) : projects.length ? (
             <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {projects.map((project) => (
-                <li key={project.id} className="rounded-xl border border-[#CFDDD5] bg-white p-6">
+                <li
+                  key={project.id}
+                  className="rounded-xl border border-[#CFDDD5] bg-white p-6"
+                >
                   <span className="flex size-11 items-center justify-center rounded-lg bg-[#edf3ef] text-[#294137]">
                     <FolderKanban size={22} aria-hidden="true" />
                   </span>
-                  <h3 className="mt-5 break-words text-lg font-semibold">{project.name}</h3>
+                  <h3 className="mt-5 break-words text-lg font-semibold">
+                    {project.name}
+                  </h3>
                   {project.description && (
                     <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-[#526159]">
                       {project.description}
@@ -184,7 +200,11 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
             </ul>
           ) : (
             <div className="flex min-h-64 flex-col items-center justify-center rounded-xl border border-[#CFDDD5] bg-white px-6 py-10 text-center">
-              <FolderKanban size={30} className="mb-4 text-[#526159]" aria-hidden="true" />
+              <FolderKanban
+                size={30}
+                className="mb-4 text-[#526159]"
+                aria-hidden="true"
+              />
               <h3 className="text-lg font-semibold">No projects yet</h3>
               <p className="mt-2 max-w-sm text-sm leading-6 text-[#526159]">
                 This workspace has no projects yet.
@@ -232,5 +252,11 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
 
 export default function WorkspaceProjects({ user }) {
   const { workspaceKey } = useParams();
-  return <WorkspaceProjectsView key={workspaceKey} user={user} workspaceKey={workspaceKey} />;
+  return (
+    <WorkspaceProjectsView
+      key={workspaceKey}
+      user={user}
+      workspaceKey={workspaceKey}
+    />
+  );
 }

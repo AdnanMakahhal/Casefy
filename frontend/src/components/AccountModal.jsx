@@ -1,7 +1,12 @@
 import { useEffect, useId, useRef } from "react";
 import { X } from "lucide-react";
 
-export default function AccountModal({ title, children, onDismiss, busy = false }) {
+export default function AccountModal({
+  title,
+  children,
+  onDismiss,
+  busy = false,
+}) {
   const dialog = useRef(null);
   const titleId = useId();
   useEffect(() => {

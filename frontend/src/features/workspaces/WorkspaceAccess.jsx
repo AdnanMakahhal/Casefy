@@ -4,8 +4,16 @@ import SelectMenu from "../../components/SelectMenu";
 import { workspacePath, workspaceRequest } from "./api";
 
 const roles = [
-  { value: "viewer", label: "Viewer", description: "Can view workspace projects" },
-  { value: "editor", label: "Editor", description: "Can create, edit and delete projects" },
+  {
+    value: "viewer",
+    label: "Viewer",
+    description: "Can view workspace projects",
+  },
+  {
+    value: "editor",
+    label: "Editor",
+    description: "Can create, edit and delete projects",
+  },
 ];
 const button =
   "min-h-10 cursor-pointer rounded-lg border border-[#CFDDD5] px-3 text-sm font-semibold hover:bg-[#edf3ef] disabled:cursor-not-allowed disabled:opacity-50";
@@ -68,13 +76,17 @@ export default function WorkspaceAccess({ workspace }) {
       className="mt-8 rounded-xl border border-[#CFDDD5] bg-white p-5 sm:p-6"
       aria-labelledby="workspace-sharing"
     >
-      <h2 id="workspace-sharing" className="flex items-center gap-2 text-lg font-bold">
+      <h2
+        id="workspace-sharing"
+        className="flex items-center gap-2 text-lg font-bold"
+      >
         <Users size={20} />
         People and invitations
       </h2>
       <p className="mt-2 text-sm leading-6 text-[#526159]">
-        Only you and invited members can enter. Viewer access is read-only. Editors can create, edit
-        and delete projects. Only you can manage access.
+        Only you and invited members can enter. Viewer access is read-only.
+        Editors can create, edit and delete projects. Only you can manage
+        access.
       </p>
       <div className="mt-5 flex flex-wrap items-end gap-3">
         <SelectMenu
@@ -96,8 +108,8 @@ export default function WorkspaceAccess({ workspace }) {
         </button>
       </div>
       <p className="mt-3 text-xs leading-5 text-[#526159]">
-        Each link works once, expires after 7 days, and lets anyone holding it join after signing
-        in. Share it only with the intended person.
+        Each link works once, expires after 7 days, and lets anyone holding it
+        join after signing in. Share it only with the intended person.
       </p>
       {link && (
         <div className="mt-4 flex flex-wrap gap-2">
@@ -149,7 +161,9 @@ export default function WorkspaceAccess({ workspace }) {
         )
       ) : (
         <>
-          <h3 className="mt-7 font-semibold">Members ({data.members.length + 1})</h3>
+          <h3 className="mt-7 font-semibold">
+            Members ({data.members.length + 1})
+          </h3>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-b border-[#e1e9e4] py-3">
             <div>
               <p className="font-medium">{data.owner.name} (you)</p>
@@ -167,7 +181,9 @@ export default function WorkspaceAccess({ workspace }) {
             >
               <div className="min-w-0">
                 <p className="break-words font-medium">{member.user.name}</p>
-                <p className="break-all text-xs text-[#526159]">{member.user.email}</p>
+                <p className="break-all text-xs text-[#526159]">
+                  {member.user.email}
+                </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <SelectMenu
@@ -175,13 +191,19 @@ export default function WorkspaceAccess({ workspace }) {
                   value={member.role}
                   options={roles}
                   disabled={busy}
-                  onChange={(role) => change(`/members/${member.userId}`, "PATCH", { role })}
+                  onChange={(role) =>
+                    change(`/members/${member.userId}`, "PATCH", { role })
+                  }
                   className="w-40"
                 />
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => change(`/members/${member.userId}`, "PATCH", { role: "remove" })}
+                  onClick={() =>
+                    change(`/members/${member.userId}`, "PATCH", {
+                      role: "remove",
+                    })
+                  }
                   className={`${button} text-red-700`}
                 >
                   Remove
@@ -189,9 +211,13 @@ export default function WorkspaceAccess({ workspace }) {
               </div>
             </div>
           ))}
-          <h3 className="mt-6 font-semibold">Pending invitations ({data.invites.length})</h3>
+          <h3 className="mt-6 font-semibold">
+            Pending invitations ({data.invites.length})
+          </h3>
           {!data.invites.length && (
-            <p className="mt-2 text-sm text-[#526159]">No active invite links.</p>
+            <p className="mt-2 text-sm text-[#526159]">
+              No active invite links.
+            </p>
           )}
           {data.invites.map((invite) => (
             <div
@@ -199,7 +225,9 @@ export default function WorkspaceAccess({ workspace }) {
               className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-[#f6f8f7] p-3"
             >
               <div>
-                <p className="text-sm font-medium capitalize">{invite.role} invitation</p>
+                <p className="text-sm font-medium capitalize">
+                  {invite.role} invitation
+                </p>
                 <p className="mt-1 text-xs text-[#526159]">
                   Expires {new Date(invite.expiresAt).toLocaleString()}
                 </p>

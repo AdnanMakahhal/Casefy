@@ -25,10 +25,15 @@ export function createMessagesController(db = prisma) {
       }
     },
     async read(req, res) {
-      if (!isId(req.params.id)) return res.status(400).json({ message: "Invalid message." });
+      if (!isId(req.params.id))
+        return res.status(400).json({ message: "Invalid message." });
       try {
         const result = await db.userMessage.updateMany({
-          where: { id: Number(req.params.id), recipientId: req.userId, readAt: null },
+          where: {
+            id: Number(req.params.id),
+            recipientId: req.userId,
+            readAt: null,
+          },
           data: { readAt: new Date() },
         });
         return res.json({ updated: result.count });
@@ -73,12 +78,15 @@ export function createMessagesController(db = prisma) {
         !req.body.body.trim() ||
         req.body.body.length > 10000
       )
-        return res.status(400).json({ message: "Enter a reply up to 10,000 characters." });
+        return res
+          .status(400)
+          .json({ message: "Enter a reply up to 10,000 characters." });
       try {
         const request = await db.supportRequest.findFirst({
           where: { id: Number(req.params.id), userId: req.userId },
         });
-        if (!request) return res.status(404).json({ message: "Request not found." });
+        if (!request)
+          return res.status(404).json({ message: "Request not found." });
         await db.$transaction([
           db.userMessage.create({
             data: {
@@ -91,7 +99,10 @@ export function createMessagesController(db = prisma) {
               deliveryStatus: "sent",
             },
           }),
-          db.supportRequest.update({ where: { id: request.id }, data: { status: "open" } }),
+          db.supportRequest.update({
+            where: { id: request.id },
+            data: { status: "open" },
+          }),
         ]);
         return res.status(201).json({ message: "Reply sent to support." });
       } catch (error) {

@@ -20,7 +20,8 @@ export default function AvatarCropper({ file, onDismiss, onSave }) {
         setImage(loadedImage);
       }
     };
-    loadedImage.onerror = () => setError("This photo could not be read. Choose another image.");
+    loadedImage.onerror = () =>
+      setError("This photo could not be read. Choose another image.");
     loadedImage.src = url;
     return () => {
       loadedImage.onload = null;
@@ -29,8 +30,12 @@ export default function AvatarCropper({ file, onDismiss, onSave }) {
     };
   }, [file]);
 
-  const width = image ? Math.max(1, image.naturalWidth / image.naturalHeight) * zoom : 1;
-  const height = image ? Math.max(1, image.naturalHeight / image.naturalWidth) * zoom : 1;
+  const width = image
+    ? Math.max(1, image.naturalWidth / image.naturalHeight) * zoom
+    : 1;
+  const height = image
+    ? Math.max(1, image.naturalHeight / image.naturalWidth) * zoom
+    : 1;
 
   async function saveAvatar() {
     if (!image || busy) return;
@@ -50,7 +55,17 @@ export default function AvatarCropper({ file, onDismiss, onSave }) {
       if (!context) throw new Error("Your browser could not crop this image.");
       context.fillStyle = "#ffffff";
       context.fillRect(0, 0, 256, 256);
-      context.drawImage(image, crop.x, crop.y, crop.size, crop.size, 0, 0, 256, 256);
+      context.drawImage(
+        image,
+        crop.x,
+        crop.y,
+        crop.size,
+        crop.size,
+        0,
+        0,
+        256,
+        256,
+      );
       await onSave(canvas.toDataURL("image/jpeg", 0.85));
     } catch (error) {
       setError(error.message || "Unable to save this photo. Please try again.");
@@ -60,7 +75,11 @@ export default function AvatarCropper({ file, onDismiss, onSave }) {
   }
 
   return (
-    <AccountModal title="Crop your profile photo" onDismiss={onDismiss} busy={busy}>
+    <AccountModal
+      title="Crop your profile photo"
+      onDismiss={onDismiss}
+      busy={busy}
+    >
       <p className="mb-5 text-sm leading-6 text-[#526159]">
         Drag the image and zoom to choose the frame for your avatar.
       </p>
@@ -87,14 +106,18 @@ export default function AvatarCropper({ file, onDismiss, onSave }) {
               width > 1
                 ? clampPosition(
                     start.position.x -
-                      ((event.clientX - start.x) / ((start.size * (width - 1)) / 2)) * 100,
+                      ((event.clientX - start.x) /
+                        ((start.size * (width - 1)) / 2)) *
+                        100,
                   )
                 : 0,
             y:
               height > 1
                 ? clampPosition(
                     start.position.y -
-                      ((event.clientY - start.y) / ((start.size * (height - 1)) / 2)) * 100,
+                      ((event.clientY - start.y) /
+                        ((start.size * (height - 1)) / 2)) *
+                        100,
                   )
                 : 0,
           });
@@ -156,7 +179,10 @@ export default function AvatarCropper({ file, onDismiss, onSave }) {
             value={position.x}
             disabled={!image || width <= 1 || busy}
             onChange={(event) =>
-              setPosition((current) => ({ ...current, x: Number(event.target.value) }))
+              setPosition((current) => ({
+                ...current,
+                x: Number(event.target.value),
+              }))
             }
             className="mt-2 block w-full accent-[#294137]"
           />
@@ -171,7 +197,10 @@ export default function AvatarCropper({ file, onDismiss, onSave }) {
             value={position.y}
             disabled={!image || height <= 1 || busy}
             onChange={(event) =>
-              setPosition((current) => ({ ...current, y: Number(event.target.value) }))
+              setPosition((current) => ({
+                ...current,
+                y: Number(event.target.value),
+              }))
             }
             className="mt-2 block w-full accent-[#294137]"
           />

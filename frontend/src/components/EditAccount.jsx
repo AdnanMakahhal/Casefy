@@ -6,7 +6,12 @@ import { roleLabels, signupRoles } from "../features/authentication/roles";
 const inputClass =
   "mt-2 min-h-12 w-full rounded-lg border border-[#CFDDD5] bg-white px-3 py-2 text-base text-[#102019] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]";
 
-export default function EditAccount({ user, onDismiss, onSaved, inline = false }) {
+export default function EditAccount({
+  user,
+  onDismiss,
+  onSaved,
+  inline = false,
+}) {
   const { updateProfile } = useAuth();
   const [details, setDetails] = useState({
     name: user.name,
@@ -20,7 +25,10 @@ export default function EditAccount({ user, onDismiss, onSaved, inline = false }
   const privileged = ["admin", "manager"].includes(user.role);
   const emailChanged = details.email.trim().toLowerCase() !== user.email;
   const change = (event) => {
-    setDetails((current) => ({ ...current, [event.target.name]: event.target.value }));
+    setDetails((current) => ({
+      ...current,
+      [event.target.name]: event.target.value,
+    }));
     setError("");
   };
 
@@ -32,7 +40,8 @@ export default function EditAccount({ user, onDismiss, onSaved, inline = false }
     try {
       const data = { name: details.name, email: details.email };
       if (!privileged) data.role = details.role;
-      if (!privileged || details.workspaceName.trim()) data.workspaceName = details.workspaceName;
+      if (!privileged || details.workspaceName.trim())
+        data.workspaceName = details.workspaceName;
       if (emailChanged) data.currentPassword = details.currentPassword;
       await updateProfile(data);
       onSaved();
@@ -83,7 +92,10 @@ export default function EditAccount({ user, onDismiss, onSaved, inline = false }
             aria-describedby="email-password-hint"
             className={inputClass}
           />
-          <span id="email-password-hint" className="mt-2 block text-xs leading-5 text-[#526159]">
+          <span
+            id="email-password-hint"
+            className="mt-2 block text-xs leading-5 text-[#526159]"
+          >
             Confirm your password to change your email address.
           </span>
         </label>
@@ -91,9 +103,16 @@ export default function EditAccount({ user, onDismiss, onSaved, inline = false }
       <label className="block text-sm font-medium">
         Role
         {privileged ? (
-          <span className="mt-2 block text-base text-[#526159]">{roleLabels[user.role]}</span>
+          <span className="mt-2 block text-base text-[#526159]">
+            {roleLabels[user.role]}
+          </span>
         ) : (
-          <select name="role" value={details.role} onChange={change} className={inputClass}>
+          <select
+            name="role"
+            value={details.role}
+            onChange={change}
+            className={inputClass}
+          >
             {signupRoles.map(({ value, label }) => (
               <option key={value} value={value}>
                 {label}

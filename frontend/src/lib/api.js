@@ -20,15 +20,19 @@ export async function apiRequest(path, { token, ...options } = {}) {
   }
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const error = new Error(data.message || "Request failed. Please try again.");
+    const error = new Error(
+      data.message || "Request failed. Please try again.",
+    );
     error.status = response.status;
     throw error;
   }
   return data;
 }
 
-export const authRequest = (path, options) => apiRequest(`/auth${path}`, options);
-export const billingRequest = (path, options) => apiRequest(`/billing${path}`, options);
+export const authRequest = (path, options) =>
+  apiRequest(`/auth${path}`, options);
+export const billingRequest = (path, options) =>
+  apiRequest(`/billing${path}`, options);
 
 export const sessionRequest = (path, options) =>
   apiRequest(path, { token: getSessionValue(tokenKey), ...options });

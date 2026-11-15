@@ -1,13 +1,18 @@
 import AccountModal from "./AccountModal";
 import HoldToConfirmButton from "./HoldToConfirmButton";
 
-export default function DeleteItemModal({ title, description, onDismiss, onConfirm }) {
+export default function DeleteItemModal({
+  title,
+  description,
+  onDismiss,
+  onConfirm,
+}) {
   return (
     <AccountModal title={title} onDismiss={onDismiss}>
       <p className="text-sm leading-6 text-[#526159]">{description}</p>
       <p className="mt-3 text-xs leading-5 text-[#7c8c82]">
-        Hold the button to confirm. You will have 5 seconds to undo before deletion becomes
-        permanent.
+        Hold the button to confirm. You will have 5 seconds to undo before
+        deletion becomes permanent.
       </p>
       <div className="mt-6 flex flex-wrap justify-end gap-3">
         <button

@@ -17,7 +17,10 @@ function SigninForm() {
     setError("");
     setIsSubmitting(true);
     try {
-      const session = await signin({ email: data.get("email"), password: data.get("password") });
+      const session = await signin({
+        email: data.get("email"),
+        password: data.get("password"),
+      });
       const returnTo = location.state?.from;
       const destination = returnTo?.pathname?.startsWith("/")
         ? `${returnTo.pathname}${returnTo.search || ""}${returnTo.hash || ""}`
@@ -34,7 +37,10 @@ function SigninForm() {
     <form onSubmit={handleSubmit}>
       <div className="mt-8 space-y-6">
         <div>
-          <label htmlFor="email" className="mb-2 block text-sm font-medium text-[#102018]">
+          <label
+            htmlFor="email"
+            className="mb-2 block text-sm font-medium text-[#102018]"
+          >
             Email address
           </label>
           <input
@@ -48,7 +54,10 @@ function SigninForm() {
           />
         </div>
         <div>
-          <label htmlFor="password" className="mb-2 block text-sm font-medium text-[#102018]">
+          <label
+            htmlFor="password"
+            className="mb-2 block text-sm font-medium text-[#102018]"
+          >
             Password
           </label>
           <div className="relative">

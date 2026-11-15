@@ -48,7 +48,9 @@ export default function TestGenerator({ user }) {
   const [source, setSource] = useState("story");
   const [prompts, setPrompts] = useState({ story: "", documents: "", url: "" });
   const [subject, setSubject] = useState("");
-  const [modelValue, setModelValue] = useState(staff ? "openai" : DEFAULT_LLM_MODELS[0].value);
+  const [modelValue, setModelValue] = useState(
+    staff ? "openai" : DEFAULT_LLM_MODELS[0].value,
+  );
   const [providers, setProviders] = useState([]);
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState(null);
@@ -58,11 +60,17 @@ export default function TestGenerator({ user }) {
   const [dragging, setDragging] = useState(false);
   const [count, setCount] = useState("10");
   const [priority, setPriority] = useState("all");
-  const [selectedTypes, setSelectedTypes] = useState(["functional", "negative", "edge"]);
+  const [selectedTypes, setSelectedTypes] = useState([
+    "functional",
+    "negative",
+    "edge",
+  ]);
   const [error, setError] = useState("");
   const [request, setRequest] = useState(null);
   const { workspaces: allWorkspaces } = useWorkspaces();
-  const workspaces = allWorkspaces.filter((workspace) => workspace.role !== "viewer");
+  const workspaces = allWorkspaces.filter(
+    (workspace) => workspace.role !== "viewer",
+  );
   const [selectedWorkspaceKey, setWorkspaceKey] = useState("");
   const workspaceKey = workspaces.some((w) => w.key === selectedWorkspaceKey)
     ? selectedWorkspaceKey
@@ -76,7 +84,9 @@ export default function TestGenerator({ user }) {
   const models = staff
     ? DEFAULT_LLM_MODELS.map((model, index) => {
         const provider = ["openai", "deepseek", "gemini"][index];
-        const integration = providers.find((item) => item.provider === provider);
+        const integration = providers.find(
+          (item) => item.provider === provider,
+        );
         return {
           ...model,
           value: provider,
@@ -113,8 +123,12 @@ export default function TestGenerator({ user }) {
       setError("Choose PDF, DOCX, TXT, or Markdown documents.");
       return;
     }
-    if (selected.some((file) => file.size === 0 || file.size > 10 * 1024 * 1024)) {
-      setError("Each document must contain content and be no larger than 10 MB.");
+    if (
+      selected.some((file) => file.size === 0 || file.size > 10 * 1024 * 1024)
+    ) {
+      setError(
+        "Each document must contain content and be no larger than 10 MB.",
+      );
       return;
     }
     const next = [...files];
@@ -133,15 +147,23 @@ export default function TestGenerator({ user }) {
       return;
     }
     const staffUploadMB = 10;
-    if (staff && next.reduce((total, file) => total + file.size, 0) > staffUploadMB * 1024 * 1024) {
-      setError(`Staff generation supports up to ${staffUploadMB} MB of documents in total.`);
+    if (
+      staff &&
+      next.reduce((total, file) => total + file.size, 0) >
+        staffUploadMB * 1024 * 1024
+    ) {
+      setError(
+        `Staff generation supports up to ${staffUploadMB} MB of documents in total.`,
+      );
       return;
     }
     setFiles(next);
   }
   function toggleType(type) {
     setSelectedTypes((current) =>
-      current.includes(type) ? current.filter((value) => value !== type) : [...current, type],
+      current.includes(type)
+        ? current.filter((value) => value !== type)
+        : [...current, type],
     );
     setError("");
   }
@@ -156,13 +178,19 @@ export default function TestGenerator({ user }) {
       setError("Keep the subject to 160 characters or fewer.");
       return;
     }
-    if (!count.trim() || !Number.isSafeInteger(Number(count)) || Number(count) < 1) {
+    if (
+      !count.trim() ||
+      !Number.isSafeInteger(Number(count)) ||
+      Number(count) < 1
+    ) {
       setError("Enter a whole number of test cases greater than zero.");
       countInput.current?.focus();
       return;
     }
     if (staff && Number(count) > 100) {
-      setError("Generate up to 100 cases per request. Staff can run unlimited requests.");
+      setError(
+        "Generate up to 100 cases per request. Staff can run unlimited requests.",
+      );
       countInput.current?.focus();
       return;
     }
@@ -182,7 +210,9 @@ export default function TestGenerator({ user }) {
         )
           throw new Error("Invalid URL");
       } catch {
-        setError("Enter a valid HTTP or HTTPS website URL without embedded credentials.");
+        setError(
+          "Enter a valid HTTP or HTTPS website URL without embedded credentials.",
+        );
         urlInput.current?.focus();
         return;
       }
@@ -199,11 +229,19 @@ export default function TestGenerator({ user }) {
       configuration,
       prompt,
       ...(source === "story" ? { subject, description: prompt } : {}),
-      filters: { count: Number(count), priority, testTypes: [...selectedTypes] },
+      filters: {
+        count: Number(count),
+        priority,
+        testTypes: [...selectedTypes],
+      },
       ...(targetUrl ? { url: targetUrl.href } : {}),
       ...(source === "documents"
         ? {
-            documents: files.map((file) => ({ name: file.name, size: file.size, type: file.type })),
+            documents: files.map((file) => ({
+              name: file.name,
+              size: file.size,
+              type: file.type,
+            })),
             documentContentsIncluded: false,
           }
         : {}),
@@ -211,7 +249,9 @@ export default function TestGenerator({ user }) {
   }
   function downloadRequest() {
     const address = URL.createObjectURL(
-      new Blob([JSON.stringify(request, null, 2)], { type: "application/json" }),
+      new Blob([JSON.stringify(request, null, 2)], {
+        type: "application/json",
+      }),
     );
     const link = document.createElement("a");
     link.href = address;
@@ -232,7 +272,10 @@ export default function TestGenerator({ user }) {
                   new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = () =>
-                      resolve({ name: file.name, content: reader.result.split(",")[1] });
+                      resolve({
+                        name: file.name,
+                        content: reader.result.split(",")[1],
+                      });
                     reader.onerror = () =>
                       reject(new Error("Unable to read requirement document."));
                     reader.readAsDataURL(file);
@@ -247,7 +290,9 @@ export default function TestGenerator({ user }) {
           provider: request.model.value,
           subject:
             request.subject ||
-            (request.source === "documents" ? "Document test coverage" : "Website test coverage"),
+            (request.source === "documents"
+              ? "Document test coverage"
+              : "Website test coverage"),
           prompt: request.prompt,
           url: request.url,
           documents,
@@ -266,7 +311,11 @@ export default function TestGenerator({ user }) {
 
   return (
     <div className="min-h-screen bg-[#f6f8f7] text-[#102019] lg:pl-64">
-      <DashboardSidebar user={user} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <DashboardSidebar
+        user={user}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
       <main className="mx-auto max-w-[1440px] px-4 py-6 sm:px-8 lg:px-10 lg:py-9">
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-3">
@@ -281,7 +330,9 @@ export default function TestGenerator({ user }) {
               <Menu size={20} aria-hidden="true" />
             </button>
             <div>
-              <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Test generator</h1>
+              <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+                Test generator
+              </h1>
               <p className="mt-2 text-sm leading-6 text-[#526159]">
                 Turn your requirements into a clear testing plan.
               </p>
@@ -335,8 +386,8 @@ export default function TestGenerator({ user }) {
                 Go beyond requirements with a URL
               </h3>
               <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#526159]">
-                Website URL input is included with Plus, Pro, and Enterprise. Your Free plan
-                includes user stories and documents.
+                Website URL input is included with Plus, Pro, and Enterprise.
+                Your Free plan includes user stories and documents.
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
                 <Link
@@ -370,7 +421,9 @@ export default function TestGenerator({ user }) {
                 models={models}
                 value={modelValue}
                 configurations={configurations}
-                onConfigurationChange={(_model, _configuration, next) => setConfigurations(next)}
+                onConfigurationChange={(_model, _configuration, next) =>
+                  setConfigurations(next)
+                }
                 onModelChange={(model) => setModelValue(model.value)}
                 prompt={prompts[source]}
                 onPromptChange={(prompt) => {
@@ -462,7 +515,11 @@ export default function TestGenerator({ user }) {
                               label: "Medium",
                               description: "Common workflows and scenarios",
                             },
-                            { value: "low", label: "Low", description: "Lower-impact behavior" },
+                            {
+                              value: "low",
+                              label: "Low",
+                              description: "Lower-impact behavior",
+                            },
                           ]}
                         />
                       </div>
@@ -509,7 +566,8 @@ export default function TestGenerator({ user }) {
                         setDragging(true);
                       }}
                       onDragLeave={(event) => {
-                        if (!event.currentTarget.contains(event.relatedTarget)) setDragging(false);
+                        if (!event.currentTarget.contains(event.relatedTarget))
+                          setDragging(false);
                       }}
                       onDrop={(event) => {
                         event.preventDefault();
@@ -540,7 +598,10 @@ export default function TestGenerator({ user }) {
                       </button>
                     </div>
                     {files.length > 0 && (
-                      <ul aria-label="Attached documents" className="mt-4 space-y-2">
+                      <ul
+                        aria-label="Attached documents"
+                        className="mt-4 space-y-2"
+                      >
                         {files.map((file, index) => (
                           <li
                             key={`${file.name}-${file.lastModified}-${file.size}`}
@@ -566,7 +627,9 @@ export default function TestGenerator({ user }) {
                               type="button"
                               aria-label={`Remove ${file.name}`}
                               onClick={() =>
-                                setFiles((current) => current.filter((_, at) => at !== index))
+                                setFiles((current) =>
+                                  current.filter((_, at) => at !== index),
+                                )
                               }
                               className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[#526159] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]"
                             >
@@ -580,7 +643,10 @@ export default function TestGenerator({ user }) {
                 )}
                 {source === "url" && (
                   <div className="border-b border-[#e1e9e4] p-5 sm:p-7">
-                    <label htmlFor="website-url" className="text-sm font-semibold text-[#294137]">
+                    <label
+                      htmlFor="website-url"
+                      className="text-sm font-semibold text-[#294137]"
+                    >
                       Website URL
                     </label>
                     <div className="relative mt-3">
@@ -627,8 +693,12 @@ export default function TestGenerator({ user }) {
 
         {staff && (
           <p className="mt-6 rounded-lg border border-[#CFDDD5] bg-white p-4 text-sm text-[#526159]">
-            Admin and manager access: unlimited generation runs, no Casefy monthly credit limit.{" "}
-            <Link to="/admin?view=integrations" className="font-semibold text-[#294137] underline">
+            Admin and manager access: unlimited generation runs, no Casefy
+            monthly credit limit.{" "}
+            <Link
+              to="/admin?view=integrations"
+              className="font-semibold text-[#294137] underline"
+            >
               Configure AI providers
             </Link>
           </p>
@@ -651,7 +721,10 @@ export default function TestGenerator({ user }) {
             </p>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-5 text-sm">
               {[
-                ["Source", sources.find(({ value }) => value === request.source)?.label],
+                [
+                  "Source",
+                  sources.find(({ value }) => value === request.source)?.label,
+                ],
                 ["Workspace", request.workspace?.name || "Not selected"],
                 [
                   "Model / provider",
@@ -660,7 +733,9 @@ export default function TestGenerator({ user }) {
                 ["Test cases", request.filters.count],
                 [
                   "Priority",
-                  request.filters.priority === "all" ? "All priorities" : request.filters.priority,
+                  request.filters.priority === "all"
+                    ? "All priorities"
+                    : request.filters.priority,
                 ],
                 ["Output detail", request.configuration.detail],
               ].map(([label, value]) => (
@@ -673,7 +748,10 @@ export default function TestGenerator({ user }) {
             <p className="mt-5 text-xs text-[#7c8c82]">Test types</p>
             <p className="mt-1 text-sm leading-6">
               {request.filters.testTypes
-                .map((value) => testTypes.find((type) => type.value === value)?.label)
+                .map(
+                  (value) =>
+                    testTypes.find((type) => type.value === value)?.label,
+                )
                 .join(", ")}
             </p>
             {request.url && (
@@ -693,20 +771,25 @@ export default function TestGenerator({ user }) {
                   ))}
                 </ul>
                 <p className="mt-2 text-xs leading-5 text-[#7c8c82]">
-                  The downloaded request includes file names and sizes, without document contents.
+                  The downloaded request includes file names and sizes, without
+                  document contents.
                 </p>
               </>
             )}
             {request.subject && (
               <>
                 <p className="mt-5 text-xs text-[#7c8c82]">Subject</p>
-                <p className="mt-1 break-words text-sm font-medium">{request.subject}</p>
+                <p className="mt-1 break-words text-sm font-medium">
+                  {request.subject}
+                </p>
               </>
             )}
             {request.prompt && (
               <>
                 <p className="mt-5 text-xs text-[#7c8c82]">
-                  {request.subject ? "Description" : "Requirements / instructions"}
+                  {request.subject
+                    ? "Description"
+                    : "Requirements / instructions"}
                 </p>
                 <p className="mt-2 max-h-52 overflow-y-auto whitespace-pre-wrap break-words rounded-lg bg-[#f6f8f7] p-4 text-sm leading-6">
                   {request.prompt}
@@ -714,7 +797,10 @@ export default function TestGenerator({ user }) {
               </>
             )}
             {error && (
-              <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">
+              <p
+                role="alert"
+                className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-800"
+              >
                 {error}
               </p>
             )}

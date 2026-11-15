@@ -1,7 +1,8 @@
 import { publicUserSelect } from "../utils/roles.js";
 import { effectiveUser } from "../utils/subscriptions.js";
 
-export const objectId = (value) => (typeof value === "string" ? value : value?.id);
+export const objectId = (value) =>
+  typeof value === "string" ? value : value?.id;
 const blockingStatuses = new Set([
   "active",
   "trialing",
@@ -10,7 +11,8 @@ const blockingStatuses = new Set([
   "incomplete",
   "paused",
 ]);
-export const blocksNewSubscription = (subscription) => blockingStatuses.has(subscription.status);
+export const blocksNewSubscription = (subscription) =>
+  blockingStatuses.has(subscription.status);
 
 export function subscriptionState(subscriptions, prices) {
   const mapping = Object.entries(prices).flatMap(([plan, intervals]) =>
@@ -27,9 +29,14 @@ export function subscriptionState(subscriptions, prices) {
       const paid = subscription.latest_invoice?.status === "paid";
       const entitled =
         plan &&
-        (subscription.status === "trialing" || (subscription.status === "active" && paid)) &&
+        (subscription.status === "trialing" ||
+          (subscription.status === "active" && paid)) &&
         !subscription.pause_collection;
-      return { subscription, plan: entitled ? plan : "free", entitled: Boolean(entitled) };
+      return {
+        subscription,
+        plan: entitled ? plan : "free",
+        entitled: Boolean(entitled),
+      };
     })
     .sort(
       (a, b) =>
@@ -42,18 +49,26 @@ export function subscriptionState(subscriptions, prices) {
   const subscription = chosen?.subscription;
   const end =
     subscription?.current_period_end ||
-    Math.max(0, ...(subscription?.items?.data || []).map((item) => item.current_period_end || 0));
+    Math.max(
+      0,
+      ...(subscription?.items?.data || []).map(
+        (item) => item.current_period_end || 0,
+      ),
+    );
   const start =
     subscription?.start_date ||
     subscription?.current_period_start ||
     Math.min(
-      ...(subscription?.items?.data || []).map((item) => item.current_period_start || Infinity),
+      ...(subscription?.items?.data || []).map(
+        (item) => item.current_period_start || Infinity,
+      ),
     );
   return {
     plan: chosen?.plan || "free",
     stripeSubscriptionId: subscription?.id || null,
     subscriptionStatus: subscription?.status || null,
-    subscriptionStartedAt: Number.isFinite(start) && start > 0 ? new Date(start * 1000) : null,
+    subscriptionStartedAt:
+      Number.isFinite(start) && start > 0 ? new Date(start * 1000) : null,
     subscriptionPeriodEnd: end ? new Date(end * 1000) : null,
     cancelAtPeriodEnd: Boolean(subscription?.cancel_at_period_end),
   };
@@ -65,7 +80,8 @@ export function createBillingService(db, stripe, config) {
       async (tx) => {
         await tx.$queryRaw`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`;
         const user = await tx.user.findUnique({ where: { id: userId } });
-        if (!user) throw Object.assign(new Error("Account not found"), { status: 401 });
+        if (!user)
+          throw Object.assign(new Error("Account not found"), { status: 401 });
         return action(tx, user);
       },
       { timeout: 45000 },
@@ -103,22 +119,33 @@ export function createBillingService(db, stripe, config) {
     });
     if (!account) return null;
     return withAccount(account.id, async (tx, user) => {
-      if (event && (await tx.stripeWebhookEvent.findUnique({ where: { id: event.id } })))
+      if (
+        event &&
+        (await tx.stripeWebhookEvent.findUnique({ where: { id: event.id } }))
+      )
         return user;
       const updated = await reconcile(tx, user);
-      if (event) await tx.stripeWebhookEvent.create({ data: { id: event.id, type: event.type } });
+      if (event)
+        await tx.stripeWebhookEvent.create({
+          data: { id: event.id, type: event.type },
+        });
       return updated;
     });
   }
   async function deleteAccount(userId) {
     return withAccount(userId, async (tx, user) => {
       if (user.stripeCheckoutSessionId) {
-        const session = await stripe.checkout.sessions.retrieve(user.stripeCheckoutSessionId);
+        const session = await stripe.checkout.sessions.retrieve(
+          user.stripeCheckoutSessionId,
+        );
         if (session.status === "open") {
           try {
             await stripe.checkout.sessions.expire(session.id);
           } catch (error) {
-            if ((await stripe.checkout.sessions.retrieve(session.id)).status === "open")
+            if (
+              (await stripe.checkout.sessions.retrieve(session.id)).status ===
+              "open"
+            )
               throw error;
           }
         }
@@ -136,5 +163,11 @@ export function createBillingService(db, stripe, config) {
       return tx.user.delete({ where: { id: user.id } });
     });
   }
-  return { withAccount, subscriptionsFor, reconcile, syncCustomer, deleteAccount };
+  return {
+    withAccount,
+    subscriptionsFor,
+    reconcile,
+    syncCustomer,
+    deleteAccount,
+  };
 }

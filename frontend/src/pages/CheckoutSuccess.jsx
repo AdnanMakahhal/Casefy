@@ -21,7 +21,11 @@ export default function CheckoutSuccess() {
         if (!active) return;
         setResult(status);
         setError("");
-        if (status.status === "complete" && status.user?.plan === "free" && ++polls < 5)
+        if (
+          status.status === "complete" &&
+          status.user?.plan === "free" &&
+          ++polls < 5
+        )
           timer = setTimeout(check, 2000);
       } catch (error) {
         if (active) setError(error.message);
@@ -35,12 +39,15 @@ export default function CheckoutSuccess() {
   }, [getCheckoutStatus, sessionId, attempt]);
 
   const confirmed =
-    result?.status === "complete" && ["plus", "pro", "enterprise"].includes(result.user?.plan);
+    result?.status === "complete" &&
+    ["plus", "pro", "enterprise"].includes(result.user?.plan);
   return (
     <section className="mx-auto max-w-xl px-6 py-16">
       <div className="rounded-xl border border-[#CFDDD5] bg-white p-8">
         <h1 className="text-3xl font-bold tracking-tight">
-          {confirmed ? "Thanks for your subscription!" : "Checking your subscription"}
+          {confirmed
+            ? "Thanks for your subscription!"
+            : "Checking your subscription"}
         </h1>
         <p
           role={error || !sessionId ? "alert" : "status"}
@@ -70,7 +77,10 @@ export default function CheckoutSuccess() {
           </button>
         )}
         <div className="mt-6 flex flex-wrap gap-5 text-sm font-semibold text-[#294137]">
-          <Link to="/profile" className="rounded hover:underline focus-visible:outline-2">
+          <Link
+            to="/profile"
+            className="rounded hover:underline focus-visible:outline-2"
+          >
             View profile
           </Link>
           <Link

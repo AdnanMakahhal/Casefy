@@ -9,7 +9,8 @@ const plans = [
     id: "free",
     name: "Free",
     tagline: "A simple place to start",
-    description: "Validate ideas from requirements before moving to live testing.",
+    description:
+      "Validate ideas from requirements before moving to live testing.",
     features: [
       "1 workspace",
       "2 active projects",
@@ -57,7 +58,8 @@ const plans = [
     id: "enterprise",
     name: "Enterprise",
     tagline: "Built around your organization",
-    description: "Get the scale, security, and control your organization needs.",
+    description:
+      "Get the scale, security, and control your organization needs.",
     features: [
       "Custom seats",
       "Custom credits + projects",
@@ -88,7 +90,10 @@ function PricingCard({ plan, isAnnual, billingPeriod, user, loading }) {
       className={`relative flex h-full flex-col rounded-2xl border p-6 transition-shadow duration-200 sm:p-7 xl:p-6 ${plan.popular ? "border-[#779b86] bg-[#edf3ef] shadow-[0_8px_28px_#29413712] ring-1 ring-[#779b86]" : "border-[#d5e0d9] bg-white shadow-[0_4px_20px_#29413705] hover:shadow-[0_8px_28px_#2941370c]"}`}
     >
       <div className="flex min-h-7 items-center justify-between gap-2">
-        <h2 id={`plan-${plan.id}`} className="text-xl font-bold tracking-tight text-[#20332b]">
+        <h2
+          id={`plan-${plan.id}`}
+          className="text-xl font-bold tracking-tight text-[#20332b]"
+        >
           {plan.name}
         </h2>
         {plan.popular && (
@@ -98,17 +103,27 @@ function PricingCard({ plan, isAnnual, billingPeriod, user, loading }) {
           </span>
         )}
       </div>
-      <p className="mt-2 text-[11px] font-medium text-[#718578]">{plan.tagline}</p>
-      <p className="mt-5 min-h-18 text-sm leading-6 text-[#526159]">{plan.description}</p>
+      <p className="mt-2 text-[11px] font-medium text-[#718578]">
+        {plan.tagline}
+      </p>
+      <p className="mt-5 min-h-18 text-sm leading-6 text-[#526159]">
+        {plan.description}
+      </p>
 
       <div className="mt-5 min-h-32">
         <p className="flex min-h-14 flex-wrap items-baseline gap-x-1.5 text-[#20332b]">
           <span
             className={`${enterprise ? "text-[40px]" : "text-[44px]"} leading-tight font-bold tracking-[-0.045em] tabular-nums`}
           >
-            {enterprise ? "Custom" : free ? "$0" : `$${isAnnual ? plan.annual : plan.monthly}`}
+            {enterprise
+              ? "Custom"
+              : free
+                ? "$0"
+                : `$${isAnnual ? plan.annual : plan.monthly}`}
           </span>
-          {!enterprise && <span className="text-sm font-medium text-[#718578]">/ month</span>}
+          {!enterprise && (
+            <span className="text-sm font-medium text-[#718578]">/ month</span>
+          )}
         </p>
         <p className="mt-2 text-xs leading-5 text-[#718578]">
           {enterprise
@@ -156,11 +171,19 @@ function PricingCard({ plan, isAnnual, billingPeriod, user, loading }) {
         </h3>
         <ul className="mt-4 space-y-4">
           {plan.features.map((feature) => (
-            <li key={feature} className="flex items-start gap-2.5 text-sm leading-5 text-[#526159]">
+            <li
+              key={feature}
+              className="flex items-start gap-2.5 text-sm leading-5 text-[#526159]"
+            >
               <span
                 className={`mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full ${plan.popular ? "bg-[#d6e5dc]" : "bg-[#edf3ef]"}`}
               >
-                <Check size={11} strokeWidth={2.5} aria-hidden="true" className="text-[#3d7754]" />
+                <Check
+                  size={11}
+                  strokeWidth={2.5}
+                  aria-hidden="true"
+                  className="text-[#3d7754]"
+                />
               </span>
               <span>{feature}</span>
             </li>
@@ -186,7 +209,8 @@ export default function Pricing() {
           Plans built for QA teams.
         </h1>
         <p className="mx-auto mt-5 max-w-[540px] text-sm leading-7 text-[#526159] sm:text-base">
-          Start with requirements, add live testing when you need it, and scale with clear limits.
+          Start with requirements, add live testing when you need it, and scale
+          with clear limits.
         </p>
 
         <div
@@ -234,8 +258,8 @@ export default function Pricing() {
         ))}
       </div>
       <p className="mx-auto mt-7 max-w-xl text-center text-xs leading-6 text-[#718578]">
-        Annual prices are shown as a monthly equivalent and charged once per year. Monthly credit
-        limits apply to both billing options.
+        Annual prices are shown as a monthly equivalent and charged once per
+        year. Monthly credit limits apply to both billing options.
       </p>
     </section>
   );

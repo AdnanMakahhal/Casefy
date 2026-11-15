@@ -3,7 +3,8 @@ import { Link, NavLink } from "react-router-dom";
 const pages = {
   policy: {
     title: "Casefy policy",
-    description: "How to use Casefy responsibly, and what to expect from the current preview.",
+    description:
+      "How to use Casefy responsibly, and what to expect from the current preview.",
     sections: [
       {
         title: "Use Casefy for work you are allowed to test",
@@ -101,7 +102,8 @@ const pages = {
   },
   terms: {
     title: "Terms of use",
-    description: "The basic expectations for your account, plans, and use of Casefy.",
+    description:
+      "The basic expectations for your account, plans, and use of Casefy.",
     sections: [
       {
         title: "Using the service",
@@ -190,11 +192,17 @@ export default function LegalPage({ kind }) {
           <div className="space-y-8">
             {page.sections.map((section, index) => (
               <section key={section.title} aria-labelledby={`${kind}-${index}`}>
-                <h2 id={`${kind}-${index}`} className="text-lg font-bold tracking-tight">
+                <h2
+                  id={`${kind}-${index}`}
+                  className="text-lg font-bold tracking-tight"
+                >
                   {index + 1}. {section.title}
                 </h2>
                 {section.paragraphs.map((text) => (
-                  <p key={text} className="mt-3 text-sm leading-7 text-[#526159]">
+                  <p
+                    key={text}
+                    className="mt-3 text-sm leading-7 text-[#526159]"
+                  >
                     {text}
                   </p>
                 ))}

@@ -21,14 +21,27 @@ const args = secretOnly
     ];
 const shim =
   process.platform === "win32"
-    ? join(process.env.APPDATA || "", "npm", "node_modules", "@stripe", "cli", "bin", "shim.js")
+    ? join(
+        process.env.APPDATA || "",
+        "npm",
+        "node_modules",
+        "@stripe",
+        "cli",
+        "bin",
+        "shim.js",
+      )
     : null;
 const executable =
-  process.env.STRIPE_CLI_PATH || (shim && existsSync(shim) ? process.execPath : "stripe");
-const child = spawn(executable, executable === process.execPath ? [shim, ...args] : args, {
-  windowsHide: true,
-  env: { ...process.env, STRIPE_API_KEY: process.env.STRIPE_SECRET_KEY },
-});
+  process.env.STRIPE_CLI_PATH ||
+  (shim && existsSync(shim) ? process.execPath : "stripe");
+const child = spawn(
+  executable,
+  executable === process.execPath ? [shim, ...args] : args,
+  {
+    windowsHide: true,
+    env: { ...process.env, STRIPE_API_KEY: process.env.STRIPE_SECRET_KEY },
+  },
+);
 const envPath = fileURLToPath(new URL("../.env", import.meta.url));
 let receivedSecret = false;
 
@@ -37,7 +50,10 @@ function line(text) {
   if (secret) {
     let env = readFileSync(envPath, "utf8");
     env = /^STRIPE_WEBHOOK_SECRET=.*$/m.test(env)
-      ? env.replace(/^STRIPE_WEBHOOK_SECRET=.*$/m, `STRIPE_WEBHOOK_SECRET=${secret}`)
+      ? env.replace(
+          /^STRIPE_WEBHOOK_SECRET=.*$/m,
+          `STRIPE_WEBHOOK_SECRET=${secret}`,
+        )
       : `${env.trimEnd()}\nSTRIPE_WEBHOOK_SECRET=${secret}\n`;
     writeFileSync(envPath, env);
     receivedSecret = true;

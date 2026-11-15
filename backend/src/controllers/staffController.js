@@ -7,20 +7,29 @@ import {
   getIntegration,
   deliverEmail,
 } from "../utils/integrations.js";
-import { accessSchedule, effectiveUser, effectivePlanFilter } from "../utils/subscriptions.js";
-import { paypalConfig } from "../utils/paypal.js";
+import {
+  accessSchedule,
+  effectiveUser,
+  effectivePlanFilter,
+} from "../utils/subscriptions.js";
 
 export const isId = (value) =>
-  /^\d+$/.test(String(value)) && Number.isSafeInteger(Number(value)) && Number(value) > 0;
+  /^\d+$/.test(String(value)) &&
+  Number.isSafeInteger(Number(value)) &&
+  Number(value) > 0;
 export const staffFailure = (res, error) => {
   if (error.code === "P2002")
     return res.status(409).json({
-      message: "This operation is already being processed. Retry the original operation.",
+      message:
+        "This operation is already being processed. Retry the original operation.",
     });
-  if (error.code === "P2025") return res.status(404).json({ message: "Record not found." });
+  if (error.code === "P2025")
+    return res.status(404).json({ message: "Record not found." });
   console.error("Staff request failed:", error.code || error.name);
   return res.status(error.status || 500).json({
-    message: error.status ? error.message : "Unable to complete the request. Please try again.",
+    message: error.status
+      ? error.message
+      : "Unable to complete the request. Please try again.",
   });
 };
 function pageOptions(query) {
@@ -44,12 +53,6 @@ const accountSelect = {
   cancelAtPeriodEnd: true,
   stripeCustomerId: true,
   stripeSubscriptionId: true,
-  paypalSubscriptionId: true,
-  paypalStatus: true,
-  paypalPlan: true,
-  paypalBilling: true,
-  paypalStartedAt: true,
-  paypalPeriodEnd: true,
 };
 const messageSelect = {
   id: true,
@@ -73,7 +76,9 @@ export function createStaffController(
   const ready = () => {
     if (!stripe)
       throw Object.assign(
-        new Error("Stripe is not configured. Add the server Stripe credentials to enable billing."),
+        new Error(
+          "Stripe is not configured. Add the server Stripe credentials to enable billing.",
+        ),
         { status: 503 },
       );
   };
@@ -81,7 +86,9 @@ export function createStaffController(
     async integrations(_req, res) {
       try {
         const integrations = [];
-        for (const [provider, definition] of Object.entries(integrationProviders)) {
+        for (const [provider, definition] of Object.entries(
+          integrationProviders,
+        )) {
           const configured = await getIntegration(db, provider);
           integrations.push({
             provider,
@@ -92,26 +99,12 @@ export function createStaffController(
             senderEmail: configured.senderEmail || "",
           });
         }
-        const paypal = paypalConfig();
         return res.json({
           integrations,
           stripe: {
             configured: Boolean(stripe),
             liveMode: billingConfig().liveMode,
             webhookConfigured: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
-          },
-          paypal: {
-            configured: Boolean(paypal.secret),
-            environment: paypal.environment,
-            webhookConfigured: Boolean(paypal.webhookId),
-            plans: Object.fromEntries(
-              Object.entries(paypal.plans).map(([plan, intervals]) => [
-                plan,
-                Object.fromEntries(
-                  Object.entries(intervals).map(([interval, id]) => [interval, Boolean(id)]),
-                ),
-              ]),
-            ),
           },
         });
       } catch (error) {
@@ -122,7 +115,9 @@ export function createStaffController(
       if (req.user.role !== "admin")
         return res
           .status(403)
-          .json({ message: "Only administrators can change provider credentials." });
+          .json({
+            message: "Only administrators can change provider credentials.",
+          });
       if (!integrationProviders[req.params.provider])
         return res.status(400).json({ message: "Unknown provider." });
       const body = req.body || {};
@@ -134,10 +129,14 @@ export function createStaffController(
       )
         return res
           .status(400)
-          .json({ message: "Provide a valid model ID and integration status." });
+          .json({
+            message: "Provide a valid model ID and integration status.",
+          });
       if (
         body.apiKey &&
-        (typeof body.apiKey !== "string" || body.apiKey.length > 1000 || /\s/.test(body.apiKey))
+        (typeof body.apiKey !== "string" ||
+          body.apiKey.length > 1000 ||
+          /\s/.test(body.apiKey))
       )
         return res.status(400).json({ message: "Provide a valid API key." });
       if (
@@ -146,13 +145,17 @@ export function createStaffController(
           body.senderEmail.length > 254 ||
           !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.senderEmail))
       )
-        return res.status(400).json({ message: "Provide a verified sender email address." });
+        return res
+          .status(400)
+          .json({ message: "Provide a verified sender email address." });
       try {
         const data = {
           model: body.model.trim() || null,
           enabled: body.enabled,
           senderEmail: body.senderEmail?.trim() || null,
-          ...(body.apiKey ? { secretCiphertext: encryptSecret(body.apiKey) } : {}),
+          ...(body.apiKey
+            ? { secretCiphertext: encryptSecret(body.apiKey) }
+            : {}),
         };
         await db.integrationSetting.upsert({
           where: { provider: req.params.provider },
@@ -169,12 +172,15 @@ export function createStaffController(
         const { page, skip, take } = pageOptions(req.query);
         const { category, status } = req.query;
         if (
-          (category && !["support", "enterprise", "refund"].includes(category)) ||
+          (category &&
+            !["support", "enterprise", "refund"].includes(category)) ||
           (status && !["open", "pending", "resolved"].includes(status))
         )
           return res.status(400).json({ message: "Invalid inbox filter." });
         const search =
-          typeof req.query.search === "string" ? req.query.search.trim().slice(0, 160) : "";
+          typeof req.query.search === "string"
+            ? req.query.search.trim().slice(0, 160)
+            : "";
         const where = {
           ...(category ? { category } : {}),
           ...(status ? { status } : {}),
@@ -205,7 +211,8 @@ export function createStaffController(
       }
     },
     async conversation(req, res) {
-      if (!isId(req.params.id)) return res.status(400).json({ message: "Invalid request." });
+      if (!isId(req.params.id))
+        return res.status(400).json({ message: "Invalid request." });
       try {
         const request = await db.supportRequest.findUnique({
           where: { id: Number(req.params.id) },
@@ -214,15 +221,21 @@ export function createStaffController(
             messages: { orderBy: { createdAt: "asc" }, select: messageSelect },
           },
         });
-        if (!request) return res.status(404).json({ message: "Request not found." });
+        if (!request)
+          return res.status(404).json({ message: "Request not found." });
         return res.json({ request });
       } catch (error) {
         return staffFailure(res, error);
       }
     },
     async updateRequest(req, res) {
-      if (!isId(req.params.id) || !["open", "pending", "resolved"].includes(req.body?.status))
-        return res.status(400).json({ message: "Choose a valid request status." });
+      if (
+        !isId(req.params.id) ||
+        !["open", "pending", "resolved"].includes(req.body?.status)
+      )
+        return res
+          .status(400)
+          .json({ message: "Choose a valid request status." });
       try {
         return res.json({
           request: await db.supportRequest.update({
@@ -245,7 +258,9 @@ export function createStaffController(
         body.body.trim().length > 10000 ||
         !["in_app", "email"].includes(body.channel)
       )
-        return res.status(400).json({ message: "Enter a subject, message, and delivery channel." });
+        return res
+          .status(400)
+          .json({ message: "Enter a subject, message, and delivery channel." });
       try {
         let recipient, support;
         if (body.supportRequestId) {
@@ -254,27 +269,37 @@ export function createStaffController(
           support = await db.supportRequest.findUnique({
             where: { id: Number(body.supportRequestId) },
           });
-          if (!support) return res.status(404).json({ message: "Conversation not found." });
+          if (!support)
+            return res.status(404).json({ message: "Conversation not found." });
           if (support.userId)
             recipient = await db.user.findUnique({
               where: { id: support.userId },
               select: { id: true, email: true },
             });
         } else {
-          if (!isId(body.recipientId)) return res.status(400).json({ message: "Choose a user." });
+          if (!isId(body.recipientId))
+            return res.status(400).json({ message: "Choose a user." });
           recipient = await db.user.findUnique({
             where: { id: Number(body.recipientId) },
             select: { id: true, email: true },
           });
-          if (!recipient) return res.status(404).json({ message: "User not found." });
+          if (!recipient)
+            return res.status(404).json({ message: "User not found." });
         }
         if (body.channel === "in_app" && !recipient)
-          return res.status(400).json({ message: "This guest contact needs an email reply." });
+          return res
+            .status(400)
+            .json({ message: "This guest contact needs an email reply." });
         if (body.channel === "email") {
           const integration = await getIntegration(db, "resend");
-          if (!integration.enabled || !integration.secret || !integration.senderEmail)
+          if (
+            !integration.enabled ||
+            !integration.secret ||
+            !integration.senderEmail
+          )
             return res.status(503).json({
-              message: "Configure Resend email and a verified sender in API integrations first.",
+              message:
+                "Configure Resend email and a verified sender in API integrations first.",
             });
         }
         let message = await db.userMessage.create({
@@ -324,7 +349,9 @@ export function createStaffController(
       try {
         const { page, skip, take } = pageOptions(req.query);
         const search =
-          typeof req.query.search === "string" ? req.query.search.trim().slice(0, 160) : "";
+          typeof req.query.search === "string"
+            ? req.query.search.trim().slice(0, 160)
+            : "";
         const where = {
           ...(search
             ? {
@@ -334,12 +361,19 @@ export function createStaffController(
                 ],
               }
             : {}),
-          ...(req.query.plan && ["free", "plus", "pro", "enterprise"].includes(req.query.plan)
+          ...(req.query.plan &&
+          ["free", "plus", "pro", "enterprise"].includes(req.query.plan)
             ? { AND: [effectivePlanFilter(req.query.plan)] }
             : {}),
         };
         const [users, total] = await Promise.all([
-          db.user.findMany({ where, select: accountSelect, orderBy: { id: "desc" }, skip, take }),
+          db.user.findMany({
+            where,
+            select: accountSelect,
+            orderBy: { id: "desc" },
+            skip,
+            take,
+          }),
           db.user.count({ where }),
         ]);
         return res.json({
@@ -355,7 +389,8 @@ export function createStaffController(
       }
     },
     async access(req, res) {
-      if (!isId(req.params.id)) return res.status(400).json({ message: "Invalid account." });
+      if (!isId(req.params.id))
+        return res.status(400).json({ message: "Invalid account." });
       let data;
       try {
         data = accessSchedule(req.body || {});
@@ -370,22 +405,29 @@ export function createStaffController(
             stripeSubscriptionId: true,
             subscriptionStatus: true,
             complimentaryPlan: true,
-            paypalSubscriptionId: true,
-            paypalStatus: true,
           },
         });
-        if (!account) return res.status(404).json({ message: "User not found." });
-        if (req.user.role === "manager" && ["admin", "manager"].includes(account.role))
-          return res.status(403).json({ message: "Only administrators can change staff access." });
+        if (!account)
+          return res.status(404).json({ message: "User not found." });
+        if (
+          req.user.role === "manager" &&
+          ["admin", "manager"].includes(account.role)
+        )
+          return res
+            .status(403)
+            .json({ message: "Only administrators can change staff access." });
         if (req.body.remove && !account.complimentaryPlan)
           return res
             .status(409)
-            .json({ message: "This account has no complimentary subscription to remove." });
+            .json({
+              message:
+                "This account has no complimentary subscription to remove.",
+            });
         const stripeActive =
-          (account.stripeSubscriptionId &&
-            !["canceled", "incomplete_expired"].includes(account.subscriptionStatus)) ||
-          (account.paypalSubscriptionId &&
-            !["CANCELLED", "EXPIRED"].includes(account.paypalStatus));
+          account.stripeSubscriptionId &&
+          !["canceled", "incomplete_expired"].includes(
+            account.subscriptionStatus,
+          );
         const user = await db.user.update({
           where: { id: Number(req.params.id) },
           data: {
@@ -394,7 +436,11 @@ export function createStaffController(
               ? {
                   plan: "free",
                   ...(req.body.remove
-                    ? { seatLimit: null, projectLimit: null, monthlyCreditLimit: null }
+                    ? {
+                        seatLimit: null,
+                        projectLimit: null,
+                        monthlyCreditLimit: null,
+                      }
                     : {}),
                 }
               : {}),
@@ -412,28 +458,49 @@ export function createStaffController(
       }
     },
     async subscriptionAction(req, res) {
-      if (!isId(req.params.id) || typeof req.body?.cancelAtPeriodEnd !== "boolean")
-        return res.status(400).json({ message: "Invalid subscription change." });
+      if (
+        !isId(req.params.id) ||
+        typeof req.body?.cancelAtPeriodEnd !== "boolean"
+      )
+        return res
+          .status(400)
+          .json({ message: "Invalid subscription change." });
       try {
         ready();
         const service = createBillingService(db, stripe, billingConfig());
-        const user = await service.withAccount(Number(req.params.id), async (tx, account) => {
-          if (!account.stripeSubscriptionId || !account.stripeCustomerId)
-            throw Object.assign(new Error("This account has no Stripe subscription."), {
-              status: 409,
+        const user = await service.withAccount(
+          Number(req.params.id),
+          async (tx, account) => {
+            if (!account.stripeSubscriptionId || !account.stripeCustomerId)
+              throw Object.assign(
+                new Error("This account has no Stripe subscription."),
+                {
+                  status: 409,
+                },
+              );
+            const subscription = await stripe.subscriptions.retrieve(
+              account.stripeSubscriptionId,
+            );
+            if (objectId(subscription.customer) !== account.stripeCustomerId)
+              throw Object.assign(
+                new Error("The subscription does not belong to this account."),
+                {
+                  status: 409,
+                },
+              );
+            if (
+              ["canceled", "incomplete_expired"].includes(subscription.status)
+            )
+              throw Object.assign(
+                new Error("This subscription has already ended."),
+                { status: 409 },
+              );
+            await stripe.subscriptions.update(subscription.id, {
+              cancel_at_period_end: req.body.cancelAtPeriodEnd,
             });
-          const subscription = await stripe.subscriptions.retrieve(account.stripeSubscriptionId);
-          if (objectId(subscription.customer) !== account.stripeCustomerId)
-            throw Object.assign(new Error("The subscription does not belong to this account."), {
-              status: 409,
-            });
-          if (["canceled", "incomplete_expired"].includes(subscription.status))
-            throw Object.assign(new Error("This subscription has already ended."), { status: 409 });
-          await stripe.subscriptions.update(subscription.id, {
-            cancel_at_period_end: req.body.cancelAtPeriodEnd,
-          });
-          return service.reconcile(tx, account);
-        });
+            return service.reconcile(tx, account);
+          },
+        );
         return res.json({ user });
       } catch (error) {
         return staffFailure(res, error);
@@ -446,14 +513,20 @@ export function createStaffController(
           return res.status(400).json({ message: "Invalid payment cursor." });
         let account;
         if (req.query.userId) {
-          if (!isId(req.query.userId)) return res.status(400).json({ message: "Invalid user." });
+          if (!isId(req.query.userId))
+            return res.status(400).json({ message: "Invalid user." });
           account = await db.user.findUnique({
             where: { id: Number(req.query.userId) },
             select: accountSelect,
           });
-          if (!account) return res.status(404).json({ message: "User not found." });
+          if (!account)
+            return res.status(404).json({ message: "User not found." });
           if (!account.stripeCustomerId)
-            return res.json({ payments: [], hasMore: false, liveMode: billingConfig().liveMode });
+            return res.json({
+              payments: [],
+              hasMore: false,
+              liveMode: billingConfig().liveMode,
+            });
         }
         const charges = await stripe.charges.list({
           limit: 20,
@@ -461,7 +534,11 @@ export function createStaffController(
           ...(req.query.after ? { starting_after: req.query.after } : {}),
         });
         const customers = [
-          ...new Set(charges.data.map((charge) => objectId(charge.customer)).filter(Boolean)),
+          ...new Set(
+            charges.data
+              .map((charge) => objectId(charge.customer))
+              .filter(Boolean),
+          ),
         ];
         const users = await db.user.findMany({
           where: { stripeCustomerId: { in: customers } },
@@ -477,7 +554,10 @@ export function createStaffController(
           disputed: charge.disputed,
           receiptUrl: charge.receipt_url,
           createdAt: new Date(charge.created * 1000),
-          user: users.find((user) => user.stripeCustomerId === objectId(charge.customer)) || null,
+          user:
+            users.find(
+              (user) => user.stripeCustomerId === objectId(charge.customer),
+            ) || null,
         }));
         return res.json({
           payments,
@@ -532,8 +612,12 @@ export function createStaffController(
           select: accountSelect,
         });
         if (!account?.stripeCustomerId)
-          return res.status(404).json({ message: "Billing account not found." });
-        const prior = await db.refundRecord.findUnique({ where: { id: body.operationId } });
+          return res
+            .status(404)
+            .json({ message: "Billing account not found." });
+        const prior = await db.refundRecord.findUnique({
+          where: { id: body.operationId },
+        });
         if (
           prior &&
           (prior.userId !== account.id ||
@@ -543,11 +627,16 @@ export function createStaffController(
         )
           return res
             .status(409)
-            .json({ message: "The operation ID is already attached to another refund." });
+            .json({
+              message:
+                "The operation ID is already attached to another refund.",
+            });
         if (prior?.stripeRefundId) return res.json({ refund: prior });
         const charge = await stripe.charges.retrieve(body.chargeId);
         if (objectId(charge.customer) !== account.stripeCustomerId)
-          return res.status(403).json({ message: "This payment does not belong to this user." });
+          return res
+            .status(403)
+            .json({ message: "This payment does not belong to this user." });
         if (prior) {
           let after;
           do {
@@ -557,14 +646,17 @@ export function createStaffController(
               ...(after ? { starting_after: after } : {}),
             });
             const recovered = existing.data.find(
-              (refund) => refund.metadata?.casefy_operation_id === body.operationId,
+              (refund) =>
+                refund.metadata?.casefy_operation_id === body.operationId,
             );
             if (recovered) {
               const record = await db.refundRecord.update({
                 where: { id: body.operationId },
                 data: {
                   stripeRefundId: recovered.id,
-                  status: ["pending", "requires_action"].includes(recovered.status)
+                  status: ["pending", "requires_action"].includes(
+                    recovered.status,
+                  )
                     ? "processing"
                     : recovered.status,
                 },
@@ -576,7 +668,9 @@ export function createStaffController(
         }
         if (
           !prior &&
-          (!charge.paid || charge.disputed || body.amount > charge.amount - charge.amount_refunded)
+          (!charge.paid ||
+            charge.disputed ||
+            body.amount > charge.amount - charge.amount_refunded)
         )
           return res.status(409).json({
             message:
@@ -646,7 +740,9 @@ export function createStaffController(
     async reports(req, res) {
       try {
         const { page, skip, take } = pageOptions(req.query);
-        const where = ["admin", "manager"].includes(req.user.role) ? {} : { userId: req.userId };
+        const where = ["admin", "manager"].includes(req.user.role)
+          ? {}
+          : { userId: req.userId };
         const [runs, total, summary] = await Promise.all([
           db.generationRun.findMany({
             where,
@@ -681,11 +777,14 @@ export function createStaffController(
       }
     },
     async report(req, res) {
-      if (!isId(req.params.id)) return res.status(400).json({ message: "Invalid report." });
+      if (!isId(req.params.id))
+        return res.status(400).json({ message: "Invalid report." });
       try {
         const where = {
           id: Number(req.params.id),
-          ...(["admin", "manager"].includes(req.user.role) ? {} : { userId: req.userId }),
+          ...(["admin", "manager"].includes(req.user.role)
+            ? {}
+            : { userId: req.userId }),
         };
         const run = await db.generationRun.findFirst({ where });
         if (!run) return res.status(404).json({ message: "Report not found." });

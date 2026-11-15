@@ -81,7 +81,11 @@ function Header() {
           aria-controls="header-navigation"
           className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-[#CFDDD5] bg-[#ffffff] text-[#294137] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] lg:hidden"
         >
-          {isMenuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+          {isMenuOpen ? (
+            <X size={20} aria-hidden="true" />
+          ) : (
+            <Menu size={20} aria-hidden="true" />
+          )}
         </button>
       </div>
     </header>

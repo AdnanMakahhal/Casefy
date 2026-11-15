@@ -78,7 +78,9 @@ function Profile({ user }) {
             <Menu size={20} aria-hidden="true" />
           </button>
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Profile</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+              Profile
+            </h1>
             <p className="mt-3 text-sm leading-6 text-[#526159]">
               Your personal details and workspace information.
             </p>
@@ -115,10 +117,15 @@ function Profile({ user }) {
               </span>
             </button>
             <div className="min-w-0 flex-1">
-              <h2 id="profile-details-heading" className="break-words text-xl font-semibold">
+              <h2
+                id="profile-details-heading"
+                className="break-words text-xl font-semibold"
+              >
                 {profile.name || "Your profile"}
               </h2>
-              <p className="mt-1 text-sm text-[#526159]">{role || "No role selected"}</p>
+              <p className="mt-1 text-sm text-[#526159]">
+                {role || "No role selected"}
+              </p>
               {user.avatarImage && (
                 <button
                   type="button"
@@ -206,7 +213,9 @@ function Profile({ user }) {
             <dl className="grid gap-5 border-t border-[#CFDDD5] px-6 py-5 sm:grid-cols-2 sm:px-8">
               {user.subscriptionStartedAt && (
                 <div>
-                  <dt className="text-sm text-[#526159]">Subscription started</dt>
+                  <dt className="text-sm text-[#526159]">
+                    Subscription started
+                  </dt>
                   <dd className="mt-2 text-sm font-medium">
                     <time dateTime={user.subscriptionStartedAt}>
                       {new Date(user.subscriptionStartedAt).toLocaleString()}
@@ -241,7 +250,9 @@ function Profile({ user }) {
             {error}
           </p>
         )}
-        {modal === "delete" && <DeleteAccount onDismiss={() => setModal(null)} />}
+        {modal === "delete" && (
+          <DeleteAccount onDismiss={() => setModal(null)} />
+        )}
         {photo && (
           <AvatarCropper
             file={photo}

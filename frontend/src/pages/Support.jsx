@@ -12,7 +12,9 @@ export default function Support() {
   const { user } = useAuth();
   const [params] = useSearchParams();
   const [category, setCategory] = useState(
-    ["enterprise", "refund"].includes(params.get("category")) ? params.get("category") : "support",
+    ["enterprise", "refund"].includes(params.get("category"))
+      ? params.get("category")
+      : "support",
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -23,7 +25,10 @@ export default function Support() {
     if (busy) return;
     const data = new FormData(event.currentTarget);
     const details = Object.fromEntries(
-      ["name", "email", "subject", "description"].map((key) => [key, data.get(key).trim()]),
+      ["name", "email", "subject", "description"].map((key) => [
+        key,
+        data.get(key).trim(),
+      ]),
     );
     if (Object.values(details).some((value) => !value)) {
       setError("Please complete all fields.");
@@ -54,17 +59,25 @@ export default function Support() {
         Back to plans
       </Link>
       <div className="mt-6 rounded-xl border border-[#CFDDD5] bg-white p-6 sm:p-8">
-        <p className="text-xs font-semibold tracking-widest text-[#526159]">CASEFY SUPPORT</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight">Contact support</h1>
+        <p className="text-xs font-semibold tracking-widest text-[#526159]">
+          CASEFY SUPPORT
+        </p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight">
+          Contact support
+        </h1>
         <p className="mt-3 text-sm leading-6 text-[#526159]">
-          Get help with your account, billing, privacy, or an Enterprise plan. Tell us what you
-          need.
+          Get help with your account, billing, privacy, or an Enterprise plan.
+          Tell us what you need.
         </p>
         {reference ? (
-          <div role="status" className="mt-8 rounded-lg bg-[#edf3ef] p-5 text-[#294137]">
+          <div
+            role="status"
+            className="mt-8 rounded-lg bg-[#edf3ef] p-5 text-[#294137]"
+          >
             <h2 className="text-lg font-semibold">Request received</h2>
             <p className="mt-2 text-sm leading-6">
-              Your support request has been saved. Your reference number is #{reference}.
+              Your support request has been saved. Your reference number is #
+              {reference}.
             </p>
           </div>
         ) : (
@@ -107,12 +120,14 @@ export default function Support() {
                     {
                       value: "support",
                       label: "Account & support",
-                      description: "Questions, technical issues, or billing help",
+                      description:
+                        "Questions, technical issues, or billing help",
                     },
                     {
                       value: "enterprise",
                       label: "Enterprise enquiry",
-                      description: "Custom seats, credits, and team requirements",
+                      description:
+                        "Custom seats, credits, and team requirements",
                     },
                     {
                       value: "refund",

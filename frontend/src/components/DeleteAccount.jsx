@@ -27,9 +27,10 @@ export default function DeleteAccount({ onDismiss }) {
   return (
     <AccountModal title="Delete your account?" onDismiss={onDismiss}>
       <p className="text-sm leading-6 text-[#526159]">
-        This deletes your account, profile photo, projects, and all workspace details, including
-        your primary workspace. Active subscriptions will be canceled. Hold to confirm, then use
-        Undo within 5 seconds to keep your account. After that, deletion is permanent.
+        This deletes your account, profile photo, projects, and all workspace
+        details, including your primary workspace. Active subscriptions will be
+        canceled. Hold to confirm, then use Undo within 5 seconds to keep your
+        account. After that, deletion is permanent.
       </p>
       <form onSubmit={(event) => event.preventDefault()} className="mt-5">
         <label className="block text-sm font-medium">
@@ -56,7 +57,10 @@ export default function DeleteAccount({ onDismiss }) {
           >
             Keep account
           </button>
-          <HoldToConfirmButton disabled={deletionBusy || !password} onConfirm={remove}>
+          <HoldToConfirmButton
+            disabled={deletionBusy || !password}
+            onConfirm={remove}
+          >
             Hold to delete account
           </HoldToConfirmButton>
         </div>

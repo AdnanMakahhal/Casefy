@@ -25,7 +25,10 @@ export function ModelSelectorPrompt({
 }) {
   const id = useId();
   const model = models.find((item) => item.value === value) || models[0];
-  const configuration = { ...DEFAULT_MODEL_CONFIGURATION, ...configurations[model?.value] };
+  const configuration = {
+    ...DEFAULT_MODEL_CONFIGURATION,
+    ...configurations[model?.value],
+  };
   const sidebar = settingsPosition === "left" && settings;
   const hasSubject = typeof onSubjectChange === "function";
 
@@ -42,7 +45,11 @@ export function ModelSelectorPrompt({
 
   return (
     <div
-      className={sidebar ? "grid items-start gap-5 xl:grid-cols-[240px_minmax(0,1fr)]" : "min-w-0"}
+      className={
+        sidebar
+          ? "grid items-start gap-5 xl:grid-cols-[240px_minmax(0,1fr)]"
+          : "min-w-0"
+      }
     >
       {sidebar && (
         <aside
@@ -107,7 +114,9 @@ export function ModelSelectorPrompt({
               id={`${id}-hint`}
               className="mb-4 mt-2 flex justify-end text-[11px] leading-5 text-[#8a9890]"
             >
-              <span className="tabular-nums">{prompt.length.toLocaleString()} / 20,000</span>
+              <span className="tabular-nums">
+                {prompt.length.toLocaleString()} / 20,000
+              </span>
             </div>
           </div>
           {!sidebar && settings}

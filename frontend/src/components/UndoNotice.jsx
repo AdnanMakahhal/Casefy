@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import { CircleCheck, RotateCcw } from "lucide-react";
 
-export default function UndoNotice({ duration = 5000, message, onExpire, onUndo }) {
+export default function UndoNotice({
+  duration = 5000,
+  message,
+  onExpire,
+  onUndo,
+}) {
   const [counting, setCounting] = useState(false);
   const reduceMotion = useReducedMotion();
   useEffect(() => {
@@ -20,8 +25,14 @@ export default function UndoNotice({ duration = 5000, message, onExpire, onUndo 
       className="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-[#cfddd5] bg-[#edf3ef] p-1.5 pl-3 shadow-lg"
     >
       <div className="flex min-w-0 items-center gap-2">
-        <CircleCheck size={17} aria-hidden="true" className="shrink-0 text-[#36825a]" />
-        <p className="break-words text-xs font-medium text-[#294137]">{message}</p>
+        <CircleCheck
+          size={17}
+          aria-hidden="true"
+          className="shrink-0 text-[#36825a]"
+        />
+        <p className="break-words text-xs font-medium text-[#294137]">
+          {message}
+        </p>
       </div>
       <button
         type="button"

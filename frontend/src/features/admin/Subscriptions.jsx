@@ -2,7 +2,14 @@ import { useState } from "react";
 import { adminRequest, useStaffData } from "./api";
 import { titleCase, displayDate } from "../../lib/format";
 import AccountModal from "../../components/AccountModal";
-import { ErrorMessage, SearchForm, Loading, Badge, Empty, Pagination } from "./ui";
+import {
+  ErrorMessage,
+  SearchForm,
+  Loading,
+  Badge,
+  Empty,
+  Pagination,
+} from "./ui";
 import { useSearchParams } from "react-router-dom";
 import { panel } from "./styles";
 import SelectMenu from "../../components/SelectMenu";
@@ -30,7 +37,11 @@ function SubscriptionAction({ account, onClose, onSaved }) {
   }
   return (
     <AccountModal
-      title={account.cancelAtPeriodEnd ? "Keep subscription active?" : "Cancel at period end?"}
+      title={
+        account.cancelAtPeriodEnd
+          ? "Keep subscription active?"
+          : "Cancel at period end?"
+      }
       onDismiss={onClose}
       busy={busy}
     >
@@ -45,7 +56,11 @@ function SubscriptionAction({ account, onClose, onSaved }) {
         <button className="admin-button" disabled={busy} onClick={onClose}>
           Back
         </button>
-        <button className="admin-button primary" disabled={busy} onClick={submit}>
+        <button
+          className="admin-button primary"
+          disabled={busy}
+          onClick={submit}
+        >
           {busy
             ? "Updating..."
             : account.cancelAtPeriodEnd
@@ -139,22 +154,23 @@ export default function Subscriptions({ revision }) {
                     <tr key={account.id}>
                       <td>
                         <strong className="block">{account.name}</strong>
-                        <span className="mt-1 block text-xs text-[#526159]">{account.email}</span>
+                        <span className="mt-1 block text-xs text-[#526159]">
+                          {account.email}
+                        </span>
                       </td>
                       <td>
                         {titleCase(account.plan)}
                         {account.complimentaryStatus && (
                           <p className="mt-1 text-xs text-[#718578]">
-                            Complimentary: {titleCase(account.complimentaryStatus)}
+                            Complimentary:{" "}
+                            {titleCase(account.complimentaryStatus)}
                           </p>
                         )}
                       </td>
                       <td>
                         <Badge
                           value={
-                            (account.paypalSubscriptionId
-                              ? account.paypalStatus?.toLowerCase()
-                              : account.subscriptionStatus) ||
+                            account.subscriptionStatus ||
                             (account.complimentaryStatus
                               ? `complimentary_${account.complimentaryStatus}`
                               : account.plan === "enterprise"
@@ -163,7 +179,9 @@ export default function Subscriptions({ revision }) {
                           }
                         />
                         {account.cancelAtPeriodEnd && (
-                          <p className="mt-2 text-xs text-[#8e3530]">Cancels at period end</p>
+                          <p className="mt-2 text-xs text-[#8e3530]">
+                            Cancels at period end
+                          </p>
                         )}
                       </td>
                       <td>
@@ -171,7 +189,6 @@ export default function Subscriptions({ revision }) {
                           Start:{" "}
                           {displayDate(
                             account.complimentaryStartsAt ||
-                              account.paypalStartedAt ||
                               account.subscriptionStartedAt,
                           )}
                         </p>
@@ -179,14 +196,16 @@ export default function Subscriptions({ revision }) {
                           End:{" "}
                           {displayDate(
                             account.complimentaryEndsAt ||
-                              account.paypalPeriodEnd ||
                               account.subscriptionPeriodEnd,
                           )}
                         </p>
                       </td>
                       <td>
                         <div className="flex items-center gap-1">
-                          <button className="admin-button" onClick={() => setAccess(account)}>
+                          <button
+                            className="admin-button"
+                            onClick={() => setAccess(account)}
+                          >
                             Dates & free access
                           </button>
                           <button
@@ -194,7 +213,10 @@ export default function Subscriptions({ revision }) {
                             title="View payments"
                             aria-label={`Payments for ${account.email}`}
                             onClick={() =>
-                              setParams({ view: "payments", userId: String(account.id) })
+                              setParams({
+                                view: "payments",
+                                userId: String(account.id),
+                              })
                             }
                           >
                             <CreditCard size={17} />
@@ -211,8 +233,13 @@ export default function Subscriptions({ revision }) {
                             !["canceled", "incomplete_expired"].includes(
                               account.subscriptionStatus,
                             ) && (
-                              <button className="admin-button" onClick={() => setChanging(account)}>
-                                {account.cancelAtPeriodEnd ? "Keep active" : "Cancel"}
+                              <button
+                                className="admin-button"
+                                onClick={() => setChanging(account)}
+                              >
+                                {account.cancelAtPeriodEnd
+                                  ? "Keep active"
+                                  : "Cancel"}
                               </button>
                             )}
                         </div>
@@ -228,13 +255,25 @@ export default function Subscriptions({ revision }) {
         )}
       </section>
       {message && (
-        <ComposeMessage account={message} onClose={() => setMessage(null)} onSaved={saved} />
+        <ComposeMessage
+          account={message}
+          onClose={() => setMessage(null)}
+          onSaved={saved}
+        />
       )}
       {access && (
-        <ComplimentaryAccess account={access} onClose={() => setAccess(null)} onSaved={saved} />
+        <ComplimentaryAccess
+          account={access}
+          onClose={() => setAccess(null)}
+          onSaved={saved}
+        />
       )}
       {changing && (
-        <SubscriptionAction account={changing} onClose={() => setChanging(null)} onSaved={saved} />
+        <SubscriptionAction
+          account={changing}
+          onClose={() => setChanging(null)}
+          onSaved={saved}
+        />
       )}
     </>
   );

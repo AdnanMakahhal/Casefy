@@ -1,6 +1,10 @@
 export const planRank = { free: 0, plus: 1, pro: 2, enterprise: 3 };
+
 export function effectivePlanFilter(plan, now = new Date()) {
-  const lower = Object.keys(planRank).filter((value) => planRank[value] <= planRank[plan]);
+  const lower = Object.keys(planRank).filter(
+    (value) => planRank[value] <= planRank[plan],
+  );
+
   return {
     OR: [
       {
@@ -18,24 +22,8 @@ export function effectivePlanFilter(plan, now = new Date()) {
         complimentaryStartsAt: { lte: now },
         complimentaryEndsAt: { gt: now },
       },
-      {
-        plan: { in: lower },
-        paypalPlan: plan,
-        paypalStatus: { in: ["ACTIVE", "CANCELLED"] },
-        paypalPeriodEnd: { gt: now },
-      },
     ],
     AND: [
-      {
-        OR: [
-          { paypalPlan: null },
-          { paypalPlan: { in: lower } },
-          { paypalStatus: null },
-          { paypalStatus: { notIn: ["ACTIVE", "CANCELLED"] } },
-          { paypalPeriodEnd: null },
-          { paypalPeriodEnd: { lte: now } },
-        ],
-      },
       {
         OR: [
           { complimentaryPlan: null },
@@ -49,33 +37,33 @@ export function effectivePlanFilter(plan, now = new Date()) {
 }
 
 export function effectiveUser(user, now = new Date()) {
-  if (!user?.complimentaryPlan && !user?.paypalPlan) return user;
+  if (!user?.complimentaryPlan) return user;
+
   const basePlan = user.basePlan || user.plan;
-  const paypalActive =
-    ["ACTIVE", "CANCELLED"].includes(user.paypalStatus) &&
-    new Date(user.paypalPeriodEnd).getTime() > now.getTime();
-  const paidPlan =
-    paypalActive && planRank[user.paypalPlan] > (planRank[basePlan] || 0)
-      ? user.paypalPlan
-      : basePlan;
-  if (!user.complimentaryPlan) return { ...user, basePlan, plan: paidPlan };
   const starts = new Date(user.complimentaryStartsAt).getTime();
   const ends = new Date(user.complimentaryEndsAt).getTime();
+
   const active =
     Number.isFinite(starts) &&
     Number.isFinite(ends) &&
     starts <= now.getTime() &&
     now.getTime() < ends;
-  const complimentaryStatus = active ? "active" : starts > now.getTime() ? "scheduled" : "expired";
+
+  const complimentaryStatus = active
+    ? "active"
+    : starts > now.getTime()
+      ? "scheduled"
+      : "expired";
+
   return {
     ...user,
     basePlan,
     plan:
-      active && planRank[user.complimentaryPlan] > (planRank[paidPlan] || 0)
+      active && planRank[user.complimentaryPlan] > (planRank[basePlan] || 0)
         ? user.complimentaryPlan
-        : paidPlan,
+        : basePlan,
     complimentaryStatus,
-    ...(!active && paidPlan === "free"
+    ...(!active && basePlan === "free"
       ? { seatLimit: null, projectLimit: null, monthlyCreditLimit: null }
       : {}),
   };
@@ -83,13 +71,24 @@ export function effectiveUser(user, now = new Date()) {
 
 export function accessSchedule(body, now = new Date()) {
   if (body.remove === true)
-    return { complimentaryPlan: null, complimentaryStartsAt: null, complimentaryEndsAt: null };
+    return {
+      complimentaryPlan: null,
+      complimentaryStartsAt: null,
+      complimentaryEndsAt: null,
+    };
+
   if (!["plus", "pro", "enterprise"].includes(body.plan))
-    throw new Error("Choose Plus, Pro, or Enterprise for complimentary access.");
+    throw new Error(
+      "Choose Plus, Pro, or Enterprise for complimentary access.",
+    );
+
   const starts = body.startsAt ? parseTimestamp(body.startsAt) : new Date(now);
+
   let ends;
   if (body.duration === "week" || body.duration === "14days")
-    ends = new Date(starts.getTime() + (body.duration === "week" ? 7 : 14) * 86400000);
+    ends = new Date(
+      starts.getTime() + (body.duration === "week" ? 7 : 14) * 86400000,
+    );
   else if (body.duration === "month") {
     ends = new Date(starts);
     const day = starts.getUTCDate();
@@ -101,20 +100,30 @@ export function accessSchedule(body, now = new Date()) {
     ends.setUTCDate(Math.min(day, lastDay));
   } else if (body.duration === "custom") ends = parseTimestamp(body.endsAt);
   else throw new Error("Choose one week, 14 days, one month, or custom dates.");
+
   if (!Number.isFinite(ends.getTime()) || ends <= starts)
     throw new Error("The end date must be after the start date.");
-  return { complimentaryPlan: body.plan, complimentaryStartsAt: starts, complimentaryEndsAt: ends };
+
+  return {
+    complimentaryPlan: body.plan,
+    complimentaryStartsAt: starts,
+    complimentaryEndsAt: ends,
+  };
 }
 
 function parseTimestamp(value) {
   if (
     typeof value !== "string" ||
-    !/^\d{4}-\d\d-\d\dT\d\d:\d\d(?::\d\d(?:\.\d{1,3})?)?(?:Z|[+-]\d\d:\d\d)$/.test(value)
+    !/^\d{4}-\d\d-\d\dT\d\d:\d\d(?::\d\d(?:\.\d{1,3})?)?(?:Z|[+-]\d\d:\d\d)$/.test(
+      value,
+    )
   )
     throw new Error("Provide a date and time with a timezone.");
+
   const year = Number(value.slice(0, 4)),
     month = Number(value.slice(5, 7)),
     day = Number(value.slice(8, 10));
+
   const days = [
     31,
     year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0) ? 29 : 28,
@@ -129,6 +138,7 @@ function parseTimestamp(value) {
     30,
     31,
   ];
+
   if (
     month < 1 ||
     month > 12 ||
@@ -138,7 +148,11 @@ function parseTimestamp(value) {
     Number(value.slice(14, 16)) > 59
   )
     throw new Error("Choose a valid subscription date and time.");
+
   const date = new Date(value);
-  if (!Number.isFinite(date.getTime())) throw new Error("Choose a valid subscription date.");
+
+  if (!Number.isFinite(date.getTime()))
+    throw new Error("Choose a valid subscription date.");
+  
   return date;
 }

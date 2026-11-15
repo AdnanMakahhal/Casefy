@@ -2,7 +2,12 @@ import { useState } from "react";
 import AccountModal from "../../components/AccountModal";
 import { workspacePath, workspaceRequest } from "./api";
 
-export default function ProjectForm({ workspaceId, project, onDismiss, onSaved }) {
+export default function ProjectForm({
+  workspaceId,
+  project,
+  onDismiss,
+  onSaved,
+}) {
   const [name, setName] = useState(project?.name || "");
   const [description, setDescription] = useState(project?.description || "");
   const [busy, setBusy] = useState(false);
@@ -13,8 +18,13 @@ export default function ProjectForm({ workspaceId, project, onDismiss, onSaved }
     setError("");
     try {
       await workspaceRequest(
-        project ? `/projects/${project.id}` : workspacePath(workspaceId, "/projects"),
-        { method: project ? "PATCH" : "POST", body: JSON.stringify({ name, description }) },
+        project
+          ? `/projects/${project.id}`
+          : workspacePath(workspaceId, "/projects"),
+        {
+          method: project ? "PATCH" : "POST",
+          body: JSON.stringify({ name, description }),
+        },
       );
       onSaved();
     } catch (error) {
@@ -23,7 +33,8 @@ export default function ProjectForm({ workspaceId, project, onDismiss, onSaved }
       setBusy(false);
     }
   }
-  const input = "mt-2 w-full rounded-lg border border-[#CFDDD5] p-3 focus:outline-[#294137]";
+  const input =
+    "mt-2 w-full rounded-lg border border-[#CFDDD5] p-3 focus:outline-[#294137]";
   return (
     <AccountModal
       title={project ? "Edit project" : "New project"}

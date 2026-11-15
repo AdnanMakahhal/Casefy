@@ -31,7 +31,8 @@ export default function HeaderAccountMenu({ user, onOpen }) {
       ref={container}
       className="relative flex items-center"
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setIsOpen(false);
+        if (!event.currentTarget.contains(event.relatedTarget))
+          setIsOpen(false);
       }}
       onKeyDown={(event) => {
         if (event.key === "Escape" && isOpen) {
@@ -61,7 +62,12 @@ export default function HeaderAccountMenu({ user, onOpen }) {
           aria-label="Header account options"
           className="absolute top-full right-0 z-50 mt-6 w-56 max-w-[calc(100vw-2rem)] rounded-xl border border-[#CFDDD5] bg-white p-1.5 shadow-lg shadow-[#102019]/10"
         >
-          <Link ref={firstOption} to={home} onClick={() => setIsOpen(false)} className={itemClass}>
+          <Link
+            ref={firstOption}
+            to={home}
+            onClick={() => setIsOpen(false)}
+            className={itemClass}
+          >
             <LayoutDashboard size={18} aria-hidden="true" />
             {home === "/admin" ? "Go to admin" : "Go to dashboard"}
           </Link>

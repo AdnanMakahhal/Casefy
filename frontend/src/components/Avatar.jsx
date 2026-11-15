@@ -13,7 +13,11 @@ export default function Avatar({ user, className = "size-10" }) {
       className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#edf3ef] font-bold text-[#294137] ${className}`}
     >
       {user?.avatarImage ? (
-        <img src={user.avatarImage} alt="" className="h-full w-full object-cover" />
+        <img
+          src={user.avatarImage}
+          alt=""
+          className="h-full w-full object-cover"
+        />
       ) : (
         initials
       )}

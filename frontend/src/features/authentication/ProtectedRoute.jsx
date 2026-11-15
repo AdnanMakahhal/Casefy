@@ -17,7 +17,11 @@ function ProtectedRoute({ roles, loginNotice }) {
     return location.pathname === "/admin" ? (
       <AdminSkeleton
         fullPage
-        view={new URLSearchParams(location.search).get("view") === "users" ? "users" : "overview"}
+        view={
+          new URLSearchParams(location.search).get("view") === "users"
+            ? "users"
+            : "overview"
+        }
       />
     ) : (
       <p role="status" className="p-8 text-center">
@@ -41,7 +45,8 @@ function ProtectedRoute({ roles, loginNotice }) {
   if (!user) {
     return <Navigate to="/signin" replace state={{ from: location }} />;
   }
-  if (roles && !roles.includes(user.role)) return <Navigate to={homeForRole(user.role)} replace />;
+  if (roles && !roles.includes(user.role))
+    return <Navigate to={homeForRole(user.role)} replace />;
 
   return <Outlet />;
 }

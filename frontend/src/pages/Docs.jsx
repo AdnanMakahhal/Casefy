@@ -1,5 +1,12 @@
 ﻿import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, BookOpen, ChartNoAxesCombined, ListChecks, Search, X } from "lucide-react";
+import {
+  ArrowUpRight,
+  BookOpen,
+  ChartNoAxesCombined,
+  ListChecks,
+  Search,
+  X,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import AccountModal from "../components/AccountModal";
 
@@ -8,7 +15,8 @@ const guides = [
     id: "quick-start",
     title: "Quick start",
     tag: "Start here",
-    description: "Set up your workspace and prepare your first test-generation request.",
+    description:
+      "Set up your workspace and prepare your first test-generation request.",
     steps: [
       "Create an account and choose your role and primary workspace name during setup.",
       "Open Test generator and select your workspace. Choose User story, then enter a subject and description with your acceptance criteria.",
@@ -22,7 +30,8 @@ const guides = [
     id: "generator",
     title: "Test generator",
     tag: "Guide",
-    description: "Learn how stories, documents, and URLs shape your test coverage.",
+    description:
+      "Learn how stories, documents, and URLs shape your test coverage.",
     steps: [
       "Choose User story for a subject and description, Documents for requirement files, or Website URL for a page address.",
       "Choose the number of test cases and priority. Combine Functional, Positive, Negative, Edge cases, Security, and Accessibility coverage as needed.",
@@ -36,7 +45,8 @@ const guides = [
     id: "reports",
     title: "Run reports",
     tag: "Workflow",
-    description: "Understand where results and evidence fit into your testing workflow.",
+    description:
+      "Understand where results and evidence fit into your testing workflow.",
     steps: [
       "Start by preparing clear requirements and reviewing the coverage you need in Test generator.",
       "Test execution and run reports are planned. The current generator preview does not execute tests or produce report data.",
@@ -77,7 +87,8 @@ const guides = [
     id: "api",
     title: "API reference",
     tag: "Coming later",
-    description: "Follow the status of generation APIs and integration workflows.",
+    description:
+      "Follow the status of generation APIs and integration workflows.",
     steps: [
       "A public test-generation API, CI integration, and generation webhooks are planned. They are not available in the current preview.",
       "Use the Test generator interface to prepare and download a request with your source, model configuration, and coverage settings.",
@@ -126,8 +137,8 @@ export default function Docs() {
           Build with Casefy faster.
         </h1>
         <p className="mx-auto mt-6 max-w-[600px] text-base leading-6 font-medium text-[#526159]">
-          Guides and workflow examples for turning stories, documents, and URLs into a clear testing
-          plan.
+          Guides and workflow examples for turning stories, documents, and URLs
+          into a clear testing plan.
         </p>
         <div role="search" className="relative mx-auto mt-8 max-w-[600px]">
           <Search
@@ -174,8 +185,15 @@ export default function Docs() {
       </div>
 
       {query.trim() ? (
-        <section aria-labelledby="docs-results" className="mx-auto mt-12 max-w-[1040px]">
-          <h2 id="docs-results" role="status" className="mb-5 text-sm font-semibold text-[#526159]">
+        <section
+          aria-labelledby="docs-results"
+          className="mx-auto mt-12 max-w-[1040px]"
+        >
+          <h2
+            id="docs-results"
+            role="status"
+            className="mb-5 text-sm font-semibold text-[#526159]"
+          >
             {matches.length} {matches.length === 1 ? "guide" : "guides"} found
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -186,7 +204,9 @@ export default function Docs() {
                 onClick={() => setActiveGuide(guide)}
                 className="cursor-pointer rounded-2xl border border-[#CFDDD5] bg-white p-6 text-left transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
               >
-                <span className="block text-base font-semibold">{guide.title}</span>
+                <span className="block text-base font-semibold">
+                  {guide.title}
+                </span>
                 <span className="mt-2 block text-sm leading-6 text-[#526159]">
                   {guide.description}
                 </span>
@@ -216,8 +236,12 @@ export default function Docs() {
                     <ChartNoAxesCombined size={22} aria-hidden="true" />
                   )}
                 </span>
-                <h2 className="text-2xl font-extrabold tracking-tight">{guide.title}</h2>
-                <p className="mt-3 flex-1 text-sm leading-6 text-[#526159]">{guide.description}</p>
+                <h2 className="text-2xl font-extrabold tracking-tight">
+                  {guide.title}
+                </h2>
+                <p className="mt-3 flex-1 text-sm leading-6 text-[#526159]">
+                  {guide.description}
+                </p>
                 <button
                   type="button"
                   onClick={() => setActiveGuide(guide)}
@@ -234,7 +258,10 @@ export default function Docs() {
               aria-labelledby="popular-guides"
               className="min-w-0 rounded-2xl border border-[#CFDDD5] bg-white p-6 sm:p-8"
             >
-              <h2 id="popular-guides" className="text-2xl font-extrabold tracking-tight">
+              <h2
+                id="popular-guides"
+                className="text-2xl font-extrabold tracking-tight"
+              >
                 Popular guides
               </h2>
               <div className="mt-4 space-y-3">
@@ -272,16 +299,21 @@ export default function Docs() {
               aria-labelledby="api-reference"
               className="flex flex-col min-w-0 rounded-2xl border border-[#CFDDD5] bg-white p-6 sm:p-8"
             >
-              <h2 id="api-reference" className="text-2xl font-extrabold tracking-tight">
+              <h2
+                id="api-reference"
+                className="text-2xl font-extrabold tracking-tight"
+              >
                 API reference
               </h2>
               <p className="mt-4 flex-1 text-sm leading-6 text-[#526159]">
-                Generation APIs and integrations are coming later. See what is available in the
-                current preview.
+                Generation APIs and integrations are coming later. See what is
+                available in the current preview.
               </p>
               <button
                 type="button"
-                onClick={() => setActiveGuide(guides.find((guide) => guide.id === "api"))}
+                onClick={() =>
+                  setActiveGuide(guides.find((guide) => guide.id === "api"))
+                }
                 className={`${buttonClass} mt-5 w-fit cursor-pointer`}
               >
                 Integration status
@@ -291,11 +323,15 @@ export default function Docs() {
               aria-labelledby="docs-help"
               className="min-w-0 rounded-2xl border border-[#CFDDD5] bg-white p-6 sm:p-8"
             >
-              <h2 id="docs-help" className="text-2xl font-extrabold tracking-tight">
+              <h2
+                id="docs-help"
+                className="text-2xl font-extrabold tracking-tight"
+              >
                 Need help?
               </h2>
               <p className="mt-4 text-sm leading-6 text-[#526159]">
-                Find setup answers, compare plans, or get help with your account.
+                Find setup answers, compare plans, or get help with your
+                account.
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
                 {[
@@ -319,10 +355,16 @@ export default function Docs() {
       )}
 
       {activeGuide && (
-        <AccountModal title={activeGuide.title} onDismiss={() => setActiveGuide(null)}>
+        <AccountModal
+          title={activeGuide.title}
+          onDismiss={() => setActiveGuide(null)}
+        >
           <ol className="space-y-4">
             {activeGuide.steps.map((step, index) => (
-              <li key={step} className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <li
+                key={step}
+                className="flex gap-3 text-sm leading-6 text-[#526159]"
+              >
                 <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold text-[#294137]">
                   {index + 1}
                 </span>

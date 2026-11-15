@@ -11,7 +11,8 @@ import {
 import { homeForRole, useAuth } from "../features/authentication/authContext";
 
 function SelectRole() {
-  const { user, isLoading, sessionError, signupDraft, signup, updateProfile } = useAuth();
+  const { user, isLoading, sessionError, signupDraft, signup, updateProfile } =
+    useAuth();
   const [role, setRole] = useState(() => user?.role || readRolePreference());
   const [workspaceName, setWorkspaceName] = useState(
     () => user?.workspaceName || readWorkspaceName(),
@@ -41,8 +42,12 @@ function SelectRole() {
       setLocalValue(rolePreferenceKey, role);
       const from = location.state?.from;
       const invited =
-        from?.pathname === "/workspace-invite" ? `${from.pathname}${from.hash || ""}` : null;
-      navigate(user ? "/profile" : invited || homeForRole(currentUser.role), { replace: true });
+        from?.pathname === "/workspace-invite"
+          ? `${from.pathname}${from.hash || ""}`
+          : null;
+      navigate(user ? "/profile" : invited || homeForRole(currentUser.role), {
+        replace: true,
+      });
     } catch (error) {
       setError(error.message);
     } finally {
@@ -63,38 +68,54 @@ function SelectRole() {
       </p>
     );
   if (!user && !signupDraft) return <Navigate to="/signup" replace />;
-  if (user && ["admin", "manager"].includes(user.role)) return <Navigate to="/admin" replace />;
+  if (user && ["admin", "manager"].includes(user.role))
+    return <Navigate to="/admin" replace />;
 
   return (
     <section className="min-h-[calc(100svh-78px)] w-full">
       <div className="grid w-full items-center lg:grid-cols-[55%_45%]">
         <div className="mx-auto w-full max-w-lg px-6 py-10 sm:px-8 sm:py-16">
-          <p className="text-xs font-semibold tracking-[0.12em] text-[#294137]">STEP 2 OF 2</p>
+          <p className="text-xs font-semibold tracking-[0.12em] text-[#294137]">
+            STEP 2 OF 2
+          </p>
           <h1 className="mt-5 max-w-md text-4xl leading-tight font-bold tracking-tight sm:text-5xl">
             Build your QA workspace.
           </h1>
           <p className="mt-5 max-w-md text-base leading-7 text-[#526159]">
-            Give your workspace a name and tell us how you work. Keep your projects and testing
-            organized in one place.
+            Give your workspace a name and tell us how you work. Keep your
+            projects and testing organized in one place.
           </p>
-          <div className="mt-8" aria-label="Step 2 of 2: Workspace details" role="img">
+          <div
+            className="mt-8"
+            aria-label="Step 2 of 2: Workspace details"
+            role="img"
+          >
             <div className="flex max-w-64 gap-2" aria-hidden="true">
               <span className="h-1.5 flex-1 rounded-full bg-[#CFDDD5]" />
               <span className="h-1.5 flex-1 rounded-full bg-[#294137]" />
             </div>
             <p className="mt-4 text-xs text-[#526159]" aria-hidden="true">
-              Account details <span className="px-1">&bull;</span> Workspace details
+              Account details <span className="px-1">&bull;</span> Workspace
+              details
             </p>
           </div>
         </div>
         <div className="min-h-[calc(100svh-78px)] w-full bg-[#FFFFFF] p-6 sm:p-10">
-          <p className="text-xs font-semibold tracking-widest text-[#526159]">WORKSPACE SETUP</p>
-          <h2 className="mt-3 text-3xl leading-tight font-semibold">Tell us how you work</h2>
+          <p className="text-xs font-semibold tracking-widest text-[#526159]">
+            WORKSPACE SETUP
+          </p>
+          <h2 className="mt-3 text-3xl leading-tight font-semibold">
+            Tell us how you work
+          </h2>
           <p className="mt-3 text-sm leading-6 text-[#526159]">
-            Set up your first Casefy workspace. You can change these details later.
+            Set up your first Casefy workspace. You can change these details
+            later.
           </p>
           <form onSubmit={handleContinue} className="mt-8">
-            <label htmlFor="workspace-name" className="mb-2 block text-sm font-medium">
+            <label
+              htmlFor="workspace-name"
+              className="mb-2 block text-sm font-medium"
+            >
               Company or team name
             </label>
             <input
@@ -113,7 +134,9 @@ function SelectRole() {
               className="min-h-14 w-full rounded-lg border border-[#CFDDD5] bg-[#ffffff] px-4 py-3 text-base text-[#102018] placeholder:text-[#526159] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
             />
             <fieldset className="mt-5" aria-describedby="role-hint">
-              <legend className="mb-2 text-sm font-medium">What best describes you?</legend>
+              <legend className="mb-2 text-sm font-medium">
+                What best describes you?
+              </legend>
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {signupRoles.map(({ value, label }) => (
                   <label key={value} className="cursor-pointer">
@@ -146,7 +169,11 @@ function SelectRole() {
               disabled={isSubmitting || !role || !workspaceName.trim()}
               className="mt-7 min-h-14 w-full cursor-pointer rounded-lg bg-[#294137] px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isSubmitting ? "Saving..." : user ? "Save workspace" : "Create workspace"}
+              {isSubmitting
+                ? "Saving..."
+                : user
+                  ? "Save workspace"
+                  : "Create workspace"}
             </button>
             <p className="mt-4 text-center text-xs leading-5 text-[#526159]">
               Your next step toward better test coverage.

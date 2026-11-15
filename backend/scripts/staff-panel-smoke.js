@@ -10,7 +10,6 @@ import { createGenerationController } from "../src/controllers/generationControl
 import { createProtect } from "../src/middleware/authMiddleware.js";
 import { encryptSecret } from "../src/utils/integrations.js";
 import { extractDocuments } from "../src/services/generationService.js";
-import { createPayPalController } from "../src/controllers/paypalController.js";
 
 const response = () => ({
   statusCode: 200,
@@ -31,7 +30,6 @@ const counts = async () =>
     prisma.userMessage.count(),
     prisma.generationRun.count(),
     prisma.integrationSetting.count(),
-    prisma.payPalCheckout.count(),
   ]);
 try {
   const actor = await prisma.user.findFirstOrThrow({
@@ -93,91 +91,25 @@ try {
         assert.equal(dated.statusCode, 200);
         assert.equal(dated.body.user.plan, "pro");
         assert.equal(dated.body.user.basePlan, "free");
-        const schedule = await tx.user.findUniqueOrThrow({ where: { id: customer.id } });
+        const schedule = await tx.user.findUniqueOrThrow({
+          where: { id: customer.id },
+        });
         assert.equal(
-          schedule.complimentaryEndsAt.getTime() - schedule.complimentaryStartsAt.getTime(),
+          schedule.complimentaryEndsAt.getTime() -
+            schedule.complimentaryStartsAt.getTime(),
           14 * 86400000,
         );
         const proAccounts = response();
-        await staffController.subscriptions({ ...staff, query: { plan: "pro" } }, proAccounts);
+        await staffController.subscriptions(
+          { ...staff, query: { plan: "pro" } },
+          proAccounts,
+        );
         assert.equal(proAccounts.statusCode, 200);
         assert.ok(
-          proAccounts.body.users.some((user) => user.id === customer.id && user.plan === "pro"),
+          proAccounts.body.users.some(
+            (user) => user.id === customer.id && user.plan === "pro",
+          ),
         );
-        const paypalBuyer = await tx.user.create({
-          data: {
-            name: "PayPal smoke fixture",
-            email: `paypal-smoke-${randomUUID()}@example.com`,
-            passwordHash: schedule.passwordHash,
-            workspaceName: "Smoke",
-          },
-        });
-        const paypalTx = {
-          user: tx.user,
-          payPalCheckout: tx.payPalCheckout,
-          $queryRaw: tx.$queryRaw.bind(tx),
-        };
-        const paypalDb = { ...paypalTx, $transaction: async (action) => action(paypalTx) };
-        const paypalGateway = {
-          call: async (path) => {
-            if (path.includes("/plans/"))
-              return {
-                status: "ACTIVE",
-                billing_cycles: [
-                  {
-                    tenure_type: "REGULAR",
-                    total_cycles: 0,
-                    frequency: { interval_unit: "MONTH", interval_count: 1 },
-                    pricing_scheme: { fixed_price: { currency_code: "USD", value: "24.00" } },
-                  },
-                ],
-              };
-            if (path === "/v1/billing/subscriptions")
-              return { id: "I-SMOKETEST", status: "APPROVAL_PENDING" };
-            const checkout = await tx.payPalCheckout.findUniqueOrThrow({
-              where: { subscriptionId: "I-SMOKETEST" },
-            });
-            return {
-              id: "I-SMOKETEST",
-              status: "ACTIVE",
-              custom_id: checkout.id,
-              plan_id: "P-SMOKE",
-              start_time: new Date().toISOString(),
-              billing_info: {
-                last_payment: {
-                  time: new Date().toISOString(),
-                  amount: { currency_code: "USD", value: "24.00" },
-                },
-              },
-            };
-          },
-        };
-        const paypal = createPayPalController(
-          paypalDb,
-          null,
-          () => ({
-            clientId: "smoke",
-            secret: "not-real",
-            webhookId: "smoke",
-            environment: "sandbox",
-            origin: "http://localhost:5173",
-            plans: { plus: { monthly: "P-SMOKE" } },
-          }),
-          () => paypalGateway,
-        );
-        const paypalCreated = response();
-        await paypal.create(
-          { userId: paypalBuyer.id, body: { plan: "plus", billing: "monthly" } },
-          paypalCreated,
-        );
-        assert.equal(paypalCreated.statusCode, 201);
-        const paypalVerified = response();
-        await paypal.verify(
-          { userId: paypalBuyer.id, body: { subscriptionId: "I-SMOKETEST" } },
-          paypalVerified,
-        );
-        assert.equal(paypalVerified.statusCode, 200);
-        assert.equal(paypalVerified.body.user.plan, "plus");
         await staffController.sendMessage(
           {
             ...staff,
@@ -212,12 +144,18 @@ try {
         assert.equal(blocked.statusCode, 200);
         const token = jwt.sign({ userId: customer.id }, process.env.JWT_SECRET);
         const denied = response();
-        await createProtect(tx)({ headers: { authorization: `Bearer ${token}` } }, denied, () =>
-          assert.fail("Blocked session was accepted"),
+        await createProtect(tx)(
+          { headers: { authorization: `Bearer ${token}` } },
+          denied,
+          () => assert.fail("Blocked session was accepted"),
         );
         assert.equal(denied.statusCode, 401);
         await controller.block(
-          { ...staff, params: { id: String(customer.id) }, body: { blocked: false } },
+          {
+            ...staff,
+            params: { id: String(customer.id) },
+            body: { blocked: false },
+          },
           response(),
         );
         await tx.integrationSetting.upsert({
@@ -255,7 +193,11 @@ try {
               provider: "openai",
               subject: "Login smoke",
               prompt: "A user can sign in",
-              filters: { count: 1, priority: "high", testTypes: ["functional"] },
+              filters: {
+                count: 1,
+                priority: "high",
+                testTypes: ["functional"],
+              },
             },
           },
           generated,
@@ -283,7 +225,9 @@ try {
     "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
   ];
   const content = "BT /F1 12 Tf 72 720 Td (Login requires a password.) Tj ET";
-  objects.push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+  objects.push(
+    `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
+  );
   let pdf = "%PDF-1.4\n";
   const offsets = [0];
   for (const [index, object] of objects.entries()) {

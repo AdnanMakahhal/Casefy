@@ -1,7 +1,14 @@
 import { label, number, date } from "./userOptions";
 import { Pencil, ShieldCheck, ShieldBan, Trash2, Users } from "lucide-react";
 
-export default function UsersTable({ users, currentId, actorRole, onEdit, onDelete, onBlock }) {
+export default function UsersTable({
+  users,
+  currentId,
+  actorRole,
+  onEdit,
+  onDelete,
+  onBlock,
+}) {
   return (
     <div className="admin-table-scroll">
       <table className="admin-table">
@@ -18,23 +25,31 @@ export default function UsersTable({ users, currentId, actorRole, onEdit, onDele
         </thead>
         <tbody>
           {users.map((account) => {
-            const editable = actorRole === "admin" || !["admin", "manager"].includes(account.role);
+            const editable =
+              actorRole === "admin" ||
+              !["admin", "manager"].includes(account.role);
             return (
               <tr key={account.id}>
                 <td>
                   <div className="admin-person">
-                    <span className="admin-avatar">{account.name.slice(0, 1).toUpperCase()}</span>
+                    <span className="admin-avatar">
+                      {account.name.slice(0, 1).toUpperCase()}
+                    </span>
                     <div>
                       <strong>
                         {account.name}
-                        {account.id === currentId && <span className="admin-you">You</span>}
+                        {account.id === currentId && (
+                          <span className="admin-you">You</span>
+                        )}
                       </strong>
                       <span>{account.email}</span>
                     </div>
                   </div>
                 </td>
                 <td>
-                  <span className={`admin-role ${account.role === "admin" ? "is-admin" : ""}`}>
+                  <span
+                    className={`admin-role ${account.role === "admin" ? "is-admin" : ""}`}
+                  >
                     {label(account.role)}
                   </span>
                 </td>
@@ -55,7 +70,10 @@ export default function UsersTable({ users, currentId, actorRole, onEdit, onDele
                 <td>
                   {number(account._count.projects)}
                   {account.projectLimit && (
-                    <span className="admin-muted"> / {number(account.projectLimit)}</span>
+                    <span className="admin-muted">
+                      {" "}
+                      / {number(account.projectLimit)}
+                    </span>
                   )}
                 </td>
                 <td className="admin-date">{date(account.createdAt)}</td>
@@ -76,7 +94,11 @@ export default function UsersTable({ users, currentId, actorRole, onEdit, onDele
                       aria-label={`${account.blockedAt ? "Unblock" : "Block"} ${account.email}`}
                       onClick={() => onBlock(account)}
                     >
-                      {account.blockedAt ? <ShieldCheck size={17} /> : <ShieldBan size={17} />}
+                      {account.blockedAt ? (
+                        <ShieldCheck size={17} />
+                      ) : (
+                        <ShieldBan size={17} />
+                      )}
                     </button>
                     <button
                       className="admin-icon-button delete"

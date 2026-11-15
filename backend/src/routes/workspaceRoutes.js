@@ -16,6 +16,7 @@ import {
 } from "../controllers/workspaceController.js";
 
 const router = Router();
+
 router.use(protect);
 router.get("/workspaces", getWorkspaces);
 router.post("/workspaces", addWorkspace);
@@ -29,4 +30,5 @@ router.patch("/workspaces/:workspaceKey/members/:memberId", changeMember);
 router.delete("/workspaces/:workspaceKey", deleteWorkspace);
 router.patch("/projects/:projectId", updateProject);
 router.delete("/projects/:projectId", deleteProject);
+
 export default router;

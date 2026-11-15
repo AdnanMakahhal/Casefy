@@ -22,12 +22,16 @@ export default function ModelPicker({
       .toLowerCase()
       .includes(query.toLowerCase()),
   );
-  const configuration = { ...DEFAULT_MODEL_CONFIGURATION, ...configurations[model?.value] };
+  const configuration = {
+    ...DEFAULT_MODEL_CONFIGURATION,
+    ...configurations[model?.value],
+  };
 
   useEffect(() => {
     if (!open) return;
 
-    if (window.matchMedia("(min-width: 640px)").matches) search.current?.focus();
+    if (window.matchMedia("(min-width: 640px)").matches)
+      search.current?.focus();
     else panel.current?.focus();
     function dismiss(event) {
       if (!root.current?.contains(event.target)) setOpen(false);
@@ -38,7 +42,10 @@ export default function ModelPicker({
 
   function update(key, value) {
     const next = { ...configuration, [key]: value };
-    onConfigurationChange?.(model.value, next, { ...configurations, [model.value]: next });
+    onConfigurationChange?.(model.value, next, {
+      ...configurations,
+      [model.value]: next,
+    });
   }
   function close() {
     setOpen(false);
@@ -96,7 +103,9 @@ export default function ModelPicker({
           className="absolute bottom-full left-0 z-50 mb-2 max-h-[min(65dvh,480px)] w-[min(21rem,calc(100vw_-_4rem))] overflow-y-auto rounded-xl border border-[#cfddd5] bg-white shadow-[0_8px_30px_#20332b1a] outline-none"
         >
           <div className="flex items-center justify-between gap-2 px-4 pt-3">
-            <h3 className="text-xs font-semibold text-[#294137]">Choose a model</h3>
+            <h3 className="text-xs font-semibold text-[#294137]">
+              Choose a model
+            </h3>
             <button
               type="button"
               onClick={close}
@@ -138,7 +147,8 @@ export default function ModelPicker({
             aria-label="Available models"
             className="space-y-1 px-2 pb-2"
             onKeyDown={(event) => {
-              if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+              if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key))
+                return;
               event.preventDefault();
               const items = [...event.currentTarget.querySelectorAll("button")];
               const current = items.indexOf(document.activeElement);
@@ -147,7 +157,9 @@ export default function ModelPicker({
                   ? 0
                   : event.key === "End"
                     ? items.length - 1
-                    : (current + (event.key === "ArrowDown" ? 1 : -1) + items.length) %
+                    : (current +
+                        (event.key === "ArrowDown" ? 1 : -1) +
+                        items.length) %
                       items.length;
               items[next]?.focus();
             }}
@@ -168,18 +180,26 @@ export default function ModelPicker({
                   className="size-6 shrink-0 object-contain"
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-medium text-[#294137]">{item.label}</span>
+                  <span className="block text-sm font-medium text-[#294137]">
+                    {item.label}
+                  </span>
                   <span className="mt-0.5 block break-words text-[11px] leading-4 text-[#7c8c82]">
                     {item.version || item.provider}
                   </span>
                 </span>
                 {model?.value === item.value && (
-                  <Check size={15} className="shrink-0 text-[#294137]" aria-hidden="true" />
+                  <Check
+                    size={15}
+                    className="shrink-0 text-[#294137]"
+                    aria-hidden="true"
+                  />
                 )}
               </button>
             ))}
             {!filtered.length && (
-              <p className="px-3 py-5 text-center text-xs text-[#7c8c82]">No matching models.</p>
+              <p className="px-3 py-5 text-center text-xs text-[#7c8c82]">
+                No matching models.
+              </p>
             )}
           </div>
           {model && (
@@ -195,7 +215,9 @@ export default function ModelPicker({
               </summary>
               <div className="space-y-4 px-4 pb-4">
                 <fieldset>
-                  <legend className="mb-2 text-[11px] font-medium text-[#718578]">Reasoning</legend>
+                  <legend className="mb-2 text-[11px] font-medium text-[#718578]">
+                    Reasoning
+                  </legend>
                   <div className="grid grid-cols-3 gap-1 rounded-lg bg-[#eaf0ec] p-1">
                     {["low", "medium", "high"].map((level) => (
                       <button

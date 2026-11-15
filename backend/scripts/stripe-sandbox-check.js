@@ -14,9 +14,15 @@ import { webhook } from "../src/controllers/billingController.js";
 if (!/^(sk|rk)_test_/.test(process.env.STRIPE_SECRET_KEY || ""))
   throw new Error("This check only runs in a Stripe sandbox");
 if (!process.env.STRIPE_WEBHOOK_SECRET)
-  throw new Error("Run npm run stripe:listen first to configure the signing secret");
+  throw new Error(
+    "Run npm run stripe:listen first to configure the signing secret",
+  );
 const app = express();
-app.post("/api/billing/webhook", express.raw({ type: "application/json" }), webhook);
+app.post(
+  "/api/billing/webhook",
+  express.raw({ type: "application/json" }),
+  webhook,
+);
 app.use(express.json());
 app.use("/api/billing", billingRoutes);
 app.use("/api/auth", authRoutes);
@@ -56,7 +62,10 @@ async function sendEvent(type) {
   const send = () =>
     fetch(`${origin}/api/billing/webhook`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "stripe-signature": signature },
+      headers: {
+        "Content-Type": "application/json",
+        "stripe-signature": signature,
+      },
       body: payload,
     });
   assert.equal((await send()).status, 200);
@@ -79,7 +88,12 @@ try {
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
   const otherToken = jwt.sign({ userId: other.id }, process.env.JWT_SECRET);
   assert.equal(
-    (await request("/api/billing/checkout", { method: "POST", body: { plan: "plus" } })).status,
+    (
+      await request("/api/billing/checkout", {
+        method: "POST",
+        body: { plan: "plus" },
+      })
+    ).status,
     401,
   );
   const catalog = await request("/api/billing/plans");
@@ -100,11 +114,17 @@ try {
     body: { plan: "plus" },
   });
   assert.equal(second.data.url, first.data.url);
-  const status = await request(`/api/billing/checkout/${user.stripeCheckoutSessionId}`, { token });
+  const status = await request(
+    `/api/billing/checkout/${user.stripeCheckoutSessionId}`,
+    { token },
+  );
   assert.equal(status.data.user.plan, "free");
   assert.equal(
-    (await request(`/api/billing/checkout/${user.stripeCheckoutSessionId}`, { token: otherToken }))
-      .status,
+    (
+      await request(`/api/billing/checkout/${user.stripeCheckoutSessionId}`, {
+        token: otherToken,
+      })
+    ).status,
     404,
   );
   await stripe.checkout.sessions.expire(user.stripeCheckoutSessionId);
@@ -121,24 +141,35 @@ try {
   });
   assert.equal(subscription.status, "active");
   await sendEvent("invoice.paid");
-  assert.equal((await prisma.user.findUnique({ where: { id: user.id } })).plan, "plus");
+  assert.equal(
+    (await prisma.user.findUnique({ where: { id: user.id } })).plan,
+    "plus",
+  );
   const duplicateSubscription = await request("/api/billing/checkout", {
     method: "POST",
     token,
     body: { plan: "pro" },
   });
   assert.equal(duplicateSubscription.status, 409);
-  const portal = await request("/api/billing/portal", { method: "POST", token });
+  const portal = await request("/api/billing/portal", {
+    method: "POST",
+    token,
+  });
   assert.equal(portal.status, 200);
   assert.ok(portal.data.url.startsWith("https://billing.stripe.com/"));
-  await stripe.subscriptions.update(subscription.id, { cancel_at_period_end: true });
+  await stripe.subscriptions.update(subscription.id, {
+    cancel_at_period_end: true,
+  });
   await sendEvent("customer.subscription.updated");
   const scheduled = await prisma.user.findUnique({ where: { id: user.id } });
   assert.equal(scheduled.plan, "plus");
   assert.equal(scheduled.cancelAtPeriodEnd, true);
   await stripe.subscriptions.cancel(subscription.id);
   await sendEvent("customer.subscription.deleted");
-  assert.equal((await prisma.user.findUnique({ where: { id: user.id } })).plan, "free");
+  assert.equal(
+    (await prisma.user.findUnique({ where: { id: user.id } })).plan,
+    "free",
+  );
   const another = await stripe.subscriptions.create({
     customer: customerId,
     items: [{ price: process.env.STRIPE_PRICE_PRO_MONTHLY }],
@@ -152,17 +183,25 @@ try {
     body: { currentPassword: password },
   });
   assert.equal(deleted.status, 200, deleted.data.message);
-  assert.equal((await stripe.subscriptions.retrieve(another.id)).status, "canceled");
+  assert.equal(
+    (await stripe.subscriptions.retrieve(another.id)).status,
+    "canceled",
+  );
   assert.equal(await prisma.user.findUnique({ where: { id: user.id } }), null);
   console.log(
     "Stripe sandbox check passed: hosted Checkout, session reuse, account isolation, paid plan sync, signed duplicate webhooks, customer portal, scheduled cancellation, downgrade, and subscription cancellation on account deletion.",
   );
 } finally {
   if (user?.id && !customerId)
-    customerId = (await prisma.user.findUnique({ where: { id: user.id } }))?.stripeCustomerId;
+    customerId = (await prisma.user.findUnique({ where: { id: user.id } }))
+      ?.stripeCustomerId;
   if (customerId) await stripe.customers.del(customerId);
-  await prisma.stripeWebhookEvent.deleteMany({ where: { id: { in: eventIds } } });
-  await prisma.user.deleteMany({ where: { id: { in: [user?.id, other?.id].filter(Boolean) } } });
+  await prisma.stripeWebhookEvent.deleteMany({
+    where: { id: { in: eventIds } },
+  });
+  await prisma.user.deleteMany({
+    where: { id: { in: [user?.id, other?.id].filter(Boolean) } },
+  });
   await new Promise((resolve) => server.close(resolve));
   await prisma.$disconnect();
   console.log("Temporary sandbox customer and test accounts cleaned up.");

@@ -41,7 +41,10 @@ function Dashboard({ user }) {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
-      <main id="dashboard-content" className="mx-auto max-w-[1440px] px-4 py-6 sm:px-8 lg:p-10">
+      <main
+        id="dashboard-content"
+        className="mx-auto max-w-[1440px] px-4 py-6 sm:px-8 lg:p-10"
+      >
         <header className="flex flex-wrap items-start justify-between gap-5">
           <div className="flex items-start gap-3">
             <button
@@ -55,7 +58,9 @@ function Dashboard({ user }) {
               <Menu size={20} aria-hidden="true" />
             </button>
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Dashboard</h1>
+              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+                Dashboard
+              </h1>
               <p className="mt-3 text-sm leading-6 text-[#526159]">
                 Your projects, test coverage, and activity at a glance.
               </p>
@@ -72,7 +77,10 @@ function Dashboard({ user }) {
 
         <section aria-labelledby="overview-heading" className="mt-9">
           <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 id="overview-heading" className="text-lg font-bold tracking-tight">
+            <h2
+              id="overview-heading"
+              className="text-lg font-bold tracking-tight"
+            >
               Testing overview
             </h2>
             <div
@@ -100,9 +108,14 @@ function Dashboard({ user }) {
           </div>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {metrics.map(({ title, icon: Icon }) => (
-              <article key={title} className="rounded-xl border border-[#CFDDD5] bg-white p-5">
+              <article
+                key={title}
+                className="rounded-xl border border-[#CFDDD5] bg-white p-5"
+              >
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-semibold text-[#526159]">{title}</h3>
+                  <h3 className="text-sm font-semibold text-[#526159]">
+                    {title}
+                  </h3>
                   <span className="flex size-9 items-center justify-center rounded-lg bg-[#edf3ef] text-[#294137]">
                     <Icon size={18} aria-hidden="true" />
                   </span>
@@ -113,7 +126,9 @@ function Dashboard({ user }) {
                 >
                   &mdash;
                 </p>
-                <p className="mt-2 text-xs text-[#526159]">No data for this period</p>
+                <p className="mt-2 text-xs text-[#526159]">
+                  No data for this period
+                </p>
               </article>
             ))}
           </div>
@@ -128,13 +143,22 @@ function Dashboard({ user }) {
             className="overflow-hidden rounded-xl border border-[#CFDDD5] bg-white"
           >
             <div className="border-b border-[#CFDDD5] px-6 py-5">
-              <h2 id="projects-heading" className="text-lg font-bold tracking-tight">
+              <h2
+                id="projects-heading"
+                className="text-lg font-bold tracking-tight"
+              >
                 Recent projects
               </h2>
-              <p className="mt-1 text-sm text-[#526159]">Your latest web application projects.</p>
+              <p className="mt-1 text-sm text-[#526159]">
+                Your latest web application projects.
+              </p>
             </div>
             <div className="flex min-h-64 flex-col items-center justify-center px-6 py-10 text-center">
-              <FolderKanban size={26} className="mb-4 text-[#526159]" aria-hidden="true" />
+              <FolderKanban
+                size={26}
+                className="mb-4 text-[#526159]"
+                aria-hidden="true"
+              />
               <h3 className="text-sm font-semibold">No projects to show</h3>
               <p className="mt-2 max-w-xs text-sm leading-6 text-[#526159]">
                 Projects from {period.description} will appear here.
@@ -146,16 +170,26 @@ function Dashboard({ user }) {
             className="overflow-hidden rounded-xl border border-[#CFDDD5] bg-white"
           >
             <div className="border-b border-[#CFDDD5] px-6 py-5">
-              <h2 id="activity-heading" className="text-lg font-bold tracking-tight">
+              <h2
+                id="activity-heading"
+                className="text-lg font-bold tracking-tight"
+              >
                 Recent activity
               </h2>
-              <p className="mt-1 text-sm text-[#526159]">Updates across your testing workflow.</p>
+              <p className="mt-1 text-sm text-[#526159]">
+                Updates across your testing workflow.
+              </p>
             </div>
             <div className="flex min-h-64 flex-col items-center justify-center px-6 py-10 text-center">
-              <Activity size={26} className="mb-4 text-[#526159]" aria-hidden="true" />
+              <Activity
+                size={26}
+                className="mb-4 text-[#526159]"
+                aria-hidden="true"
+              />
               <h3 className="text-sm font-semibold">All quiet for now</h3>
               <p className="mt-2 max-w-xs text-sm leading-6 text-[#526159]">
-                Test runs and updates from {period.description} will appear here.
+                Test runs and updates from {period.description} will appear
+                here.
               </p>
             </div>
           </section>

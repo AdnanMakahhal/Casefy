@@ -24,13 +24,19 @@ import AdminSkeleton from "../components/AdminSkeleton";
 import { number, label, plans, roles } from "../features/admin/userOptions";
 import SelectMenu from "../components/SelectMenu";
 import UsersTable from "../features/admin/UsersTable";
-import { UserEditor, BlockUser, DeleteUser } from "../features/admin/UserDialogs";
+import {
+  UserEditor,
+  BlockUser,
+  DeleteUser,
+} from "../features/admin/UserDialogs";
 import "../features/admin/Admin.css";
 
 export default function Admin() {
   const { user, refreshUser } = useAuth();
   const [params, setParams] = useSearchParams();
-  const view = Object.hasOwn(adminViews, params.get("view")) ? params.get("view") : "overview";
+  const view = Object.hasOwn(adminViews, params.get("view"))
+    ? params.get("view")
+    : "overview";
   const isDataView = view === "overview" || view === "users";
   const search = params.get("search") || "";
   const role = params.get("role") || "";
@@ -50,8 +56,17 @@ export default function Admin() {
   const [deleting, setDeleting] = useState(null);
   const [blocking, setBlocking] = useState(null);
   const canEdit = ["admin", "manager"].includes(user.role);
-  const requestKey = JSON.stringify({ view, search, role, plan, access, sort, page });
-  const isFetching = isDataView && !error && (loading || loadedKey !== requestKey);
+  const requestKey = JSON.stringify({
+    view,
+    search,
+    role,
+    plan,
+    access,
+    sort,
+    page,
+  });
+  const isFetching =
+    isDataView && !error && (loading || loadedKey !== requestKey);
   useEffect(() => {
     if (!sidebar) return;
     const onKey = (event) => {
@@ -87,9 +102,29 @@ export default function Admin() {
     return () => {
       active = false;
     };
-  }, [view, search, role, plan, access, sort, page, revision, requestKey, isDataView]);
+  }, [
+    view,
+    search,
+    role,
+    plan,
+    access,
+    sort,
+    page,
+    revision,
+    requestKey,
+    isDataView,
+  ]);
   function filter(changes) {
-    setParams({ view: "users", search, role, plan, access, sort, page: "1", ...changes });
+    setParams({
+      view: "users",
+      search,
+      role,
+      plan,
+      access,
+      sort,
+      page: "1",
+      ...changes,
+    });
   }
   function saved(message) {
     const updatedSelf = editor?.id === user.id;
@@ -99,7 +134,9 @@ export default function Admin() {
     setNotice(message);
     setRevision((value) => value + 1);
     if (updatedSelf)
-      refreshUser().catch(() => setNotice(`${message} Refresh your profile to see your changes.`));
+      refreshUser().catch(() =>
+        setNotice(`${message} Refresh your profile to see your changes.`),
+      );
   }
   function navigate(next) {
     setParams(next === "users" ? { view: "users" } : {});
@@ -111,7 +148,11 @@ export default function Admin() {
       <a href="#admin-content" className="admin-skip">
         Skip to dashboard
       </a>
-      <DashboardSidebar user={user} isOpen={sidebar} onClose={() => setSidebar(false)} />
+      <DashboardSidebar
+        user={user}
+        isOpen={sidebar}
+        onClose={() => setSidebar(false)}
+      />
       <main
         id="admin-content"
         className="admin-main mx-auto max-w-[1440px] px-4 py-6 sm:px-8 lg:p-10"
@@ -143,7 +184,10 @@ export default function Admin() {
               Refresh
             </button>
             {canEdit && isDataView && (
-              <button className="admin-button primary" onClick={() => setEditor({})}>
+              <button
+                className="admin-button primary"
+                onClick={() => setEditor({})}
+              >
                 <Plus size={17} />
                 Add user
               </button>
@@ -153,7 +197,10 @@ export default function Admin() {
         {notice && (
           <div role="status" className="admin-notice">
             {notice}
-            <button aria-label="Dismiss notification" onClick={() => setNotice("")}>
+            <button
+              aria-label="Dismiss notification"
+              onClick={() => setNotice("")}
+            >
               <X size={16} />
             </button>
           </div>
@@ -161,7 +208,10 @@ export default function Admin() {
         {isDataView && error && (
           <div className="admin-error" role="alert">
             {error}
-            <button className="admin-button" onClick={() => setRevision((value) => value + 1)}>
+            <button
+              className="admin-button"
+              onClick={() => setRevision((value) => value + 1)}
+            >
               Retry
             </button>
           </div>
@@ -180,9 +230,14 @@ export default function Admin() {
                     className="admin-overview-section"
                   >
                     <div className="admin-overview-heading">
-                      <h2 id="admin-overview-heading">Administration overview</h2>
+                      <h2 id="admin-overview-heading">
+                        Administration overview
+                      </h2>
                     </div>
-                    <div className="admin-stats" aria-label="Workspace statistics">
+                    <div
+                      className="admin-stats"
+                      aria-label="Workspace statistics"
+                    >
                       {[
                         {
                           title: "Total users",
@@ -231,7 +286,10 @@ export default function Admin() {
                           <h2>Recent users</h2>
                           <p>The latest accounts to join Casefy</p>
                         </div>
-                        <button className="admin-text-button" onClick={() => navigate("users")}>
+                        <button
+                          className="admin-text-button"
+                          onClick={() => navigate("users")}
+                        >
                           View all <ArrowUpRight size={15} />
                         </button>
                       </header>
@@ -266,8 +324,9 @@ export default function Admin() {
                       <div className="admin-plan-chart">
                         {plans.map((planName) => {
                           const count =
-                            overview.planCounts.find((item) => item.plan === planName)?._count
-                              ._all || 0;
+                            overview.planCounts.find(
+                              (item) => item.plan === planName,
+                            )?._count._all || 0;
                           return (
                             <div key={planName}>
                               <div>
@@ -289,7 +348,8 @@ export default function Admin() {
                         })}
                       </div>
                       <p className="admin-chart-footer">
-                        {number(overview.totalUsers)} total accounts across all plans
+                        {number(overview.totalUsers)} total accounts across all
+                        plans
                       </p>
                     </section>
                   </div>
@@ -300,7 +360,10 @@ export default function Admin() {
                   <header className="admin-panel-header">
                     <div>
                       <h2>
-                        All users <span className="admin-count">{number(result.total)}</span>
+                        All users{" "}
+                        <span className="admin-count">
+                          {number(result.total)}
+                        </span>
                       </h2>
                       <p>
                         {canEdit
@@ -314,7 +377,9 @@ export default function Admin() {
                       className="staff-user-search"
                       onSubmit={(event) => {
                         event.preventDefault();
-                        filter({ search: event.currentTarget.elements.search.value });
+                        filter({
+                          search: event.currentTarget.elements.search.value,
+                        });
                       }}
                     >
                       <Search size={18} />
@@ -412,9 +477,15 @@ export default function Admin() {
                         />
                       </div>
                     </div>
-                    {(search || role || plan || access || sort !== "newest") && (
+                    {(search ||
+                      role ||
+                      plan ||
+                      access ||
+                      sort !== "newest") && (
                       <div className="staff-active-filters">
-                        <span className="text-xs text-[#718578]">Active filters</span>
+                        <span className="text-xs text-[#718578]">
+                          Active filters
+                        </span>
                         {[
                           ["search", search],
                           ["role", role],
@@ -436,7 +507,13 @@ export default function Admin() {
                         <button
                           className="admin-text-button"
                           onClick={() =>
-                            filter({ search: "", role: "", plan: "", access: "", sort: "newest" })
+                            filter({
+                              search: "",
+                              role: "",
+                              plan: "",
+                              access: "",
+                              sort: "newest",
+                            })
                           }
                         >
                           Reset all
@@ -495,10 +572,18 @@ export default function Admin() {
         />
       )}
       {blocking && (
-        <BlockUser account={blocking} onClose={() => setBlocking(null)} onSaved={saved} />
+        <BlockUser
+          account={blocking}
+          onClose={() => setBlocking(null)}
+          onSaved={saved}
+        />
       )}
       {deleting && (
-        <DeleteUser account={deleting} onClose={() => setDeleting(null)} onSaved={saved} />
+        <DeleteUser
+          account={deleting}
+          onClose={() => setDeleting(null)}
+          onSaved={saved}
+        />
       )}
     </div>
   );

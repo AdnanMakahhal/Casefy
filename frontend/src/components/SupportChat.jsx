@@ -67,14 +67,24 @@ function Chat({ user }) {
     thread = useRef(null),
     lastTicket = useRef(null),
     followThread = useRef(true);
-  const lifecycle = useRef({ active: false, sequence: 0, inFlight: false, queued: false });
+  const lifecycle = useRef({
+    active: false,
+    sequence: 0,
+    inFlight: false,
+    queued: false,
+  });
   const selected = tickets.find((ticket) => ticket.id === selectedId);
-  const selectedMessage = messages.find((message) => message.id === selectedMessageId);
+  const selectedMessage = messages.find(
+    (message) => message.id === selectedMessageId,
+  );
   const unread = messages.filter((message) => !message.readAt).length;
   const unreadTicketMessages =
     open && selectedId
       ? messages
-          .filter((message) => !message.readAt && message.supportRequestId === selectedId)
+          .filter(
+            (message) =>
+              !message.readAt && message.supportRequestId === selectedId,
+          )
           .map((message) => message.id)
           .join(",")
       : "";
@@ -105,7 +115,8 @@ function Chat({ user }) {
       setMessages(messageData.messages);
       setLoadError("");
     } catch (error) {
-      if (state.active && sequence === state.sequence) setLoadError(error.message);
+      if (state.active && sequence === state.sequence)
+        setLoadError(error.message);
     } finally {
       state.inFlight = false;
       if (state.active && sequence === state.sequence) setLoading(false);
@@ -152,12 +163,18 @@ function Chat({ user }) {
     if (!unreadTicketMessages) return;
     const ids = unreadTicketMessages.split(",").map(Number);
     let active = true;
-    Promise.all(ids.map((id) => sessionRequest(`/messages/${id}/read`, { method: "POST" })))
+    Promise.all(
+      ids.map((id) =>
+        sessionRequest(`/messages/${id}/read`, { method: "POST" }),
+      ),
+    )
       .then(() => {
         if (active)
           setMessages((current) =>
             current.map((message) =>
-              ids.includes(message.id) ? { ...message, readAt: new Date().toISOString() } : message,
+              ids.includes(message.id)
+                ? { ...message, readAt: new Date().toISOString() }
+                : message,
             ),
           );
       })
@@ -214,7 +231,9 @@ function Chat({ user }) {
       if (lifecycle.current.active)
         setMessages((current) =>
           current.map((item) =>
-            item.id === message.id ? { ...item, readAt: new Date().toISOString() } : item,
+            item.id === message.id
+              ? { ...item, readAt: new Date().toISOString() }
+              : item,
           ),
         );
     } catch (error) {
@@ -331,8 +350,8 @@ function Chat({ user }) {
             </span>
             <h3>How can we help?</h3>
             <p>
-              Sign in to open a ticket and chat with a Casefy admin or manager. Your conversations
-              stay in your account.
+              Sign in to open a ticket and chat with a Casefy admin or manager.
+              Your conversations stay in your account.
             </p>
             <Link to="/signin" className="support-chat-primary">
               Sign in to chat <ArrowUpRight size={16} />
@@ -347,7 +366,8 @@ function Chat({ user }) {
               <>
                 <div className="support-chat-intro">
                   <h3>
-                    Hi, {user.name.split(" ")[0]} <span aria-hidden="true">👋</span>
+                    Hi, {user.name.split(" ")[0]}{" "}
+                    <span aria-hidden="true">👋</span>
                   </h3>
                   <p>Have a question? Start a conversation.</p>
                   <button
@@ -359,7 +379,11 @@ function Chat({ user }) {
                     Open a ticket
                   </button>
                 </div>
-                <div className="support-chat-tabs" role="group" aria-label="Support inbox view">
+                <div
+                  className="support-chat-tabs"
+                  role="group"
+                  aria-label="Support inbox view"
+                >
                   <button
                     type="button"
                     aria-pressed={tab === "tickets"}
@@ -382,7 +406,10 @@ function Chat({ user }) {
             {loadError && (
               <div className="support-chat-error" role="alert">
                 {loadError}
-                <button type="button" onClick={() => setRetry((value) => value + 1)}>
+                <button
+                  type="button"
+                  onClick={() => setRetry((value) => value + 1)}
+                >
                   Retry
                 </button>
               </div>
@@ -400,11 +427,13 @@ function Chat({ user }) {
                         value={category}
                         onChange={(event) => setCategory(event.target.value)}
                       >
-                        {Object.entries(categoryLabels).map(([value, label]) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ))}
+                        {Object.entries(categoryLabels).map(
+                          ([value, label]) => (
+                            <option key={value} value={value}>
+                              {label}
+                            </option>
+                          ),
+                        )}
                       </select>
                     </label>
                     <label>
@@ -456,7 +485,8 @@ function Chat({ user }) {
                     <div>
                       <h3>{selected.subject}</h3>
                       <p>
-                        Ticket #{selected.id} · {categoryLabels[selected.category]}
+                        Ticket #{selected.id} ·{" "}
+                        {categoryLabels[selected.category]}
                       </p>
                     </div>
                     <span className={`support-chat-status ${selected.status}`}>
@@ -468,7 +498,8 @@ function Chat({ user }) {
                     onScroll={(event) => {
                       const area = event.currentTarget;
                       followThread.current =
-                        area.scrollHeight - area.scrollTop - area.clientHeight < 100;
+                        area.scrollHeight - area.scrollTop - area.clientHeight <
+                        100;
                     }}
                     className="support-chat-thread"
                     role="log"
@@ -476,7 +507,9 @@ function Chat({ user }) {
                     aria-live="polite"
                     aria-relevant="additions text"
                   >
-                    <p className="support-chat-date">{displayDate(selected.createdAt)}</p>
+                    <p className="support-chat-date">
+                      {displayDate(selected.createdAt)}
+                    </p>
                     <article className="support-chat-bubble own">
                       <p>{selected.description}</p>
                       <small>You · Ticket opened</small>
@@ -487,7 +520,9 @@ function Chat({ user }) {
                         className={`support-chat-bubble ${message.senderId === user.id ? "own" : "team"}`}
                       >
                         {message.senderId !== user.id && (
-                          <strong>{message.sender?.name || "Casefy support"} · Team</strong>
+                          <strong>
+                            {message.sender?.name || "Casefy support"} · Team
+                          </strong>
                         )}
                         <p>{message.body}</p>
                         <small>
@@ -495,7 +530,9 @@ function Chat({ user }) {
                             hour: "2-digit",
                             minute: "2-digit",
                           })}
-                          {message.senderId === user.id && <Check size={11} aria-label="Sent" />}
+                          {message.senderId === user.id && (
+                            <Check size={11} aria-label="Sent" />
+                          )}
                         </small>
                       </article>
                     ))}
@@ -533,7 +570,8 @@ function Chat({ user }) {
                             !event.nativeEvent.isComposing
                           ) {
                             event.preventDefault();
-                            if (!busy && reply.trim()) event.currentTarget.form.requestSubmit();
+                            if (!busy && reply.trim())
+                              event.currentTarget.form.requestSubmit();
                           }
                         }}
                       />
@@ -543,13 +581,18 @@ function Chat({ user }) {
                         aria-label="Send message"
                       >
                         {busy ? (
-                          <LoaderCircle size={18} className="support-chat-spin" />
+                          <LoaderCircle
+                            size={18}
+                            className="support-chat-spin"
+                          />
                         ) : (
                           <Send size={18} />
                         )}
                       </button>
                     </div>
-                    <p id="support-chat-send-hint">Enter to send · Shift + Enter for a new line</p>
+                    <p id="support-chat-send-hint">
+                      Enter to send · Shift + Enter for a new line
+                    </p>
                   </form>
                 </>
               ) : loading ? (
@@ -566,14 +609,18 @@ function Chat({ user }) {
             ) : selectedMessageId ? (
               selectedMessage ? (
                 <div className="support-chat-message">
-                  <span className="support-chat-status">From the Casefy team</span>
+                  <span className="support-chat-status">
+                    From the Casefy team
+                  </span>
                   <h3>{selectedMessage.subject}</h3>
                   <small>{displayDate(selectedMessage.createdAt)}</small>
                   <p>{selectedMessage.body}</p>
                   <button
                     type="button"
                     className="support-chat-primary"
-                    onClick={() => newTicket(`Re: ${selectedMessage.subject}`.slice(0, 160))}
+                    onClick={() =>
+                      newTicket(`Re: ${selectedMessage.subject}`.slice(0, 160))
+                    }
                   >
                     Ask a question <Send size={15} />
                   </button>
@@ -593,7 +640,11 @@ function Chat({ user }) {
                 {tab === "tickets" ? (
                   tickets.length ? (
                     tickets.map((ticket) => (
-                      <button type="button" key={ticket.id} onClick={() => openTicket(ticket.id)}>
+                      <button
+                        type="button"
+                        key={ticket.id}
+                        onClick={() => openTicket(ticket.id)}
+                      >
                         <span className="support-chat-list-icon">
                           <Ticket size={18} />
                         </span>
@@ -602,10 +653,14 @@ function Chat({ user }) {
                           <small>
                             #{ticket.id} · {titleCase(ticket.status)}
                           </small>
-                          <p>{ticket.messages.at(-1)?.body || ticket.description}</p>
+                          <p>
+                            {ticket.messages.at(-1)?.body || ticket.description}
+                          </p>
                         </span>
                         {messages.some(
-                          (message) => !message.readAt && message.supportRequestId === ticket.id,
+                          (message) =>
+                            !message.readAt &&
+                            message.supportRequestId === ticket.id,
                         ) && <i className="support-chat-unread-dot" />}
                       </button>
                     ))
@@ -618,7 +673,11 @@ function Chat({ user }) {
                   )
                 ) : messages.length ? (
                   messages.map((message) => (
-                    <button type="button" key={message.id} onClick={() => openMessage(message)}>
+                    <button
+                      type="button"
+                      key={message.id}
+                      onClick={() => openMessage(message)}
+                    >
                       <span className="support-chat-list-icon">
                         <Inbox size={18} />
                       </span>
@@ -627,7 +686,9 @@ function Chat({ user }) {
                         <small>{message.sender?.name || "Casefy team"}</small>
                         <p>{message.body}</p>
                       </span>
-                      {!message.readAt && <i className="support-chat-unread-dot" />}
+                      {!message.readAt && (
+                        <i className="support-chat-unread-dot" />
+                      )}
                     </button>
                   ))
                 ) : (
@@ -670,6 +731,11 @@ function Chat({ user }) {
 export default function SupportChat() {
   const { user, isLoading } = useAuth();
   const { pathname } = useLocation();
-  if (isLoading || ["admin", "manager"].includes(user?.role) || !pages.has(pathname)) return null;
+  if (
+    isLoading ||
+    ["admin", "manager"].includes(user?.role) ||
+    !pages.has(pathname)
+  )
+    return null;
   return <Chat key={user?.id || "guest"} user={user} />;
 }

@@ -1,6 +1,0 @@
-node_modules/
-dist/
-backend/generated/
-backend/prisma/migrations/
-package-lock.json
-frontend/public/

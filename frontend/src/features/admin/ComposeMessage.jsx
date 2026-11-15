@@ -19,7 +19,9 @@ export default function ComposeMessage({ account, request, onClose, onSaved }) {
       const result = await adminRequest("/messages", {
         method: "POST",
         body: JSON.stringify({
-          ...(request ? { supportRequestId: request.id } : { recipientId: account.id }),
+          ...(request
+            ? { supportRequestId: request.id }
+            : { recipientId: account.id }),
           subject: values.get("subject"),
           body: values.get("body"),
           channel,
@@ -72,7 +74,9 @@ export default function ComposeMessage({ account, request, onClose, onSaved }) {
             <input
               name="subject"
               defaultValue={
-                request ? `Re: ${request.subject}`.slice(0, 160) : "Your Casefy subscription"
+                request
+                  ? `Re: ${request.subject}`.slice(0, 160)
+                  : "Your Casefy subscription"
               }
               required
               maxLength={160}
@@ -93,7 +97,12 @@ export default function ComposeMessage({ account, request, onClose, onSaved }) {
         </fieldset>
         <ErrorMessage>{error}</ErrorMessage>
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" disabled={busy} className="admin-button" onClick={onClose}>
+          <button
+            type="button"
+            disabled={busy}
+            className="admin-button"
+            onClick={onClose}
+          >
             Cancel
           </button>
           <button disabled={busy} className="admin-button primary">

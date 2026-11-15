@@ -55,8 +55,8 @@ export default function Payments({ revision }) {
             <div>
               <h2>Payment history</h2>
               <p>
-                {data.liveMode ? "Live payments" : "Sandbox payments"} · Amounts are shown in the
-                original currency.
+                {data.liveMode ? "Live payments" : "Sandbox payments"} · Amounts
+                are shown in the original currency.
               </p>
             </div>
             <CreditCard size={20} />
@@ -88,11 +88,15 @@ export default function Payments({ revision }) {
                         </span>
                       </td>
                       <td>{formatMoney(payment.amount, payment.currency)}</td>
-                      <td>{formatMoney(payment.amountRefunded, payment.currency)}</td>
+                      <td>
+                        {formatMoney(payment.amountRefunded, payment.currency)}
+                      </td>
                       <td>
                         <Badge value={payment.status} />
                         {payment.disputed && (
-                          <span className="ml-2 text-xs text-red-700">Disputed</span>
+                          <span className="ml-2 text-xs text-red-700">
+                            Disputed
+                          </span>
                         )}
                       </td>
                       <td>{displayDate(payment.createdAt)}</td>
@@ -154,7 +158,9 @@ export default function Payments({ revision }) {
               <button
                 className="admin-button"
                 disabled={!data.hasMore}
-                onClick={() => setCursors((values) => [...values, data.nextCursor])}
+                onClick={() =>
+                  setCursors((values) => [...values, data.nextCursor])
+                }
               >
                 Next
               </button>
@@ -163,10 +169,18 @@ export default function Payments({ revision }) {
         </section>
       )}
       {selected && (
-        <RefundModal payment={selected} onClose={() => setSelected(null)} onSaved={saved} />
+        <RefundModal
+          payment={selected}
+          onClose={() => setSelected(null)}
+          onSaved={saved}
+        />
       )}
       {message && (
-        <ComposeMessage account={message} onClose={() => setMessage(null)} onSaved={saved} />
+        <ComposeMessage
+          account={message}
+          onClose={() => setMessage(null)}
+          onSaved={saved}
+        />
       )}
     </div>
   );

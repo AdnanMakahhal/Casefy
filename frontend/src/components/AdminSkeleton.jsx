@@ -67,7 +67,10 @@ function Content({ view }) {
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }, (_, index) => (
-          <div key={index} className="rounded-xl border border-[#CFDDD5] bg-white p-5">
+          <div
+            key={index}
+            className="rounded-xl border border-[#CFDDD5] bg-white p-5"
+          >
             <div className="flex items-center justify-between gap-3">
               <Placeholder className="h-4 w-24" />
               <Placeholder className="size-9 rounded-lg" />
@@ -122,9 +125,15 @@ export default function AdminSkeleton({ view = "overview", fullPage = false }) {
       role="status"
       aria-busy="true"
       aria-live="polite"
-      className={fullPage ? "min-h-screen bg-[#f6f8f7] text-[#102019] lg:pl-64" : undefined}
+      className={
+        fullPage
+          ? "min-h-screen bg-[#f6f8f7] text-[#102019] lg:pl-64"
+          : undefined
+      }
     >
-      <span className="sr-only">Loading {view === "users" ? "users" : "admin dashboard"}...</span>
+      <span className="sr-only">
+        Loading {view === "users" ? "users" : "admin dashboard"}...
+      </span>
       <div aria-hidden="true">
         {fullPage ? (
           <>

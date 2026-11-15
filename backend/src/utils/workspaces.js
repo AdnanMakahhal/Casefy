@@ -1,1 +1,2 @@
-export const normalizeWorkspaceName = (name) => name.trim().replace(/\s+/g, " ").toLowerCase();
+export const normalizeWorkspaceName = (name) =>
+  name.trim().replace(/\s+/g, " ").toLowerCase();

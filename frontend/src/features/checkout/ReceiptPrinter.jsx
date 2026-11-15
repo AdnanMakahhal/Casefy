@@ -1,5 +1,9 @@
 import { createContext, useContext } from "react";
-import { AnimatePresence, motion as Motion, useReducedMotion } from "motion/react";
+import {
+  AnimatePresence,
+  motion as Motion,
+  useReducedMotion,
+} from "motion/react";
 import { AlertCircle, CircleCheck, LoaderCircle } from "lucide-react";
 
 const ReceiptPrinterContext = createContext(null);
@@ -35,8 +39,8 @@ const feedFrames = [
   "translateY(0%)",
 ];
 const feedTimes = [
-  0, 0.075, 0.105, 0.18, 0.21, 0.285, 0.315, 0.39, 0.42, 0.495, 0.525, 0.6, 0.63, 0.705, 0.735,
-  0.81, 0.84, 0.915, 0.945, 1,
+  0, 0.075, 0.105, 0.18, 0.21, 0.285, 0.315, 0.39, 0.42, 0.495, 0.525, 0.6,
+  0.63, 0.705, 0.735, 0.81, 0.84, 0.915, 0.945, 1,
 ];
 const statusLabels = {
   processing: "Preparing your plan summary",
@@ -46,7 +50,8 @@ const statusLabels = {
 
 function useReceiptPrinter() {
   const context = useContext(ReceiptPrinterContext);
-  if (!context) throw new Error("Receipt printer parts must be inside ReceiptPrinter.Root");
+  if (!context)
+    throw new Error("Receipt printer parts must be inside ReceiptPrinter.Root");
   return context;
 }
 
@@ -62,7 +67,12 @@ export function ReceiptPrinterRoot({
   const reducedMotion = useReducedMotion();
   return (
     <ReceiptPrinterContext.Provider
-      value={{ stage, animate, feedMotion, shouldMove: animate && !reducedMotion }}
+      value={{
+        stage,
+        animate,
+        feedMotion,
+        shouldMove: animate && !reducedMotion,
+      }}
     >
       <section
         aria-label={ariaLabel}
@@ -125,11 +135,22 @@ export function ReceiptPrinterScreen({ children, className, ...props }) {
   );
 }
 
-export function ReceiptPrinterStatus({ children, className, error = false, ...props }) {
+export function ReceiptPrinterStatus({
+  children,
+  className,
+  error = false,
+  ...props
+}) {
   const { stage, animate, shouldMove } = useReceiptPrinter();
   return (
-    <div className={classes("flex min-w-0 items-center gap-2.5", className)} {...props}>
-      <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center">
+    <div
+      className={classes("flex min-w-0 items-center gap-2.5", className)}
+      {...props}
+    >
+      <span
+        aria-hidden="true"
+        className="flex size-5 shrink-0 items-center justify-center"
+      >
         {error ? (
           <AlertCircle size={18} className="text-[#f1d5aa]" />
         ) : stage === "complete" ? (
@@ -182,10 +203,16 @@ export function ReceiptPrinterPaper({ children, className, style, ...props }) {
   );
 }
 
-export function ReceiptPrinterOutput({ children, className, onFeedComplete, ...props }) {
+export function ReceiptPrinterOutput({
+  children,
+  className,
+  onFeedComplete,
+  ...props
+}) {
   const { stage, animate, feedMotion, shouldMove } = useReceiptPrinter();
   const visible = stage !== "processing";
-  const stepped = feedMotion === "stepped" && stage === "printing" && shouldMove;
+  const stepped =
+    feedMotion === "stepped" && stage === "printing" && shouldMove;
   return (
     <div
       className={classes(
@@ -201,7 +228,11 @@ export function ReceiptPrinterOutput({ children, className, onFeedComplete, ...p
         />
       )}
       <Motion.div
-        initial={shouldMove ? { opacity: 0, transform: "translateY(calc(-100% + 2px))" } : false}
+        initial={
+          shouldMove
+            ? { opacity: 0, transform: "translateY(calc(-100% + 2px))" }
+            : false
+        }
         animate={{
           opacity: visible ? 1 : 0,
           transform:

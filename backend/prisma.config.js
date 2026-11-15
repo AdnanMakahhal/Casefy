@@ -1,10 +1,12 @@
 import "./src/config.js";
 import { defineConfig } from "prisma/config";
 
-let migrationDatabaseUrl = process.env.DIRECT_URL || process.env.DATABASE_URL || "";
+let migrationDatabaseUrl =
+  process.env.DIRECT_URL || process.env.DATABASE_URL || "";
 if (migrationDatabaseUrl) {
   const url = new URL(migrationDatabaseUrl);
-  if (url.hostname.endsWith(".neon.tech")) url.hostname = url.hostname.replace("-pooler.", ".");
+  if (url.hostname.endsWith(".neon.tech"))
+    url.hostname = url.hostname.replace("-pooler.", ".");
   migrationDatabaseUrl = url.toString();
 }
 

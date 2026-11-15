@@ -1,0 +1,178 @@
+# Casefy backend
+
+The backend is an Express API using PostgreSQL and Prisma. It handles authentication, private workspaces, billing, support, staff management, and test generation. See the [root README](../README.md) for shared installation and the [frontend README](../frontend/README.md) for the browser application.
+
+## Setup
+
+Use Node.js 24 or 26. Install dependencies from the repository root with npm ci; a separate backend install is unnecessary. The postinstall script generates the Prisma client in node_modules; the API imports it from @prisma/client.
+
+### Environment
+
+Create backend/.env if it does not already exist. The server loads this file directly through src/config.js. Supply your own values:
+
+```dotenv
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE
+JWT_SECRET=replace_with_a_long_random_secret
+FRONTEND_URL=http://localhost:5173
+PORT=8000
+```
+
+Use DIRECT_URL when migrations need a separate direct database connection. Keep environment files private. Configure matching Stripe keys, price IDs, billing portal settings, and the webhook signing secret before using billing. Additional integration settings are described below.
+
+### Database and server
+
+Run these commands from backend:
+
+```sh
+npm run prisma:generate
+npm run prisma:validate
+npm run db:migrate
+npm run dev
+```
+
+The API defaults to http://localhost:8000. Use npm start for the server without file watching. Applied migrations are historical records: add new migrations instead of changing applied SQL or checksums. npm run db:dev creates development migrations; npm run db:studio opens Prisma Studio.
+
+Neon database URLs use the Prisma Neon adapter over secure WebSockets on port 443. Other PostgreSQL hosts use the standard PostgreSQL adapter. Prisma CLI migrations still require a direct database connection on port 5432.
+
+## Source structure
+
+```text
+src/
+  server.js       starts the API
+  app.js          middleware and route registration
+  config.js       loads backend/.env
+  db.js           shared Prisma client
+  routes/         endpoints grouped by feature
+  controllers/    validation, permissions, and responses
+  services/       billing reconciliation and AI generation
+  middleware/     authentication and staff permissions
+  utils/          shared domain helpers
+prisma/           schema and database migration history
+scripts/          Stripe setup and database smoke checks
+```
+
+## Follow a request
+
+1. `frontend/src/lib/api.js` sends the browser request and handles API errors.
+2. `backend/src/app.js` registers the feature routers. Stripe's raw webhook parser runs before JSON parsing so signature verification receives the original bytes.
+3. A route applies authentication and role checks, then calls its controller.
+4. The controller validates input and checks ownership. Services handle provider calls and reconciliation; Prisma reads or writes the database.
+5. The frontend updates its state from the API response.
+
+## Backend routes
+
+| Router           | Public API prefix | Purpose                                               |
+| ---------------- | ----------------- | ----------------------------------------------------- |
+| authRoutes       | `/api/auth`       | Signup, sign-in, profile and account deletion         |
+| workspaceRoutes  | `/api/auth`       | Private workspaces, projects, invitations and members |
+| adminRoutes      | `/api/admin`      | Staff-only user and account management                |
+| billingRoutes    | `/api/billing`    | Stripe checkout and billing portal                    |
+| supportRoutes    | `/api/support`    | Contact tickets and replies                           |
+| messageRoutes    | `/api/messages`   | The signed-in user's messages                         |
+| reportRoutes     | `/api/reports`    | The signed-in user's saved generation reports         |
+| generationRoutes | `/api/generation` | Staff-only AI generation                              |
+
+Existing URLs are preserved. Workspace ownership, membership changes, project edits and invite acceptance keep their transaction locks. Subscription entitlements are calculated in `utils/subscriptions.js`; Stripe reconciliation lives in `services/billingService.js`.
+
+## Private workspaces
+
+Every account owns a primary workspace with a permanent UUID, even when several accounts choose the same name. Workspace IDs are identifiers; they grant no access. A database trigger creates the primary workspace on account creation and preserves its ID when the profile workspace name changes. Paid accounts can add more workspaces. Primary workspaces cannot be deleted.
+
+Open **Workspaces**, select a workspace you own, then use **People and invitations**. Viewer is the default permission. Create a link, copy it, and share it with the intended person. Each link expires after seven days and works for one signed-in account. The recipient explicitly accepts the invitation. The invitation survives the sign-in flow and new-account onboarding. A recipient keeps their own private primary workspace as well as access to the shared workspace.
+
+Only the owner can manage people, change viewer/editor access, revoke pending invitations, or delete additional workspaces. Editors can create, edit and delete projects; viewers can only read them. Removing a member prevents further access and a consumed invite cannot restore their access. A new invitation is required. Reaccepting an invite never silently upgrades an existing member's role. Configured owner seat limits include the owner. Configured project limits apply per workspace; otherwise Free allows 2 projects, Plus 10, and Pro/Enterprise have no default cap.
+
+Invites use 256-bit random tokens. Only SHA-256 hashes are stored; the raw token is returned once and appears in a URL fragment so it is not included in server access logs or referrer headers. The interface copies a link; it does not send email. Anyone holding an unused link can accept it, so share it privately or revoke it. Pending links cannot be recovered from storage; create another if lost.
+
+All endpoints below require authentication:
+
+| Method         | `/api/auth` path                    | Access                                             |
+| -------------- | ----------------------------------- | -------------------------------------------------- |
+| GET / POST     | `/workspaces`                       | List own/joined; create additional on paid plan    |
+| GET / POST     | `/workspaces/:id/projects`          | Read: member; create: owner/editor                 |
+| PATCH / DELETE | `/projects/:projectId`              | Owner/editor of the project's workspace            |
+| DELETE         | `/workspaces/:id`                   | Owner; name confirmation; primary prohibited       |
+| GET            | `/workspaces/:id/access`            | Owner; members and active invite metadata          |
+| POST           | `/workspaces/:id/invites`           | Owner; `{ role: "viewer" or "editor" }`            |
+| DELETE         | `/workspaces/:id/invites/:inviteId` | Owner                                              |
+| PATCH          | `/workspaces/:id/members/:userId`   | Owner; `{ role: "viewer", "editor", or "remove" }` |
+| POST           | `/workspace-invites/accept`         | Recipient; `{ token }`                             |
+
+Access-changing operations, invitation acceptance and project operations lock the workspace and recheck permissions to prevent concurrent revocations from being bypassed. Staff roles do not bypass workspace membership. Legacy owner-only `primary`/`additional-N` URLs resolve only against that owner's migrated records; new UI links always use UUIDs. Deleting an additional workspace never renumbers another workspace.
+
+Apply `npm run db:migrate` and regenerate the Prisma client. `npm run workspace:smoke` runs the real database workflow with isolated fixtures inside a transaction and rolls it all back: private auto-creation, same-name isolation, one-use/expired/revoked links, viewer/editor/owner permissions, demotion, removal, stable IDs, profile rename and deletion. No emails are sent.
+
+## Staff panel
+
+Open `/admin` as an administrator or manager. Both roles use the same navigation: overview, users, support messages, Enterprise contacts, subscriptions, payments, refunds, integrations, test generator, and reports. The customer dashboard design, sidebar, account menu, responsive layout, and skeleton loading states are shared.
+
+### Permissions and blocking
+
+Both staff roles can manage customer accounts, block/unblock customers, handle support, manage billing, message customers, and generate tests without a Casefy monthly credit quota. Only admins can change staff accounts, grant staff roles, or save API credentials. Accounts cannot block or delete themselves. Blocking prevents sign-in and rejects existing session tokens on their next authenticated request; it does not cancel billing.
+
+User filters support role, plan, active/blocked access, name/email/workspace search, and sorting. Pagination and filters are reflected in the URL.
+
+### Integration configuration
+
+In **API integrations**, save an API key and a model ID available to that provider account. OpenAI, DeepSeek, and Google Gemini are supported. Keys are AES-256-GCM encrypted before database storage and are never returned through the API. Saving with an empty key preserves the existing secret. Disabling an integration prevents its use.
+
+For email replies, configure **Resend** with its API key and a verified sender email address. In-app messages work without email configuration. Guest contacts require email replies because they have no account inbox. Sending an email records provider acceptance, not final inbox delivery.
+
+Environment variables can supply defaults: `OPENAI_API_KEY`, `OPENAI_MODEL`, `DEEPSEEK_API_KEY`, `DEEPSEEK_MODEL`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `RESEND_API_KEY`, and `EMAIL_FROM`. Database settings override environment defaults.
+
+Set a stable, private `INTEGRATION_ENCRYPTION_KEY` before saving production credentials. The existing `JWT_SECRET` is the development fallback. Changing the encryption secret requires re-entering saved API keys. No actual keys belong in source control.
+
+Stripe continues to use the existing server environment settings. The integrations screen shows whether Stripe and webhook signing are configured, and whether Stripe is in sandbox or live mode.
+
+### Billing and refunds
+
+**Subscriptions → Dates & free access** grants Plus, Pro, or Enterprise access for one week, 14 days, one calendar month (clamped at month end), or a custom start/end period. Start and end inputs display the staff member's local timezone. Access starts and expires on authenticated requests, and an open client refreshes at scheduled boundaries. No payment or automatic renewal is created. Accounts without an ongoing Stripe subscription use Free as their underlying plan outside the grant period; existing paid Stripe access continues and cannot be reduced by a lower complimentary tier. Staff can edit the schedule or remove the grant.
+
+Stripe's recorded subscription start and billing-period end are displayed separately from complimentary dates. The start date is populated when Stripe subscription state is next synchronized. Complimentary schedules do not move Stripe billing dates or cancel charges.
+
+Pricing disables the current plan and lower included tiers with a not-allowed cursor. Higher tiers link to the review screen. An active Plus subscriber can review an upgrade to Pro in a Stripe `subscription_update_confirm` portal flow using the existing subscription, trusted server price IDs, and the configured portal's proration behavior. No second subscription is created. Same-plan purchases, downgrades, and unhealthy or scheduled-to-cancel subscriptions are rejected by the upgrade endpoint. The effective plan changes through normal Stripe reconciliation after confirmation/payment. Enterprise upgrades go through the contact form.
+
+Subscriptions show each account's plan, status, renewal/end date, and scheduled cancellation. Staff can cancel at period end or remove that scheduled cancellation. This action does not issue a refund. Account plan overrides remain separate from Stripe prices and billing agreements.
+
+Payments are read from Stripe and show customer mapping, charged/refunded amounts, currency, receipt, and status. Refunds require an explicit amount and reason, validate charge ownership and the remaining balance, and use a persisted operation ID as the Stripe idempotency key. Pending operations can be retried from Refunds → Issued refunds using the original operation. Refunds go to the original payment method and do not cancel subscriptions. Financial refund records prevent deleting their associated account; block access when needed instead.
+
+Configure the Stripe webhook endpoint for the existing subscription/invoice events plus `refund.created`, `refund.updated`, and `refund.failed`. The local `npm run stripe:listen` helper includes those events. Refund events retrieve current provider state so out-of-order deliveries cannot restore an outdated refund status.
+
+No actual payment, refund, subscription cancellation, or outbound email is performed by the test suite or staff smoke script.
+
+### Contacts and messaging
+
+The support form accepts Support, Enterprise, or Refund topics. Enterprise pricing links select the Enterprise topic automatically. Incoming contacts appear in their respective staff inbox, with contact identity, category, status, and conversation history. Staff can mark requests open, pending, or resolved.
+
+Signed-in requests use the authenticated account ID and email, regardless of submitted identity fields. Guest submissions are not automatically attached to an account merely because the email matches. Normal users use a floating Support chat at the bottom-right of their dashboard, Home, Features, How it works, Use Cases, Pricing, and Docs. It is hidden on other pages and for staff accounts. The dashboard's Messages button opens that popup; bookmarked `/messages` links redirect to the dashboard and open it. Guests can open the launcher on the public pages and sign in to chat.
+
+The widget supports ticket creation, support/refund/Enterprise topics, conversation history, threaded replies, unread indicators, and account messages. It preserves open state and drafts while navigating between the allowed pages. Open user conversations and staff conversation dialogs poll every five seconds; closed user inboxes poll every thirty seconds and staff ticket lists every fifteen seconds while the page is visible. Polling preserves draft replies and existing content. This is a human support interface; it does not invent bot responses, typing indicators, or staff online status. Request ownership remains checked server-side.
+
+### Generation and reports
+
+Admins and managers can generate tests from user stories, PDF/DOCX/TXT/Markdown documents, or publicly accessible HTML/text pages. Staff have unlimited runs without Casefy credit deductions, with up to 100 cases per request and one in-flight request per staff account in the API process. Provider charges, availability, and rate limits still apply.
+
+Documents are limited to five files and 10 MB total. Scanned PDFs without extractable text need OCR before upload. Public URLs are fetched with pinned public IPv4 DNS resolution, redirect validation, timeouts, and response-size limits. Private network addresses are rejected. The fetcher reads page text and does not execute JavaScript or browser tests.
+
+Results are validated, stored, viewable in Reports, and exportable as JSON. Reports show actual generation status and counts; no execution results or pass rates are invented. Ordinary customer generation keeps the existing preview behavior.
+
+### Validation
+
+From `backend`, run `npm run prisma:validate` and `npm run staff:smoke`. The smoke script exercises the real database using a transaction that rolls back all fixtures, mocks provider generation, and checks PDF text extraction. From `frontend`, run `npm run build` and lint changed files.
+
+Provider implementation references: [Stripe refunds](https://docs.stripe.com/api/refunds/create), [Stripe subscription updates](https://docs.stripe.com/api/subscriptions/update), [OpenAI Responses](https://developers.openai.com/api/reference/resources/responses/methods/create), [DeepSeek chat completions](https://api-docs.deepseek.com/api/create-chat-completion/), [Gemini content generation](https://ai.google.dev/api/generate-content), and [Resend email](https://resend.com/docs/api-reference/emails/send-email).
+
+## Commands and verification
+
+Run these from backend:
+
+| Command                 | Purpose                                                         |
+| ----------------------- | --------------------------------------------------------------- |
+| npm run prisma:validate | Validate the database schema                                    |
+| npm run staff:smoke     | Check staff workflows using rolled-back database fixtures       |
+| npm run workspace:smoke | Check workspace permissions using rolled-back database fixtures |
+| npm run stripe:setup    | Run the Stripe sandbox setup helper                             |
+| npm run stripe:listen   | Forward local Stripe webhook events                             |
+| npm run stripe:test     | Check Stripe sandbox configuration                              |
+
+Smoke checks require a configured database. They roll back their fixtures and do not send email, create charges, or call live AI providers. Smoke scripts protect authentication, payment, and workspace behavior.

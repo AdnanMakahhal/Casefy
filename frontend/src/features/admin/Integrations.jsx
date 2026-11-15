@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { adminRequest, useStaffData } from "./api";
-import { titleCase } from "../../lib/format";
 import { panel, input } from "./styles";
 import { Plug, CreditCard, ArrowUpRight } from "lucide-react";
 import { Badge, ErrorMessage, Loading } from "./ui";
@@ -45,7 +44,11 @@ function IntegrationCard({ integration, editable, onSaved }) {
         </div>
         <Badge
           value={
-            !integration.enabled ? "disabled" : integration.configured ? "active" : "not_configured"
+            !integration.enabled
+              ? "disabled"
+              : integration.configured
+                ? "active"
+                : "not_configured"
           }
         />
       </div>
@@ -115,7 +118,10 @@ export default function Integrations({ revision }) {
   const { user } = useAuth();
   const [localRevision, setLocalRevision] = useState(0);
   const [notice, setNotice] = useState("");
-  const { data, loading, error } = useStaffData("/integrations", revision + localRevision);
+  const { data, loading, error } = useStaffData(
+    "/integrations",
+    revision + localRevision,
+  );
   if (loading) return <Loading />;
   if (error) return <ErrorMessage>{error}</ErrorMessage>;
   return (
@@ -126,8 +132,10 @@ export default function Integrations({ revision }) {
         </p>
       )}
       <p className="text-sm leading-6 text-[#526159]">
-        Keys are encrypted on the server and are never returned to the browser. Leave a saved key
-        blank to keep it. {user.role === "manager" && "Only administrators can change credentials."}
+        Keys are encrypted on the server and are never returned to the browser.
+        Leave a saved key blank to keep it.{" "}
+        {user.role === "manager" &&
+          "Only administrators can change credentials."}
       </p>
       <div className="grid gap-6 xl:grid-cols-2">
         {data.integrations.map((integration) => (
@@ -152,8 +160,9 @@ export default function Integrations({ revision }) {
           </span>
         </div>
         <p className="mt-4 text-sm leading-6 text-[#526159]">
-          Stripe credentials and webhook signing secrets are managed in the server environment.
-          Webhook signing: {data.stripe.webhookConfigured ? "configured" : "not configured"}.
+          Stripe credentials and webhook signing secrets are managed in the
+          server environment. Webhook signing:{" "}
+          {data.stripe.webhookConfigured ? "configured" : "not configured"}.
         </p>
         <Link
           to="/admin?view=payments"
@@ -161,35 +170,6 @@ export default function Integrations({ revision }) {
         >
           Manage payments <ArrowUpRight size={16} />
         </Link>
-      </section>
-      <section className={`${panel} p-6`}>
-        <div className="flex items-center gap-3">
-          <CreditCard size={22} className="text-[#294137]" />
-          <h2 className="font-bold">PayPal subscriptions</h2>
-          <Badge
-            value={
-              data.paypal?.configured && data.paypal?.webhookConfigured
-                ? "active"
-                : "not_configured"
-            }
-          />
-        </div>
-        <p className="mt-4 text-sm leading-6 text-[#526159]">
-          PayPal checkout is disabled. Existing subscriptions can still be verified and managed.
-        </p>
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          {["plus", "pro"].flatMap((tier) =>
-            ["monthly", "annual"].map((period) => (
-              <div
-                key={tier + period}
-                className="rounded-lg border border-[#CFDDD5] p-3 text-xs text-[#526159]"
-              >
-                {titleCase(tier)} / {period}:{" "}
-                {data.paypal?.plans?.[tier]?.[period] ? "Plan mapped" : "Needs plan ID"}
-              </div>
-            )),
-          )}
-        </div>
       </section>
     </div>
   );

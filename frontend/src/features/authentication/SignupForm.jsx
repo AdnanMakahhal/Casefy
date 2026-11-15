@@ -53,7 +53,10 @@ function SignupForm() {
       </div>
       <div className="mt-8 space-y-6">
         <div>
-          <label htmlFor="full-name" className="mb-2 block text-sm font-medium text-[#102018]">
+          <label
+            htmlFor="full-name"
+            className="mb-2 block text-sm font-medium text-[#102018]"
+          >
             Full name
           </label>
           <input
@@ -67,7 +70,10 @@ function SignupForm() {
           />
         </div>
         <div>
-          <label htmlFor="email" className="mb-2 block text-sm font-medium text-[#102018]">
+          <label
+            htmlFor="email"
+            className="mb-2 block text-sm font-medium text-[#102018]"
+          >
             Email address
           </label>
           <input
@@ -81,7 +87,10 @@ function SignupForm() {
           />
         </div>
         <div>
-          <label htmlFor="password" className="mb-2 block text-sm font-medium text-[#102018]">
+          <label
+            htmlFor="password"
+            className="mb-2 block text-sm font-medium text-[#102018]"
+          >
             Password
           </label>
           <div className="relative">

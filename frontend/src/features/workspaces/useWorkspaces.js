@@ -4,7 +4,11 @@ import { useAuth } from "../authentication/authContext";
 
 export default function useWorkspaces() {
   const { workspaceRevision } = useAuth();
-  const [state, setState] = useState({ workspaces: [], loading: true, error: "" });
+  const [state, setState] = useState({
+    workspaces: [],
+    loading: true,
+    error: "",
+  });
   useEffect(() => {
     let active = true;
     workspaceRequest("/workspaces")
@@ -12,7 +16,8 @@ export default function useWorkspaces() {
         if (active) setState({ workspaces, loading: false, error: "" });
       })
       .catch((error) => {
-        if (active) setState({ workspaces: [], loading: false, error: error.message });
+        if (active)
+          setState({ workspaces: [], loading: false, error: error.message });
       });
     return () => {
       active = false;

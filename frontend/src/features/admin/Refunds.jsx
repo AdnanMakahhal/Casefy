@@ -12,7 +12,10 @@ export default function Refunds({ revision }) {
     [retry, setRetry] = useState(null);
   const [localRevision, setLocalRevision] = useState(0),
     [notice, setNotice] = useState("");
-  const { data, loading, error } = useStaffData(`/refunds?page=${page}`, revision + localRevision);
+  const { data, loading, error } = useStaffData(
+    `/refunds?page=${page}`,
+    revision + localRevision,
+  );
   return (
     <div className="space-y-5">
       <div
@@ -74,7 +77,8 @@ export default function Refunds({ revision }) {
                       <td>
                         {refund.user.email}
                         <p className="mt-1 text-xs text-[#718578]">
-                          Issued by {refund.actor?.name || "Former staff member"}
+                          Issued by{" "}
+                          {refund.actor?.name || "Former staff member"}
                         </p>
                       </td>
                       <td>{formatMoney(refund.amount, refund.currency)}</td>
@@ -82,7 +86,10 @@ export default function Refunds({ revision }) {
                         <Badge value={refund.status} />
                       </td>
                       <td>
-                        <span className="block max-w-52 truncate" title={refund.reason}>
+                        <span
+                          className="block max-w-52 truncate"
+                          title={refund.reason}
+                        >
                           {refund.reason}
                         </span>
                         <span className="mt-1 block text-xs text-[#718578]">
@@ -92,7 +99,10 @@ export default function Refunds({ revision }) {
                       <td>{displayDate(refund.createdAt)}</td>
                       <td>
                         {refund.status === "pending" && (
-                          <button className="admin-button" onClick={() => setRetry(refund)}>
+                          <button
+                            className="admin-button"
+                            onClick={() => setRetry(refund)}
+                          >
                             Retry
                           </button>
                         )}

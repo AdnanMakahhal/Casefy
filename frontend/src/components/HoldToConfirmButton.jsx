@@ -76,7 +76,11 @@ export default function HoldToConfirmButton({
           }}
         />
       )}
-      {confirmed ? <Check size={16} aria-hidden="true" /> : <Trash2 size={16} aria-hidden="true" />}
+      {confirmed ? (
+        <Check size={16} aria-hidden="true" />
+      ) : (
+        <Trash2 size={16} aria-hidden="true" />
+      )}
       {confirmed ? "Confirmed" : holding ? "Keep holding..." : children}
     </button>
   );

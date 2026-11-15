@@ -60,8 +60,8 @@ export default function RefundModal({ payment, retry, onClose, onSaved }) {
     >
       <p className="mb-5 text-sm leading-6 text-[#526159]">
         Refund {account.email} to the original payment method. Available:{" "}
-        <strong>{formatMoney(remaining, currency)}</strong>. This changes the payment; it does not
-        cancel the subscription.
+        <strong>{formatMoney(remaining, currency)}</strong>. This changes the
+        payment; it does not cancel the subscription.
       </p>
       <form onSubmit={submit} className="space-y-4">
         <label className="block text-sm font-medium">
@@ -94,11 +94,20 @@ export default function RefundModal({ payment, retry, onClose, onSaved }) {
         </label>
         <ErrorMessage>{error}</ErrorMessage>
         <div className="flex justify-end gap-3">
-          <button type="button" className="admin-button" disabled={busy} onClick={onClose}>
+          <button
+            type="button"
+            className="admin-button"
+            disabled={busy}
+            onClick={onClose}
+          >
             Back
           </button>
           <button className="admin-button danger" disabled={busy}>
-            {busy ? "Processing..." : retry ? "Retry same refund" : "Confirm refund"}
+            {busy
+              ? "Processing..."
+              : retry
+                ? "Retry same refund"
+                : "Confirm refund"}
           </button>
         </div>
       </form>

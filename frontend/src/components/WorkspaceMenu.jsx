@@ -1,9 +1,18 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { Building2, ChevronsUpDown, House, LogOut, UserRound } from "lucide-react";
+import {
+  Building2,
+  ChevronsUpDown,
+  House,
+  LogOut,
+  UserRound,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import Avatar from "./Avatar";
 import LogoutDialog from "./LogoutDialog";
-import { readRolePreference, roleLabels } from "../features/authentication/roles";
+import {
+  readRolePreference,
+  roleLabels,
+} from "../features/authentication/roles";
 
 function WorkspaceMenu({ user }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,7 +40,8 @@ function WorkspaceMenu({ user }) {
       ref={container}
       className="relative mt-auto pt-5"
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setIsOpen(false);
+        if (!event.currentTarget.contains(event.relatedTarget))
+          setIsOpen(false);
       }}
       onKeyDown={(event) => {
         if (event.key === "Escape" && isOpen) {
@@ -56,7 +66,11 @@ function WorkspaceMenu({ user }) {
             <UserRound size={18} aria-hidden="true" />
             Profile
           </Link>
-          <Link to="/workspaces" className={itemClass} onClick={() => setIsOpen(false)}>
+          <Link
+            to="/workspaces"
+            className={itemClass}
+            onClick={() => setIsOpen(false)}
+          >
             <Building2 size={18} aria-hidden="true" />
             Workspaces
           </Link>
@@ -93,9 +107,15 @@ function WorkspaceMenu({ user }) {
           >
             {user?.name || "Your account"}
           </span>
-          <span className="mt-0.5 block text-xs text-[#526159]">{role || "Choose your role"}</span>
+          <span className="mt-0.5 block text-xs text-[#526159]">
+            {role || "Choose your role"}
+          </span>
         </span>
-        <ChevronsUpDown size={16} className="shrink-0 text-[#526159]" aria-hidden="true" />
+        <ChevronsUpDown
+          size={16}
+          className="shrink-0 text-[#526159]"
+          aria-hidden="true"
+        />
       </button>
       {isLoggingOut && (
         <LogoutDialog

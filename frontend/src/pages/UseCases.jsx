@@ -1,5 +1,15 @@
-﻿import { BookOpen, Code2, GraduationCap, ShoppingCart, Users, GitBranch } from "lucide-react";
-import MarketingPage, { MarketingCard, MarketingCta } from "../components/marketing/MarketingPage";
+﻿import {
+  BookOpen,
+  Code2,
+  GraduationCap,
+  ShoppingCart,
+  Users,
+  GitBranch,
+} from "lucide-react";
+import MarketingPage, {
+  MarketingCard,
+  MarketingCta,
+} from "../components/marketing/MarketingPage";
 
 const cases = [
   {
@@ -57,8 +67,9 @@ export default function UseCases() {
         ))}
         <MarketingCard icon={GitBranch} title="Release automation" planned>
           <p>
-            Run local test suites and connect checks to CI/CD, then use run reports to investigate
-            failures. This workflow is planned and is not available yet.
+            Run local test suites and connect checks to CI/CD, then use run
+            reports to investigate failures. This workflow is planned and is not
+            available yet.
           </p>
           <p className="mt-5 border-t border-[#cfddd5] pt-4 text-xs leading-6 text-[#718578]">
             Planned example: run regression coverage with each pull request.
@@ -66,8 +77,9 @@ export default function UseCases() {
         </MarketingCard>
       </div>
       <p className="rounded-xl border border-[#CFDDD5] bg-white p-5 text-sm leading-7 text-[#526159]">
-        The current generator prepares requests for review and download. AI-generated cases, manual
-        case editing, local execution, and CI/CD will be added in future stages.
+        The current generator prepares requests for review and download.
+        AI-generated cases, manual case editing, local execution, and CI/CD will
+        be added in future stages.
       </p>
       <MarketingCta title="Give your next feature a testing plan." />
     </MarketingPage>

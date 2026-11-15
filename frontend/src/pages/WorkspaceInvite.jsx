@@ -46,8 +46,8 @@ export default function WorkspaceInvite() {
         <LockKeyhole size={32} className="text-[#294137]" />
         <h1 className="mt-5 text-3xl font-bold">Workspace invitation</h1>
         <p className="mt-4 text-sm leading-6 text-[#526159]">
-          Join this private workspace using the permission selected by its owner. Your own workspace
-          stays private.
+          Join this private workspace using the permission selected by its
+          owner. Your own workspace stays private.
         </p>
         {error && (
           <p role="alert" className="mt-5 text-sm text-red-700">
@@ -67,7 +67,10 @@ export default function WorkspaceInvite() {
             This invite link is incomplete. Ask the owner for a new link.
           </p>
         )}
-        <Link to="/workspaces" className="mt-5 block text-center text-sm underline">
+        <Link
+          to="/workspaces"
+          className="mt-5 block text-center text-sm underline"
+        >
           Back to my workspaces
         </Link>
       </section>

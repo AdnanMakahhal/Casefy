@@ -4,7 +4,8 @@ import SelectMenu from "../../components/SelectMenu";
 import { adminRequest } from "./api";
 import { displayDate, titleCase } from "../../lib/format";
 
-const input = "mt-2 min-h-11 w-full rounded-lg border border-[#CFDDD5] bg-white px-3 py-2 text-sm";
+const input =
+  "mt-2 min-h-11 w-full rounded-lg border border-[#CFDDD5] bg-white px-3 py-2 text-sm";
 function localDate(value) {
   const date = new Date(value);
   const pad = (number) => String(number).padStart(2, "0");
@@ -20,21 +21,31 @@ function endFor(start, duration) {
     date.setUTCDate(
       Math.min(
         day,
-        new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).getUTCDate(),
+        new Date(
+          Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0),
+        ).getUTCDate(),
       ),
     );
-  } else date.setTime(date.getTime() + (duration === "week" ? 7 : 14) * 86400000);
+  } else
+    date.setTime(date.getTime() + (duration === "week" ? 7 : 14) * 86400000);
   return localDate(date);
 }
 
 export default function ComplimentaryAccess({ account, onClose, onSaved }) {
   const [plan, setPlan] = useState(
-    account.complimentaryPlan || (account.plan !== "free" ? account.plan : "plus"),
+    account.complimentaryPlan ||
+      (account.plan !== "free" ? account.plan : "plus"),
   );
-  const [duration, setDuration] = useState(account.complimentaryPlan ? "custom" : "14days");
-  const [start, setStart] = useState(() => localDate(account.complimentaryStartsAt || new Date()));
+  const [duration, setDuration] = useState(
+    account.complimentaryPlan ? "custom" : "14days",
+  );
+  const [start, setStart] = useState(() =>
+    localDate(account.complimentaryStartsAt || new Date()),
+  );
   const [customEnd, setCustomEnd] = useState(() =>
-    localDate(account.complimentaryEndsAt || new Date(Date.now() + 14 * 86400000)),
+    localDate(
+      account.complimentaryEndsAt || new Date(Date.now() + 14 * 86400000),
+    ),
   );
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -50,7 +61,9 @@ export default function ComplimentaryAccess({ account, onClose, onSaved }) {
             plan,
             duration,
             startsAt: new Date(start).toISOString(),
-            ...(duration === "custom" ? { endsAt: new Date(customEnd).toISOString() } : {}),
+            ...(duration === "custom"
+              ? { endsAt: new Date(customEnd).toISOString() }
+              : {}),
           };
       const result = await adminRequest(`/subscriptions/${account.id}/access`, {
         method: "PUT",
@@ -64,10 +77,14 @@ export default function ComplimentaryAccess({ account, onClose, onSaved }) {
     }
   }
   return (
-    <AccountModal title="Manage subscription dates" onDismiss={onClose} busy={busy}>
+    <AccountModal
+      title="Manage subscription dates"
+      onDismiss={onClose}
+      busy={busy}
+    >
       <p className="mb-5 text-sm leading-6 text-[#526159]">
-        Grant {account.email} complimentary plan access. No card or payment is required. Dates use
-        your local timezone.
+        Grant {account.email} complimentary plan access. No card or payment is
+        required. Dates use your local timezone.
       </p>
       {account.stripeSubscriptionId && (
         <div className="mb-5 rounded-lg bg-[#edf3ef] p-4 text-xs leading-6 text-[#526159]">
@@ -104,9 +121,21 @@ export default function ComplimentaryAccess({ account, onClose, onSaved }) {
                 onChange={setDuration}
                 options={[
                   { value: "week", label: "One week", description: "7 days" },
-                  { value: "14days", label: "14 days", description: "Two weeks" },
-                  { value: "month", label: "One month", description: "One calendar month" },
-                  { value: "custom", label: "Custom dates", description: "Choose start and end" },
+                  {
+                    value: "14days",
+                    label: "14 days",
+                    description: "Two weeks",
+                  },
+                  {
+                    value: "month",
+                    label: "One month",
+                    description: "One calendar month",
+                  },
+                  {
+                    value: "custom",
+                    label: "Custom dates",
+                    description: "Choose start and end",
+                  },
                 ]}
               />
             </div>
@@ -135,13 +164,16 @@ export default function ComplimentaryAccess({ account, onClose, onSaved }) {
             </label>
           </div>
           <p className="text-xs leading-6 text-[#718578]">
-            Access activates at the start and expires at the end automatically. Accounts without an
-            ongoing Stripe subscription return to Free outside these dates. Existing paid Stripe
-            access continues.
+            Access activates at the start and expires at the end automatically.
+            Accounts without an ongoing Stripe subscription return to Free
+            outside these dates. Existing paid Stripe access continues.
           </p>
         </fieldset>
         {error && (
-          <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
+          <p
+            role="alert"
+            className="rounded-lg bg-red-50 p-3 text-sm text-red-800"
+          >
             {error}
           </p>
         )}
@@ -156,7 +188,12 @@ export default function ComplimentaryAccess({ account, onClose, onSaved }) {
               Remove complimentary access
             </button>
           )}
-          <button type="button" disabled={busy} onClick={onClose} className="admin-button">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={onClose}
+            className="admin-button"
+          >
             Cancel
           </button>
           <button disabled={busy} className="admin-button primary">

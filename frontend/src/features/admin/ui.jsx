@@ -29,7 +29,10 @@ export function Empty({ text = "No records to show yet." }) {
 
 export function ErrorMessage({ children }) {
   return children ? (
-    <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+    <p
+      role="alert"
+      className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+    >
       {children}
     </p>
   ) : null;
@@ -77,7 +80,10 @@ export function Pagination({ data, onChange }) {
   );
 }
 
-export function SearchForm({ onSearch, placeholder = "Search name or email..." }) {
+export function SearchForm({
+  onSearch,
+  placeholder = "Search name or email...",
+}) {
   return (
     <form
       onSubmit={(event) => {
@@ -87,7 +93,10 @@ export function SearchForm({ onSearch, placeholder = "Search name or email..." }
       className="flex min-w-0 flex-1 items-center gap-2"
     >
       <div className="relative min-w-0 flex-1">
-        <Search size={17} className="pointer-events-none absolute top-3.5 left-3 text-[#718578]" />
+        <Search
+          size={17}
+          className="pointer-events-none absolute top-3.5 left-3 text-[#718578]"
+        />
         <input
           name="search"
           aria-label={placeholder}

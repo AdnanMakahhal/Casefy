@@ -9,7 +9,11 @@ export default function Reports({ user }) {
     [revision, setRevision] = useState(0);
   return (
     <div className="admin-shell lg:pl-64">
-      <DashboardSidebar user={user} isOpen={sidebar} onClose={() => setSidebar(false)} />
+      <DashboardSidebar
+        user={user}
+        isOpen={sidebar}
+        onClose={() => setSidebar(false)}
+      />
       <main className="mx-auto max-w-[1440px] px-4 py-6 sm:px-8 lg:p-10">
         <header className="admin-page-header">
           <div className="flex gap-3">
@@ -27,7 +31,10 @@ export default function Reports({ user }) {
               <p>Your generation history and saved results.</p>
             </div>
           </div>
-          <button className="admin-button" onClick={() => setRevision((value) => value + 1)}>
+          <button
+            className="admin-button"
+            onClick={() => setRevision((value) => value + 1)}
+          >
             <RefreshCw size={16} />
             Refresh
           </button>

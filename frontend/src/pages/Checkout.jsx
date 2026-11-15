@@ -74,9 +74,6 @@ function CheckoutPage({ planKey, billing, canceled }) {
     user.subscriptionStatus &&
     !["canceled", "incomplete_expired"].includes(user.subscriptionStatus),
   );
-  const hasPayPal = Boolean(
-    user.paypalSubscriptionId && !["CANCELLED", "EXPIRED"].includes(user.paypalStatus),
-  );
   const alreadyIncluded = planRank[planKey] <= (planRank[user.plan] || 0);
   const isUpgrade =
     isPaid &&
@@ -105,10 +102,16 @@ function CheckoutPage({ planKey, billing, canceled }) {
 
   const price = catalog?.plans?.[planKey]?.[billing];
   const amount = price
-    ? formatCheckoutMoney(price.amount, price.currency, price.amount % 100 === 0 ? 0 : 2)
+    ? formatCheckoutMoney(
+        price.amount,
+        price.currency,
+        price.amount % 100 === 0 ? 0 : 2,
+      )
     : null;
   const period =
-    (price?.interval || (billing === "annual" ? "year" : "month")) === "year" ? "year" : "month";
+    (price?.interval || (billing === "annual" ? "year" : "month")) === "year"
+      ? "year"
+      : "month";
   const priceLabel =
     planKey === "free"
       ? "Free"
@@ -118,17 +121,20 @@ function CheckoutPage({ planKey, billing, canceled }) {
   const monthlyPrice = catalog?.plans?.[planKey]?.monthly;
   const annualBase = monthlyPrice ? monthlyPrice.amount * 12 : 0;
   const annualSavings =
-    billing === "annual" && price?.interval === "year" && monthlyPrice?.currency === price.currency
+    billing === "annual" &&
+    price?.interval === "year" &&
+    monthlyPrice?.currency === price.currency
       ? Math.max(0, annualBase - price.amount)
       : 0;
-  const annualDiscount = annualSavings ? Math.round((annualSavings / annualBase) * 100) : 0;
+  const annualDiscount = annualSavings
+    ? Math.round((annualSavings / annualBase) * 100)
+    : 0;
   const money = (cents) => formatCheckoutMoney(cents, price?.currency);
 
   async function submit(event) {
     event.preventDefault();
     if (
       pending.current ||
-      hasPayPal ||
       !isPaid ||
       !price ||
       alreadyIncluded ||
@@ -201,7 +207,11 @@ function CheckoutPage({ planKey, billing, canceled }) {
           </span>
           Choose plan
         </li>
-        <ChevronRight size={14} className="shrink-0 text-[#929b97]" aria-hidden="true" />
+        <ChevronRight
+          size={14}
+          className="shrink-0 text-[#929b97]"
+          aria-hidden="true"
+        />
         <li
           aria-current="step"
           className="flex flex-col items-center gap-2 text-[#294137] sm:flex-row"
@@ -211,7 +221,11 @@ function CheckoutPage({ planKey, billing, canceled }) {
           </span>
           Review
         </li>
-        <ChevronRight size={14} className="shrink-0 text-[#929b97]" aria-hidden="true" />
+        <ChevronRight
+          size={14}
+          className="shrink-0 text-[#929b97]"
+          aria-hidden="true"
+        />
         <li className="flex flex-col items-center gap-2 text-[#526159] sm:flex-row">
           <span className="flex size-6 items-center justify-center rounded-full border border-[#CFDDD5] bg-white">
             3
@@ -225,8 +239,8 @@ function CheckoutPage({ planKey, billing, canceled }) {
           role="status"
           className="mt-8 rounded-lg border border-[#CFDDD5] bg-[#edf3ef] px-5 py-4 text-sm leading-6 text-[#294137]"
         >
-          You left Stripe Checkout. Your plan has not changed, and you can continue whenever you’re
-          ready.
+          You left Stripe Checkout. Your plan has not changed, and you can
+          continue whenever you’re ready.
         </div>
       )}
 
@@ -255,7 +269,10 @@ function CheckoutPage({ planKey, billing, canceled }) {
           className="overflow-hidden rounded-xl border border-[#CFDDD5] bg-white"
         >
           <div className="p-6 sm:p-8">
-            <h2 id="checkout-details-heading" className="text-xl font-bold tracking-tight">
+            <h2
+              id="checkout-details-heading"
+              className="text-xl font-bold tracking-tight"
+            >
               Review your details
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#526159]">
@@ -265,7 +282,9 @@ function CheckoutPage({ planKey, billing, canceled }) {
               <Avatar user={user} className="size-11 text-sm" />
               <div className="min-w-0">
                 <p className="break-words text-sm font-semibold">{user.name}</p>
-                <p className="mt-1 break-all text-sm text-[#526159]">{user.email}</p>
+                <p className="mt-1 break-all text-sm text-[#526159]">
+                  {user.email}
+                </p>
               </div>
               <CircleCheck
                 size={19}
@@ -302,7 +321,9 @@ function CheckoutPage({ planKey, billing, canceled }) {
               {annualSavings > 0 && (
                 <>
                   <div className="flex items-center justify-between gap-5 py-4">
-                    <dt className="text-[#526159]">12 months at monthly rate</dt>
+                    <dt className="text-[#526159]">
+                      12 months at monthly rate
+                    </dt>
                     <dd className="font-medium">{money(annualBase)}</dd>
                   </div>
                   <div className="flex items-center justify-between gap-5 py-4 text-[#294137]">
@@ -320,8 +341,14 @@ function CheckoutPage({ planKey, billing, canceled }) {
                     : "Price"}
                 </dt>
                 <dd className="text-right">
-                  <span className="text-xl font-bold tracking-tight">{priceLabel}</span>
-                  {price && <span className="ml-1 text-xs text-[#526159]">/ {period}</span>}
+                  <span className="text-xl font-bold tracking-tight">
+                    {priceLabel}
+                  </span>
+                  {price && (
+                    <span className="ml-1 text-xs text-[#526159]">
+                      / {period}
+                    </span>
+                  )}
                 </dd>
               </div>
             </dl>
@@ -369,7 +396,9 @@ function CheckoutPage({ planKey, billing, canceled }) {
                     disabled
                     className="mt-2 min-h-12 w-full cursor-not-allowed rounded-lg border border-[#CFDDD5] bg-[#edf3ef] px-5 text-sm font-semibold text-[#526159]"
                   >
-                    {user.plan === planKey ? "Current plan" : "Included in your current plan"}
+                    {user.plan === planKey
+                      ? "Current plan"
+                      : "Included in your current plan"}
                   </button>
                   <Link
                     to={homeForRole(user.role)}
@@ -378,22 +407,13 @@ function CheckoutPage({ planKey, billing, canceled }) {
                     Open workspace
                   </Link>
                 </>
-              ) : hasPayPal ? (
-                <>
-                  <p className="text-sm leading-6 text-[#526159]">
-                    You have an existing PayPal subscription or pending approval. Manage it before
-                    starting another subscription.
-                  </p>
-                  <Link to="/profile" className={`${greenButton} mt-5`}>
-                    Manage PayPal subscription
-                  </Link>
-                </>
               ) : isUpgrade ? (
                 <>
                   <p className="text-sm leading-6 text-[#526159]">
-                    Upgrade your existing subscription from {planLabels[user.plan]} to{" "}
-                    {planLabels[planKey]}. Stripe will show the prorated amount and renewal details
-                    for your confirmation.
+                    Upgrade your existing subscription from{" "}
+                    {planLabels[user.plan]} to {planLabels[planKey]}. Stripe
+                    will show the prorated amount and renewal details for your
+                    confirmation.
                   </p>
                   <button
                     type="submit"
@@ -406,8 +426,8 @@ function CheckoutPage({ planKey, billing, canceled }) {
               ) : hasSubscription ? (
                 <>
                   <p className="text-sm leading-6 text-[#526159]">
-                    Manage your existing subscription and payment details in Stripe before changing
-                    this plan.
+                    Manage your existing subscription and payment details in
+                    Stripe before changing this plan.
                   </p>
                   <button
                     type="button"
@@ -421,8 +441,8 @@ function CheckoutPage({ planKey, billing, canceled }) {
               ) : planKey === "enterprise" ? (
                 <>
                   <p className="text-sm leading-6 text-[#526159]">
-                    Tell us about your team and requirements. We’ll help you explore an Enterprise
-                    plan.
+                    Tell us about your team and requirements. We’ll help you
+                    explore an Enterprise plan.
                   </p>
                   <Link to="/support" className={`${greenButton} mt-5`}>
                     <LifeBuoy size={17} aria-hidden="true" />
@@ -436,9 +456,13 @@ function CheckoutPage({ planKey, billing, canceled }) {
                     No payment details needed
                   </div>
                   <p className="mt-2 text-sm leading-6 text-[#526159]">
-                    Continue to your workspace and start organizing your testing.
+                    Continue to your workspace and start organizing your
+                    testing.
                   </p>
-                  <Link to={homeForRole(user.role)} className={`${greenButton} mt-5`}>
+                  <Link
+                    to={homeForRole(user.role)}
+                    className={`${greenButton} mt-5`}
+                  >
                     Continue to workspace
                     <ArrowRight size={17} aria-hidden="true" />
                   </Link>
@@ -455,7 +479,9 @@ function CheckoutPage({ planKey, billing, canceled }) {
                   <button
                     type="submit"
                     disabled={busy || loading || !price}
-                    aria-label={busy ? "Processing checkout" : "Continue to Stripe"}
+                    aria-label={
+                      busy ? "Processing checkout" : "Continue to Stripe"
+                    }
                     aria-busy={busy}
                     className={`mt-5 flex min-h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#5750e6] bg-[#635BFF] px-6 font-[Arial,Helvetica,sans-serif] text-[18px] leading-none font-semibold tracking-[-0.035em] text-white shadow-[0_4px_12px_#635bff20] transition-[background-color,box-shadow,transform] duration-150 hover:bg-[#5851ea] hover:shadow-[0_6px_16px_#635bff30] active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#635BFF] motion-reduce:transition-none disabled:translate-y-0 disabled:opacity-60 disabled:shadow-none ${busy ? "disabled:cursor-wait" : "disabled:cursor-not-allowed"}`}
                   >
@@ -481,10 +507,13 @@ function CheckoutPage({ planKey, billing, canceled }) {
                     )}
                   </button>
                   <p role="status" className="sr-only">
-                    {busy ? "Opening secure payment checkout. Please wait." : ""}
+                    {busy
+                      ? "Opening secure payment checkout. Please wait."
+                      : ""}
                   </p>
                   <p className="mt-4 text-center text-xs leading-5 text-[#6c7771]">
-                    Renews automatically each {period}. For plan changes or cancellation,{" "}
+                    Renews automatically each {period}. For plan changes or
+                    cancellation,{" "}
                     <Link
                       to="/support"
                       className="rounded underline hover:text-[#294137] focus-visible:outline-2 focus-visible:outline-[#294137]"
@@ -534,7 +563,10 @@ export default function Checkout() {
   const [searchParams] = useSearchParams();
   const planKey = searchParams.get("plan");
   const billing = searchParams.get("billing") || "monthly";
-  if (!Object.hasOwn(planLabels, planKey) || !["monthly", "annual"].includes(billing))
+  if (
+    !Object.hasOwn(planLabels, planKey) ||
+    !["monthly", "annual"].includes(billing)
+  )
     return <Navigate to="/pricing" replace />;
   return (
     <CheckoutPage

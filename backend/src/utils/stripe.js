@@ -3,20 +3,26 @@ import Stripe from "stripe";
 import { siteOrigin } from "./siteOrigin.js";
 
 export const stripe = process.env.STRIPE_SECRET_KEY
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, { maxNetworkRetries: 2, timeout: 10000 })
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      maxNetworkRetries: 2,
+      timeout: 10000,
+    })
   : null;
 
 export function billingConfig() {
   const origin = siteOrigin();
   const liveMode = /^(sk|rk)_live_/.test(process.env.STRIPE_SECRET_KEY || "");
+  
   return {
     origin,
     liveMode,
 
-    requireTermsOfService: liveMode || process.env.STRIPE_REQUIRE_TERMS_OF_SERVICE === "true",
+    requireTermsOfService:
+      liveMode || process.env.STRIPE_REQUIRE_TERMS_OF_SERVICE === "true",
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
     portalConfiguration: process.env.STRIPE_PORTAL_CONFIGURATION_ID,
-    integrationIdentifier: process.env.STRIPE_INTEGRATION_IDENTIFIER || "casefy-billing-qmzprtal",
+    integrationIdentifier:
+      process.env.STRIPE_INTEGRATION_IDENTIFIER || "casefy-billing-qmzprtal",
     prices: {
       plus: {
         monthly: process.env.STRIPE_PRICE_PLUS_MONTHLY,

@@ -24,9 +24,12 @@ export default function UndoDeletionProvider({ children }) {
     setCommitting(true);
     try {
       await task.commit();
-      if (task.id.startsWith("project:")) setDeletedProjectIds((ids) => [...ids, task.id]);
+      if (task.id.startsWith("project:"))
+        setDeletedProjectIds((ids) => [...ids, task.id]);
     } catch (error) {
-      setError(error.message || "Unable to delete. Your data has been restored.");
+      setError(
+        error.message || "Unable to delete. Your data has been restored.",
+      );
     } finally {
       action.current = null;
       setPending(null);
@@ -60,7 +63,11 @@ export default function UndoDeletionProvider({ children }) {
                 Deleting...
               </p>
             ) : (
-              <UndoNotice message={pending.message} onExpire={expire} onUndo={undo} />
+              <UndoNotice
+                message={pending.message}
+                onExpire={expire}
+                onUndo={undo}
+              />
             ))}
           {error && (
             <div

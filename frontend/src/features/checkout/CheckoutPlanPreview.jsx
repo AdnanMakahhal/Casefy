@@ -32,7 +32,11 @@ export default function CheckoutPlanPreview({
   const [printed, setPrinted] = useState(false);
   const reducedMotion = useReducedMotion();
   const stage =
-    loading || busy ? "processing" : error || printed || reducedMotion ? "complete" : "printing";
+    loading || busy
+      ? "processing"
+      : error || printed || reducedMotion
+        ? "complete"
+        : "printing";
   const interval = isFree
     ? "No payment required"
     : isEnterprise
@@ -77,7 +81,9 @@ export default function CheckoutPlanPreview({
                 <p className="break-words text-base font-semibold leading-6 text-white">
                   {planName}
                 </p>
-                <p className="mt-1 text-xs leading-5 text-[#a9c0b1]">{interval}</p>
+                <p className="mt-1 text-xs leading-5 text-[#a9c0b1]">
+                  {interval}
+                </p>
               </div>
               <div className="min-w-0 text-right">
                 <p className="text-[10px] tracking-wider text-[#a9c0b1]">
@@ -117,8 +123,12 @@ export default function CheckoutPlanPreview({
             </div>
             <div className="flex flex-wrap items-start justify-between gap-3 border-b border-dashed border-[#bfcfc3] py-5">
               <div>
-                <h2 className="text-xs font-bold tracking-wide uppercase">{planName}</h2>
-                <p className="mt-1.5 text-[11px] leading-5 text-[#7a8d7f]">{interval}</p>
+                <h2 className="text-xs font-bold tracking-wide uppercase">
+                  {planName}
+                </h2>
+                <p className="mt-1.5 text-[11px] leading-5 text-[#7a8d7f]">
+                  {interval}
+                </p>
               </div>
               <p className="text-sm font-semibold tabular-nums">{priceLabel}</p>
             </div>
@@ -129,17 +139,25 @@ export default function CheckoutPlanPreview({
                   <dd className="shrink-0 tabular-nums">{money(annualBase)}</dd>
                 </div>
                 <div className="flex justify-between gap-3">
-                  <dt className="text-[#7a8d7f]">Annual savings ({annualDiscount}%)</dt>
-                  <dd className="shrink-0 tabular-nums">-{money(annualSavings)}</dd>
+                  <dt className="text-[#7a8d7f]">
+                    Annual savings ({annualDiscount}%)
+                  </dt>
+                  <dd className="shrink-0 tabular-nums">
+                    -{money(annualSavings)}
+                  </dd>
                 </div>
               </dl>
             )}
             <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-dashed border-[#bfcfc3] py-5">
-              <span className="text-[11px] font-bold tracking-wider">{totalLabel}</span>
+              <span className="text-[11px] font-bold tracking-wider">
+                {totalLabel}
+              </span>
               <span className="text-right text-2xl font-bold tracking-tight tabular-nums">
                 {priceLabel}
                 {hasPrice && (
-                  <span className="ml-1 text-[10px] font-normal tracking-normal">/ {period}</span>
+                  <span className="ml-1 text-[10px] font-normal tracking-normal">
+                    / {period}
+                  </span>
                 )}
               </span>
             </div>
@@ -151,7 +169,9 @@ export default function CheckoutPlanPreview({
               {user.workspaceName && (
                 <div className="flex items-start justify-between gap-3">
                   <dt className="shrink-0 text-[#7a8d7f]">Workspace</dt>
-                  <dd className="min-w-0 break-words text-right">{user.workspaceName}</dd>
+                  <dd className="min-w-0 break-words text-right">
+                    {user.workspaceName}
+                  </dd>
                 </div>
               )}
             </dl>
@@ -160,8 +180,15 @@ export default function CheckoutPlanPreview({
             </p>
             <ul className="mt-3 space-y-2.5">
               {features.map((feature) => (
-                <li key={feature} className="flex items-start gap-2 text-[11px] leading-5">
-                  <Check size={12} aria-hidden="true" className="mt-1 shrink-0" />
+                <li
+                  key={feature}
+                  className="flex items-start gap-2 text-[11px] leading-5"
+                >
+                  <Check
+                    size={12}
+                    aria-hidden="true"
+                    className="mt-1 shrink-0"
+                  />
                   <span>{feature}</span>
                 </li>
               ))}

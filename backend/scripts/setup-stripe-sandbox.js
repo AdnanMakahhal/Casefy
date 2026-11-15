@@ -6,7 +6,9 @@ import { randomBytes } from "node:crypto";
 
 if (!/^(sk|rk)_test_/.test(process.env.STRIPE_SECRET_KEY || ""))
   throw new Error("Sandbox setup requires a test API key");
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { maxNetworkRetries: 2 });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  maxNetworkRetries: 2,
+});
 const envPath = fileURLToPath(new URL("../.env", import.meta.url));
 const updates = {};
 const products = [];
@@ -42,8 +44,13 @@ for (const [plan, amount] of [
       billing === "annual"
         ? `casefy_${plan}_annual_usd_20off_v1`
         : `casefy_${plan}_${billing}_usd_v1`;
-    let price = (await stripe.prices.list({ lookup_keys: [lookupKey], active: true, limit: 1 }))
-      .data[0];
+    let price = (
+      await stripe.prices.list({
+        lookup_keys: [lookupKey],
+        active: true,
+        limit: 1,
+      })
+    ).data[0];
     if (!price)
       price = await stripe.prices.create(
         {
@@ -63,7 +70,8 @@ for (const [plan, amount] of [
       price.product !== product.id
     )
       throw new Error("Existing price does not match the configured catalog");
-    updates[`STRIPE_PRICE_${plan.toUpperCase()}_${billing.toUpperCase()}`] = price.id;
+    updates[`STRIPE_PRICE_${plan.toUpperCase()}_${billing.toUpperCase()}`] =
+      price.id;
     priceIds.push(price.id);
   }
   products.push({ product: product.id, prices: priceIds });

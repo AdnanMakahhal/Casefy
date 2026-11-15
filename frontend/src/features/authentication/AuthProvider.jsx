@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { AuthContext } from "./authContext";
 import { authRequest, billingRequest, tokenKey } from "../../lib/api";
-import { getSessionValue, setSessionValue, removeSessionValue } from "../../lib/storage";
+import {
+  getSessionValue,
+  setSessionValue,
+  removeSessionValue,
+} from "../../lib/storage";
 import UndoDeletionProvider from "../../context/UndoDeletionProvider";
 
 export default function AuthProvider({ children }) {
@@ -11,7 +15,10 @@ export default function AuthProvider({ children }) {
   const [sessionError, setSessionError] = useState("");
   const [signupDraft, setSignupDraft] = useState(null);
   const [workspaceRevision, setWorkspaceRevision] = useState(0);
-  const refreshWorkspaces = useCallback(() => setWorkspaceRevision((value) => value + 1), []);
+  const refreshWorkspaces = useCallback(
+    () => setWorkspaceRevision((value) => value + 1),
+    [],
+  );
 
   useEffect(() => {
     if (!token) return;
@@ -53,12 +60,18 @@ export default function AuthProvider({ children }) {
 
   async function signin(credentials) {
     return saveSession(
-      await authRequest("/signin", { method: "POST", body: JSON.stringify(credentials) }),
+      await authRequest("/signin", {
+        method: "POST",
+        body: JSON.stringify(credentials),
+      }),
     );
   }
   async function signup(details) {
     return saveSession(
-      await authRequest("/signup", { method: "POST", body: JSON.stringify(details) }),
+      await authRequest("/signup", {
+        method: "POST",
+        body: JSON.stringify(details),
+      }),
     );
   }
   async function updateProfile(details) {
@@ -72,7 +85,9 @@ export default function AuthProvider({ children }) {
   }
   const getWorkspaceProjects = useCallback(
     (workspaceKey) =>
-      authRequest(`/workspaces/${encodeURIComponent(workspaceKey)}/projects`, { token }),
+      authRequest(`/workspaces/${encodeURIComponent(workspaceKey)}/projects`, {
+        token,
+      }),
     [token],
   );
 
@@ -100,7 +115,10 @@ export default function AuthProvider({ children }) {
   );
   const getCheckoutStatus = useCallback(
     async (sessionId) => {
-      const result = await billingRequest(`/checkout/${encodeURIComponent(sessionId)}`, { token });
+      const result = await billingRequest(
+        `/checkout/${encodeURIComponent(sessionId)}`,
+        { token },
+      );
       if (result.user) setUser(result.user);
       return result;
     },
@@ -112,9 +130,12 @@ export default function AuthProvider({ children }) {
     return currentUser;
   }, [token]);
   useEffect(() => {
-    if (!user?.complimentaryPlan && !user?.paypalSubscriptionId) return;
+    if (!user?.complimentaryPlan) return;
     const now = Date.now();
-    const boundary = [user.complimentaryStartsAt, user.complimentaryEndsAt, user.paypalPeriodEnd]
+    const boundary = [
+      user.complimentaryStartsAt,
+      user.complimentaryEndsAt,
+    ]
       .map((value) => new Date(value).getTime())
       .filter((value) => value > now)
       .sort((a, b) => a - b)[0];
@@ -152,11 +173,14 @@ export default function AuthProvider({ children }) {
     logout();
   }
   async function deleteWorkspace(workspace) {
-    const result = await authRequest(`/workspaces/${encodeURIComponent(workspace.key)}`, {
-      method: "DELETE",
-      token,
-      body: JSON.stringify({ name: workspace.name }),
-    });
+    const result = await authRequest(
+      `/workspaces/${encodeURIComponent(workspace.key)}`,
+      {
+        method: "DELETE",
+        token,
+        body: JSON.stringify({ name: workspace.name }),
+      },
+    );
     refreshWorkspaces();
     await refreshUser();
     return result;
@@ -200,7 +224,9 @@ export default function AuthProvider({ children }) {
         logout,
       }}
     >
-      <UndoDeletionProvider key={user?.id || "guest"}>{children}</UndoDeletionProvider>
+      <UndoDeletionProvider key={user?.id || "guest"}>
+        {children}
+      </UndoDeletionProvider>
     </AuthContext.Provider>
   );
 }

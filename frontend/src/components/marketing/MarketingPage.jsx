@@ -11,12 +11,19 @@ export default function MarketingPage({ title, description, children }) {
           {description}
         </p>
       </header>
-      <div className="mx-auto mt-12 max-w-[1040px] space-y-12 sm:space-y-16">{children}</div>
+      <div className="mx-auto mt-12 max-w-[1040px] space-y-12 sm:space-y-16">
+        {children}
+      </div>
     </section>
   );
 }
 
-export function MarketingCard({ icon: Icon, title, children, planned = false }) {
+export function MarketingCard({
+  icon: Icon,
+  title,
+  children,
+  planned = false,
+}) {
   return (
     <article
       className={`min-w-0 rounded-2xl border p-6 sm:p-8 ${planned ? "border-[#dce6df] bg-[#edf3ef]" : "border-[#CFDDD5] bg-white"}`}
@@ -46,7 +53,9 @@ export function MarketingCta({
   return (
     <section className="rounded-2xl border border-[#CFDDD5] bg-[#edf3ef] px-6 py-10 text-center sm:px-10 sm:py-12">
       <h2 className="text-3xl font-extrabold tracking-tight">{title}</h2>
-      <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-[#526159]">{description}</p>
+      <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-[#526159]">
+        {description}
+      </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <Link
           to="/test-generator"

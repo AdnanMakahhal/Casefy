@@ -36,7 +36,10 @@ export function createGenerationController(
       if (!["admin", "manager"].includes(req.user.role))
         return res
           .status(403)
-          .json({ message: "Staff generation is available to administrators and managers." });
+          .json({
+            message:
+              "Staff generation is available to administrators and managers.",
+          });
       const body = req.body || {};
       const count = body.filters?.count;
       if (
@@ -54,9 +57,14 @@ export function createGenerationController(
         !body.filters.testTypes.length ||
         body.filters.testTypes.some(
           (type) =>
-            !["functional", "positive", "negative", "edge", "security", "accessibility"].includes(
-              type,
-            ),
+            ![
+              "functional",
+              "positive",
+              "negative",
+              "edge",
+              "security",
+              "accessibility",
+            ].includes(type),
         ) ||
         !["all", "high", "medium", "low"].includes(body.filters?.priority)
       )
@@ -67,14 +75,18 @@ export function createGenerationController(
       if (runningUsers.has(req.userId))
         return res
           .status(409)
-          .json({ message: "A generation request is already running for your account." });
+          .json({
+            message:
+              "A generation request is already running for your account.",
+          });
       runningUsers.add(req.userId);
       let run;
       try {
         const integration = await getIntegration(db, body.provider);
         if (!integration.enabled || !integration.secret)
           return res.status(503).json({
-            message: "Configure this provider in API integrations before generating tests.",
+            message:
+              "Configure this provider in API integrations before generating tests.",
           });
         const requirements =
           body.source === "story"
@@ -83,7 +95,9 @@ export function createGenerationController(
               ? await extract(body.documents)
               : await readPage(body.url);
         if (!requirements)
-          return res.status(400).json({ message: "Provide readable requirements." });
+          return res
+            .status(400)
+            .json({ message: "Provide readable requirements." });
         run = await db.generationRun.create({
           data: {
             userId: req.userId,
@@ -101,10 +115,14 @@ export function createGenerationController(
           count,
           priority: body.filters.priority,
           testTypes: body.filters.testTypes,
-          detail: ["concise", "standard", "detailed"].includes(body.configuration?.detail)
+          detail: ["concise", "standard", "detailed"].includes(
+            body.configuration?.detail,
+          )
             ? body.configuration.detail
             : "standard",
-          reasoning: ["low", "medium", "high"].includes(body.configuration?.reasoning)
+          reasoning: ["low", "medium", "high"].includes(
+            body.configuration?.reasoning,
+          )
             ? body.configuration.reasoning
             : "medium",
         });
@@ -116,7 +134,9 @@ export function createGenerationController(
             testCount: result.testCases.length,
           },
         });
-        return res.status(201).json({ run: saved, unlimited: true, creditsUsed: 0 });
+        return res
+          .status(201)
+          .json({ run: saved, unlimited: true, creditsUsed: 0 });
       } catch (error) {
         if (run)
           await db.generationRun

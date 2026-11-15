@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { ArrowRight, Building2, LockKeyhole, Menu, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowRight,
+  Building2,
+  LockKeyhole,
+  Menu,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import DashboardSidebar from "../components/DashboardSidebar";
 import AccountModal from "../components/AccountModal";
@@ -32,9 +39,14 @@ function AddWorkspace({ onDismiss, onAdded }) {
 
   return (
     <AccountModal title="Add workspace" onDismiss={onDismiss} busy={busy}>
-      <p className="mb-5 text-sm leading-6 text-[#526159]">Give your new workspace a name.</p>
+      <p className="mb-5 text-sm leading-6 text-[#526159]">
+        Give your new workspace a name.
+      </p>
       <form onSubmit={submit}>
-        <label htmlFor="new-workspace-name" className="block text-sm font-medium">
+        <label
+          htmlFor="new-workspace-name"
+          className="block text-sm font-medium"
+        >
           Workspace name
         </label>
         <input
@@ -114,7 +126,9 @@ export default function Workspaces({ user }) {
               <Menu size={20} aria-hidden="true" />
             </button>
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Workspaces</h1>
+              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+                Workspaces
+              </h1>
               <p className="mt-3 text-sm leading-6 text-[#526159]">
                 Private workspaces you own or have joined.
               </p>
@@ -143,14 +157,19 @@ export default function Workspaces({ user }) {
         )}
         {!canAdd && (
           <p className="mt-6 rounded-lg border border-[#CFDDD5] bg-white px-4 py-3 text-sm text-[#526159]">
-            Free plan: use your private workspace or join an invited workspace. Upgrade to create
-            additional workspaces.
+            Free plan: use your private workspace or join an invited workspace.
+            Upgrade to create additional workspaces.
           </p>
         )}
         <section aria-labelledby="workspace-list-heading" className="mt-9">
-          <h2 id="workspace-list-heading" className="mb-5 text-lg font-bold tracking-tight">
+          <h2
+            id="workspace-list-heading"
+            className="mb-5 text-lg font-bold tracking-tight"
+          >
             Your workspaces{" "}
-            <span className="ml-1 text-sm font-medium text-[#526159]">({workspaces.length})</span>
+            <span className="ml-1 text-sm font-medium text-[#526159]">
+              ({workspaces.length})
+            </span>
           </h2>
           {loading ? (
             <div
@@ -183,10 +202,14 @@ export default function Workspaces({ user }) {
                         </span>
                       )}
                     </div>
-                    <h3 className="mt-5 break-words text-lg font-semibold">{name}</h3>
+                    <h3 className="mt-5 break-words text-lg font-semibold">
+                      {name}
+                    </h3>
                     <p className="mt-2 text-sm text-[#526159]">
                       {`Private | ${role === "owner" ? "Owner" : role === "editor" ? "Editor" : "Viewer"}`}
-                      <span className="mt-2 block break-all text-xs">ID: {key}</span>
+                      <span className="mt-2 block break-all text-xs">
+                        ID: {key}
+                      </span>
                     </p>
                     <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#294137]">
                       View projects
@@ -222,9 +245,15 @@ export default function Workspaces({ user }) {
             </ul>
           ) : (
             <div className="rounded-xl border border-dashed border-[#CFDDD5] bg-white p-10 text-center">
-              <Building2 size={30} className="mx-auto text-[#526159]" aria-hidden="true" />
+              <Building2
+                size={30}
+                className="mx-auto text-[#526159]"
+                aria-hidden="true"
+              />
               <h3 className="mt-4 text-lg font-semibold">
-                {canAdd ? "Create your first workspace" : "No workspaces to show"}
+                {canAdd
+                  ? "Create your first workspace"
+                  : "No workspaces to show"}
               </h3>
               <p className="mt-2 text-sm leading-6 text-[#526159]">
                 {canAdd
