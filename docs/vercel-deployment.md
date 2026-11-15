@@ -1,6 +1,19 @@
 # Deploy Casefy on Vercel
 
-Import `AdnanMakahhal/Casefy`, select `main`, and keep the **Root Directory at the repository root** (not `frontend`). The root `vercel.json` installs both npm workspaces, generates Prisma, builds the frontend, serves the API as a Node function and handles React routes, including invitation links. Use Node **24.x** in Project Settings. Vercel assigns a free `*.vercel.app` domain; no purchased domain is required.
+Import `AdnanMakahhal/Casefy`, select `main`, and keep the **Root Directory at the repository root** (not `frontend`). The root `vercel.json` defines two independently built services: `backend` (Express, entrypoint `backend/app.js`) and `frontend` (Vite). Each service installs from its own lockfile. The backend generates Prisma; the frontend builds into `frontend/dist`. Use Node **24.x** in Project Settings. Vercel assigns a free `*.vercel.app` domain; no purchased domain is required.
+
+## Services and routing
+
+| Service | Root / framework | Public requests | Internal bindings |
+| --- | --- | --- | --- |
+| backend | backend / Express | /api and /api/*, plus /health | None |
+| frontend | frontend / Vite | All remaining paths | None |
+
+The API prefix is preserved when Vercel forwards requests, matching Express routes such as /api/auth/signin and both payment webhooks. Frontend-scoped rewrites serve index.html for direct React Router links, including workspace invitations. Unknown API routes return the backend's 404 and never the frontend HTML. The existing /health public route is retained.
+
+There are no server-to-server calls between these services. The frontend is static browser code and calls the public /api routes. Runtime function bindings cannot be embedded in a Vite build or sent to the browser, so no unused BACKEND_URL binding is declared. Neon, Stripe, PayPal and AI providers are external services configured through server-side environment variables, not Vercel services in this repository. If a server-rendered frontend function is added later, declare a binding on that calling service and read its injected URL only inside the function.
+
+Build/runtime options belong to each service; only public routing remains at the top level. The former root api/index.js adapter has been removed because backend/app.js is now the service entrypoint.
 
 ## Environment settings
 
@@ -25,7 +38,7 @@ To prepare an import from the existing local settings, run `npm run deployment:e
 | `PAYPAL_PLAN_PLUS_MONTHLY`, `PAYPAL_PLAN_PLUS_ANNUAL` | Separate active PayPal plan IDs for $24/month and $230.40/year |
 | `PAYPAL_PLAN_PRO_MONTHLY`, `PAYPAL_PLAN_PRO_ANNUAL` | Separate active PayPal plan IDs for $79/month and $758.40/year |
 
-**Omit `FRONTEND_URL` and `VITE_API_URL` on Vercel.** The browser uses `/api` on the same domain. Stripe and PayPal use `VERCEL_PROJECT_PRODUCTION_URL`, falling back to `VERCEL_URL`, for trusted return URLs. Never copy the local `http://localhost:5173`/`8000` overrides into Vercel. If you later use a custom domain, set `FRONTEND_URL=https://your-domain` and update provider webhook endpoints. For isolated Preview billing tests, explicitly use the preview's HTTPS domain and its own test webhook.
+**Omit `FRONTEND_URL` and `VITE_API_URL` on Vercel.** The frontend service uses Vite mode `vercel`, which forces browser API calls to `/api` on the same domain during builds and `vercel dev`, even if local standalone settings point to localhost. Stripe and PayPal use `VERCEL_PROJECT_PRODUCTION_URL`, falling back to `VERCEL_URL`, for trusted return URLs. Never copy the local `http://localhost:5173`/`8000` overrides into Vercel. If you later use a custom domain, set `FRONTEND_URL=https://your-domain` and update provider webhook endpoints. For isolated Preview billing tests, explicitly use the preview's HTTPS domain and its own test webhook.
 
 The public client ID in the originally supplied PayPal button is retained as a fallback. Its secret was not supplied; the app does not treat the public ID alone as sufficient server configuration. One PayPal plan cannot cover all four differently priced/dated subscriptions. A missing or mismatched mapping keeps that option unavailable.
 
@@ -48,10 +61,12 @@ Save the Stripe endpoint signing secret and PayPal webhook ID in Vercel, then re
 
 ## Verify
 
-Run `npm test` and `npm run build`. Run `npm run deployment:check` with the deployment environment loaded to perform read-only Neon, migration, Stripe price/portal and PayPal mapping checks. It prints no secrets and creates no subscriptions, payments or refunds. A nonzero result means configuration remains incomplete.
+Run `npm test`, `npm run prisma:generate --workspace=casefy-backend`, and `npm run build:vercel --workspace=casefy`. For integrated local routing run `npx vercel@latest dev --local` from the repository root (or `vercel dev` when linked). This starts both services; do not start a separate root API function. Run `npm run deployment:check` with the deployment environment loaded to perform read-only Neon, migration, Stripe price/portal and PayPal mapping checks. It prints no secrets and creates no subscriptions, payments or refunds. A nonzero result means configuration remains incomplete.
 
 After deployment, check `/health`, sign-in, `/api/billing/plans`, a direct `/workspaces/:id` link, and a signed-in invitation acceptance. Complete test payments and signed webhook deliveries with sandbox accounts before switching to live credentials. No live payment has been performed by the automated checks.
 
 Production staff document uploads are capped at 2 MB total, leaving room for base64 encoding inside Vercel's function request limit. Local staff generation keeps its 10 MB total limit. Larger hosted imports would require direct object-storage uploads.
+
+When testing checkout through `vercel dev --local`, set `FRONTEND_URL` to that local router's address (normally `http://localhost:3000`) in the shell. Vercel's development environment permits local HTTP return URLs; deployed Preview/Production environments require public HTTPS. Windows may require Developer Mode or the OS symlink privilege for the Vercel CLI's builder cache. If its install fails with `EPERM ... symlink`, that local router test has not completed; independent service builds and backend tests can still run.
 
 References: [Vercel Node functions](https://vercel.com/docs/functions/runtimes/node-js), [Vercel routing](https://vercel.com/docs/routing/rewrites), [Stripe subscription webhooks](https://docs.stripe.com/billing/subscriptions/webhooks), [PayPal subscription webhooks](https://developer.paypal.com/docs/subscriptions/reference/webhooks/).

@@ -16,13 +16,14 @@ test("Vercel cannot silently send customers back to localhost or insecure URLs",
   }
   assert.throws(() => siteOrigin({ VERCEL: "1" }));
   assert.equal(siteOrigin({}), "http://localhost:5173");
+  assert.equal(siteOrigin({ VERCEL: "1", VERCEL_ENV: "development", FRONTEND_URL: "http://localhost:3010" }), "http://localhost:3010");
 });
 
-test("the serverless entry exports Express, serves health, and preserves raw Stripe webhooks", async () => {
+test("the backend service entry exports Express, serves health, and preserves raw Stripe webhooks", async () => {
   process.env.JWT_SECRET ||= "deployment-test-only-secret";
   process.env.STRIPE_SECRET_KEY ||= "sk_test_deployment_fixture";
   process.env.STRIPE_WEBHOOK_SECRET ||= "whsec_deployment_fixture";
-  const { default: app } = await import("../../api/index.js");
+  const { default: app } = await import("../app.js");
   assert.equal(typeof app, "function");
   const server = app.listen(0, "127.0.0.1");
   try {
