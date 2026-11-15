@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "workspace_names" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];

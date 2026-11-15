@@ -1,0 +1,38 @@
+{
+  "name": "casefy-backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "test": "node --test tests/*.test.js",
+    "staff:smoke": "node scripts/staff-panel-smoke.js",
+    "prisma:generate": "prisma generate",
+    "prisma:validate": "prisma validate",
+    "db:migrate": "prisma migrate deploy",
+    "db:dev": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "postinstall": "prisma generate",
+    "stripe:setup": "node scripts/setup-stripe-sandbox.js",
+    "stripe:listen": "node scripts/stripe-listen.js",
+    "stripe:test": "node scripts/stripe-sandbox-check.js",
+    "workspace:smoke": "node scripts/workspace-smoke.js",
+    "deployment:check": "node scripts/check-deployment.js",
+    "deployment:env": "node scripts/export-vercel-env.js"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mammoth": "^1.13.0",
+    "pdf-parse": "^2.4.5",
+    "pg": "^8.23.1",
+    "prisma": "^7.10.1",
+    "sharp": "^0.35.5",
+    "stripe": "^23.1.0"
+  }
+}

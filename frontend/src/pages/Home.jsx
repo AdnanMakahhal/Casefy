@@ -1,9 +1,36 @@
 import { Link } from "react-router-dom";
+import { motion as Motion, useReducedMotion } from "motion/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { A11y, Autoplay } from "swiper/modules";
 import "swiper/css";
+import PrecisionQA from "../components/PrecisionQA";
+
+const team = [
+  {
+    name: "Adnan Makahhal",
+    avatar: "/Dedicated_Team/Adnan_Pic.jpg",
+    description: "Front-end development",
+  },
+  {
+    name: "Dania Jaber",
+    initials: "DJ",
+    description: "Back-end development",
+  },
+  {
+    name: "Waseem Gber",
+    initials: "WG",
+    description: "Test case generation",
+  },
+  {
+    name: "Rashed Abualouf",
+    initials: "RA",
+    description: "Data analysis",
+  },
+];
 
 function Home() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <section className="mx-auto max-w-6xl px-4 pt-12 pb-10 text-center sm:px-8 sm:pt-14">
       <h1 className="mx-auto max-w-[700px] text-4xl leading-[1.12] font-extrabold tracking-tight text-[#102019] sm:text-5xl">
@@ -133,6 +160,72 @@ function Home() {
           </SwiperSlide>
         </Swiper>
       </section>
+      <section
+        aria-labelledby="team-heading"
+        className="mx-auto mt-16 max-w-[1040px] py-8 sm:mt-24"
+      >
+        <div className="mx-auto max-w-[700px] text-center">
+          <h2
+            id="team-heading"
+            className="mx-auto max-w-[700px] text-4xl leading-[1.12] font-extrabold tracking-tight text-[#102019] sm:text-5xl"
+          >
+            Meet our dedicated team
+          </h2>
+          <p className="mx-auto mt-6 max-w-[600px] text-base leading-6 font-medium text-[#526159]">
+            Our team of innovative professionals works tirelessly to deliver
+            exceptional experiences and drive successful outcomes for every
+            project.
+          </p>
+        </div>
+        <ul
+          role="list"
+          className="mt-16 grid grid-cols-1 gap-x-4 gap-y-16 text-center sm:grid-cols-2 lg:mt-24 lg:grid-cols-4"
+        >
+          {team.map((member, index) => (
+            <Motion.li
+              key={member.name}
+              initial={reduceMotion ? false : { opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{
+                duration: reduceMotion ? 0 : 0.6,
+                delay: reduceMotion ? 0 : index * 0.42,
+                ease: "easeOut",
+              }}
+            >
+              {member.avatar ? (
+                <img
+                  className="mx-auto size-24 rounded-full object-cover"
+                  src={member.avatar}
+                  alt={member.name}
+                  width="96"
+                  height="96"
+                  loading="lazy"
+                />
+              ) : (
+                <div
+                  aria-hidden="true"
+                  className="mx-auto flex size-24 items-center justify-center rounded-full bg-[#edf3ef] text-2xl font-extrabold tracking-tight text-[#294137]"
+                >
+                  {member.initials}
+                </div>
+              )}
+              <div className="mt-4 flex flex-col">
+                <h3 className="text-xl leading-tight font-extrabold tracking-tight text-[#102019]">
+                  {member.name}
+                </h3>
+                <p className="mt-2 text-base leading-6 font-medium text-[#526159]">
+                  Founder of Casefy
+                </p>
+                <p className="mt-1 text-sm leading-6 font-medium text-[#526159]">
+                  {member.description}
+                </p>
+              </div>
+            </Motion.li>
+          ))}
+        </ul>
+      </section>
+      <PrecisionQA />
     </section>
   );
 }

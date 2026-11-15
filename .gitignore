@@ -5,3 +5,11 @@ dist-ssr/
 .env.*
 !.env.example
 *.log
+.vercel/
+.npm-cache/
+.codex/
+.agents/
+.aws/
+backend/generated/
+coverage/
+.deployment-check/

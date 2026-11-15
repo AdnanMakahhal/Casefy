@@ -1,0 +1,19 @@
+{
+  "name": "casefy-app",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <27"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "build": "npm run prisma:generate --workspace=casefy-backend && npm run build --workspace=casefy",
+    "test": "npm test --workspace=casefy-backend && node --test frontend/tests/*.test.mjs",
+    "db:migrate": "npm run db:migrate --workspace=casefy-backend",
+    "deployment:check": "npm run deployment:check --workspace=casefy-backend",
+    "deployment:env": "npm run deployment:env --workspace=casefy-backend"
+  }
+}

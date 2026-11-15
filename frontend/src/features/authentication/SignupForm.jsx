@@ -1,11 +1,26 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "./authContext";
 
 function SignupForm() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { setSignupDraft } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
 
   return (
-    <form onSubmit={(event) => event.preventDefault()}>
+    <form onSubmit={(event) => {
+      event.preventDefault();
+      const data = new FormData(event.currentTarget);
+      const name = data.get("fullName").trim();
+      if (!name) {
+        setError("Please enter your full name.");
+        return;
+      }
+      setSignupDraft({ name, email: data.get("email").trim().toLowerCase(), password: data.get("password") });
+      navigate("/select-role", { state: location.state });
+    }}>
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <button
           type="button"
@@ -103,6 +118,7 @@ function SignupForm() {
           />
           <span>I agree to the Terms and Privacy Policy.</span>
         </label>
+        {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
         <button
           type="submit"
           className="min-h-14 w-full cursor-pointer rounded-lg bg-[#294137] px-6 py-3 text-base font-semibold text-[#ffffff] transition-colors hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
@@ -114,6 +130,7 @@ function SignupForm() {
         <p className="text-[#6c7771]">Already have an account?</p>
         <Link
           to="/signin"
+          state={location.state}
           className="rounded font-semibold text-[#102018] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
         >
           Sign in
