@@ -1,6 +1,6 @@
 # Casefy
 
-Casefy combines a React frontend with an Express API backed by PostgreSQL and Prisma. It includes account dashboards, private workspaces, support messaging, Stripe billing, and staff tools for test generation and account management.
+Casefy combines a React frontend with an Express API backed by PostgreSQL and Prisma. It includes account dashboards, private workspaces, support messaging, Stripe billing, and staff tools for account management.
 
 ## Documentation
 
@@ -71,4 +71,4 @@ Run these from the repository root:
 
 When hosting the built frontend separately, forward /api to the API and configure a public HTTPS FRONTEND_URL for billing return URLs.
 
-Staff generation uses configured provider credentials. Customer generation remains a request preview; browser test execution is not connected.
+Customer generation remains a request preview; browser test execution is not connected.

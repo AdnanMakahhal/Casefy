@@ -1,13 +1,10 @@
 import {
-  BarChart3,
   CreditCard,
   Handshake,
   LayoutDashboard,
   MessageSquare,
-  Plug,
   Receipt,
   RotateCcw,
-  Sparkles,
   Users,
 } from "lucide-react";
 
@@ -50,31 +47,13 @@ export const adminViews = {
     description: "Track refund requests and issued refunds.",
     icon: RotateCcw,
   },
-  integrations: {
-    title: "API integrations",
-    description: "Connect AI generation, email delivery, and billing.",
-    icon: Plug,
-    section: "Tools",
-  },
-  generator: {
-    title: "Test generator",
-    description: "Generate test cases with unlimited staff access.",
-    icon: Sparkles,
-  },
-  reports: {
-    title: "Reports",
-    description: "Generation history and results across your workspace.",
-    icon: BarChart3,
-  },
 };
 
 export function adminNavigation(pathname, search) {
   const view =
-    pathname === "/test-generator"
-      ? "generator"
-      : pathname === "/reports"
-        ? "reports"
-        : new URLSearchParams(search).get("view") || "overview";
+    pathname === "/admin"
+      ? new URLSearchParams(search).get("view") || "overview"
+      : null;
   return Object.entries(adminViews).map(([key, item]) => ({
     label: item.title,
     icon: item.icon,

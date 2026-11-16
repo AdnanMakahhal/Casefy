@@ -1,10 +1,10 @@
 ﻿import { useId } from "react";
 import { LoaderCircle, Send } from "lucide-react";
 import ModelPicker from "./ModelPicker";
-import { DEFAULT_LLM_MODELS, DEFAULT_MODEL_CONFIGURATION } from "./models";
+import { GENERATION_MODES, DEFAULT_MODEL_CONFIGURATION } from "./models";
 
 export function ModelSelectorPrompt({
-  models = DEFAULT_LLM_MODELS,
+  models = GENERATION_MODES,
   value,
   configurations = {},
   onConfigurationChange,

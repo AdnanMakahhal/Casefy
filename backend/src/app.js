@@ -5,7 +5,6 @@ import authRoutes from "./routes/authRoutes.js";
 import workspaceRoutes from "./routes/workspaceRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import billingRoutes from "./routes/billingRoutes.js";
-import generationRoutes from "./routes/generationRoutes.js";
 import supportRoutes from "./routes/supportRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
@@ -22,8 +21,6 @@ app.post(
   express.raw({ type: "application/json", limit: "1mb" }),
   webhook,
 );
-
-app.use("/api/generation", generationRoutes);
 
 app.use(express.json({ limit: "400kb" }));
 app.get("/health", (_req, res) => res.json({ status: "ok" }));

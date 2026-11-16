@@ -6,10 +6,7 @@ import { createAdminController } from "../src/controllers/adminController.js";
 import { createSupportController } from "../src/controllers/supportController.js";
 import { createStaffController } from "../src/controllers/staffController.js";
 import { createMessagesController } from "../src/controllers/messagesController.js";
-import { createGenerationController } from "../src/controllers/generationController.js";
 import { createProtect } from "../src/middleware/authMiddleware.js";
-import { encryptSecret } from "../src/utils/integrations.js";
-import { extractDocuments } from "../src/services/generationService.js";
 
 const response = () => ({
   statusCode: 200,
@@ -28,8 +25,6 @@ const counts = async () =>
     prisma.user.count(),
     prisma.supportRequest.count(),
     prisma.userMessage.count(),
-    prisma.generationRun.count(),
-    prisma.integrationSetting.count(),
   ]);
 try {
   const actor = await prisma.user.findFirstOrThrow({
@@ -158,58 +153,6 @@ try {
           },
           response(),
         );
-        await tx.integrationSetting.upsert({
-          where: { provider: "openai" },
-          create: {
-            provider: "openai",
-            model: "smoke-model",
-            secretCiphertext: encryptSecret("smoke-not-real"),
-            enabled: true,
-          },
-          update: {
-            model: "smoke-model",
-            secretCiphertext: encryptSecret("smoke-not-real"),
-            enabled: true,
-          },
-        });
-        const generated = response();
-        await createGenerationController(tx, async () => ({
-          model: "smoke-model",
-          testCases: [
-            {
-              id: 1,
-              title: "Valid login",
-              priority: "high",
-              type: "functional",
-              steps: ["Submit valid credentials"],
-              expectedResult: "Dashboard appears",
-            },
-          ],
-        })).generate(
-          {
-            ...staff,
-            body: {
-              source: "story",
-              provider: "openai",
-              subject: "Login smoke",
-              prompt: "A user can sign in",
-              filters: {
-                count: 1,
-                priority: "high",
-                testTypes: ["functional"],
-              },
-            },
-          },
-          generated,
-        );
-        assert.equal(generated.statusCode, 201);
-        assert.equal(generated.body.creditsUsed, 0);
-        const report = response();
-        await staffController.report(
-          { ...staff, params: { id: String(generated.body.run.id) } },
-          report,
-        );
-        assert.equal(report.body.run.result[0].title, "Valid login");
         throw rollback;
       },
       { timeout: 45000 },
@@ -218,33 +161,8 @@ try {
     if (error !== rollback) throw error;
   }
   assert.deepEqual(await counts(), before);
-  const objects = [
-    "<< /Type /Catalog /Pages 2 0 R >>",
-    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
-    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
-  ];
-  const content = "BT /F1 12 Tf 72 720 Td (Login requires a password.) Tj ET";
-  objects.push(
-    `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
-  );
-  let pdf = "%PDF-1.4\n";
-  const offsets = [0];
-  for (const [index, object] of objects.entries()) {
-    offsets.push(Buffer.byteLength(pdf));
-    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
-  }
-  const xref = Buffer.byteLength(pdf);
-  pdf += `xref\n0 6\n0000000000 65535 f \n${offsets
-    .slice(1)
-    .map((offset) => `${String(offset).padStart(10, "0")} 00000 n \n`)
-    .join("")}trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
-  const extracted = await extractDocuments([
-    { name: "smoke.pdf", content: Buffer.from(pdf).toString("base64") },
-  ]);
-  assert.match(extracted, /Login requires a password/);
   console.log(
-    "Staff smoke passed: account management, support conversations, in-app messages, session blocking, mocked generation, saved reports, PDF extraction. All database fixtures rolled back; no emails, AI calls, or refunds sent.",
+    "Staff smoke passed: account management, support conversations, in-app messages, session blocking. All database fixtures rolled back; no emails or refunds sent.",
   );
 } finally {
   await prisma.$disconnect();

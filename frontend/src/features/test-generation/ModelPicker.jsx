@@ -18,7 +18,7 @@ export default function ModelPicker({
   const panel = useRef(null);
   const id = useId();
   const filtered = models.filter((item) =>
-    `${item.label} ${item.provider || ""} ${item.version || ""}`
+    `${item.label} ${item.description || ""}`
       .toLowerCase()
       .includes(query.toLowerCase()),
   );
@@ -80,12 +80,9 @@ export default function ModelPicker({
         }}
         className="inline-flex min-h-11 max-w-full cursor-pointer items-center gap-2 rounded-lg border border-[#cfddd5] bg-white px-3 py-2 text-sm font-medium text-[#294137] transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:opacity-50"
       >
-        <img
-          src={model?.logo}
-          alt=""
-          aria-hidden="true"
-          className="size-5 shrink-0 object-contain"
-        />
+        {model?.icon && (
+          <model.icon size={20} aria-hidden="true" className="shrink-0" />
+        )}
         <span className="truncate">{model?.label}</span>
         <ChevronDown
           size={14}
@@ -99,17 +96,17 @@ export default function ModelPicker({
           tabIndex={-1}
           id={`${id}-picker`}
           role="dialog"
-          aria-label="Choose a model"
+          aria-label="Choose a generation mode"
           className="absolute bottom-full left-0 z-50 mb-2 max-h-[min(65dvh,480px)] w-[min(21rem,calc(100vw_-_4rem))] overflow-y-auto rounded-xl border border-[#cfddd5] bg-white shadow-[0_8px_30px_#20332b1a] outline-none"
         >
           <div className="flex items-center justify-between gap-2 px-4 pt-3">
             <h3 className="text-xs font-semibold text-[#294137]">
-              Choose a model
+              Choose a generation mode
             </h3>
             <button
               type="button"
               onClick={close}
-              aria-label="Close model picker"
+              aria-label="Close generation mode picker"
               className="flex size-9 cursor-pointer items-center justify-center rounded-lg text-[#718578] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]"
             >
               <X size={15} aria-hidden="true" />
@@ -123,7 +120,7 @@ export default function ModelPicker({
             />
             <input
               ref={search}
-              aria-label="Search models"
+              aria-label="Search generation modes"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               onKeyDown={(event) => {
@@ -138,13 +135,13 @@ export default function ModelPicker({
                   root.current.querySelector("[data-model-option]")?.focus();
                 }
               }}
-              placeholder="Search models"
+              placeholder="Search generation modes"
               className="min-h-11 w-full rounded-lg border border-[#dce6df] bg-[#f6f8f7] pr-3 pl-9 text-sm text-[#294137] placeholder:text-[#8a9890] focus:outline-2 focus:outline-[#91a99a]"
             />
           </div>
           <div
             role="group"
-            aria-label="Available models"
+            aria-label="Available generation modes"
             className="space-y-1 px-2 pb-2"
             onKeyDown={(event) => {
               if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key))
@@ -173,18 +170,13 @@ export default function ModelPicker({
                 onClick={() => onModelChange?.(item)}
                 className={`flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#294137] ${model?.value === item.value ? "bg-[#edf3ef]" : "hover:bg-[#f6f8f7]"}`}
               >
-                <img
-                  src={item.logo}
-                  alt=""
-                  aria-hidden="true"
-                  className="size-6 shrink-0 object-contain"
-                />
+                <item.icon size={24} aria-hidden="true" className="shrink-0 text-[#294137]" />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-medium text-[#294137]">
                     {item.label}
                   </span>
                   <span className="mt-0.5 block break-words text-[11px] leading-4 text-[#7c8c82]">
-                    {item.version || item.provider}
+                    {item.description}
                   </span>
                 </span>
                 {model?.value === item.value && (
@@ -198,7 +190,7 @@ export default function ModelPicker({
             ))}
             {!filtered.length && (
               <p className="px-3 py-5 text-center text-xs text-[#7c8c82]">
-                No matching models.
+                No matching generation modes.
               </p>
             )}
           </div>
@@ -254,7 +246,7 @@ export default function ModelPicker({
             </details>
           )}
           <div className="flex items-center justify-between gap-3 border-t border-[#e1e9e4] px-3 py-2.5">
-            <p className="text-[10px] text-[#8a9890]">AI connection pending</p>
+            <p className="text-[10px] text-[#8a9890]">Request preview</p>
             <button
               type="button"
               onClick={close}

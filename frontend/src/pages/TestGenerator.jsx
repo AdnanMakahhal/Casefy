@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   BookOpen,
   Download,
@@ -14,11 +14,9 @@ import { Link } from "react-router-dom";
 import DashboardSidebar from "../components/DashboardSidebar";
 import AccountModal from "../components/AccountModal";
 import SelectMenu from "../components/SelectMenu";
-import { DEFAULT_LLM_MODELS } from "../features/test-generation/models";
+import { GENERATION_MODES } from "../features/test-generation/models";
 import { ModelSelectorPrompt } from "../features/test-generation/ModelSelectorPrompt";
 import useWorkspaces from "../features/workspaces/useWorkspaces";
-import { sessionRequest } from "../lib/api";
-import GenerationResults from "../features/test-generation/GenerationResults";
 
 const sources = [
   { value: "story", label: "User story", icon: BookOpen },
@@ -43,17 +41,13 @@ function formatSize(size) {
 }
 
 export default function TestGenerator({ user }) {
-  const staff = ["admin", "manager"].includes(user.role);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [source, setSource] = useState("story");
   const [prompts, setPrompts] = useState({ story: "", documents: "", url: "" });
   const [subject, setSubject] = useState("");
   const [modelValue, setModelValue] = useState(
-    staff ? "openai" : DEFAULT_LLM_MODELS[0].value,
+    GENERATION_MODES[0].value,
   );
-  const [providers, setProviders] = useState([]);
-  const [generating, setGenerating] = useState(false);
-  const [result, setResult] = useState(null);
   const [configurations, setConfigurations] = useState({});
   const [files, setFiles] = useState([]);
   const [url, setUrl] = useState("");
@@ -79,38 +73,9 @@ export default function TestGenerator({ user }) {
   const uploadButton = useRef(null);
   const urlInput = useRef(null);
   const countInput = useRef(null);
-  const urlAllowed = staff || ["plus", "pro", "enterprise"].includes(user.plan);
+  const urlAllowed = ["plus", "pro", "enterprise"].includes(user.plan);
   const urlLocked = source === "url" && !urlAllowed;
-  const models = staff
-    ? DEFAULT_LLM_MODELS.map((model, index) => {
-        const provider = ["openai", "deepseek", "gemini"][index];
-        const integration = providers.find(
-          (item) => item.provider === provider,
-        );
-        return {
-          ...model,
-          value: provider,
-          version: integration?.model || "Configure in API integrations",
-          description: integration?.available
-            ? "Connected. Generate tests with unlimited staff runs."
-            : "Add and enable this provider in API integrations to generate tests.",
-        };
-      })
-    : DEFAULT_LLM_MODELS;
-  useEffect(() => {
-    if (!staff) return;
-    let active = true;
-    sessionRequest("/generation/providers")
-      .then((data) => {
-        if (active) setProviders(data.providers);
-      })
-      .catch((err) => {
-        if (active) setError(err.message);
-      });
-    return () => {
-      active = false;
-    };
-  }, [staff]);
+  const models = GENERATION_MODES;
 
   function changeSource(next) {
     setSource(next);
@@ -146,17 +111,6 @@ export default function TestGenerator({ user }) {
       setError("Attach up to 5 documents per request.");
       return;
     }
-    const staffUploadMB = 10;
-    if (
-      staff &&
-      next.reduce((total, file) => total + file.size, 0) >
-        staffUploadMB * 1024 * 1024
-    ) {
-      setError(
-        `Staff generation supports up to ${staffUploadMB} MB of documents in total.`,
-      );
-      return;
-    }
     setFiles(next);
   }
   function toggleType(type) {
@@ -174,23 +128,12 @@ export default function TestGenerator({ user }) {
       setError("Add a subject and description before reviewing your request.");
       return;
     }
-    if (staff && subject?.length > 160) {
-      setError("Keep the subject to 160 characters or fewer.");
-      return;
-    }
     if (
       !count.trim() ||
       !Number.isSafeInteger(Number(count)) ||
       Number(count) < 1
     ) {
       setError("Enter a whole number of test cases greater than zero.");
-      countInput.current?.focus();
-      return;
-    }
-    if (staff && Number(count) > 100) {
-      setError(
-        "Generate up to 100 cases per request. Staff can run unlimited requests.",
-      );
       countInput.current?.focus();
       return;
     }
@@ -222,10 +165,10 @@ export default function TestGenerator({ user }) {
       return;
     }
     setRequest({
-      preview: !staff,
+      preview: true,
       source,
       workspace: workspaces.find(({ key }) => key === workspaceKey) || null,
-      model: { value: model.value, label: model.label, version: model.version },
+      generationMode: { value: model.value, label: model.label },
       configuration,
       prompt,
       ...(source === "story" ? { subject, description: prompt } : {}),
@@ -259,56 +202,6 @@ export default function TestGenerator({ user }) {
     link.click();
     setTimeout(() => URL.revokeObjectURL(address), 1000);
   }
-  async function generate() {
-    if (generating) return;
-    setGenerating(true);
-    setError("");
-    try {
-      const documents =
-        request.source === "documents"
-          ? await Promise.all(
-              files.map(
-                (file) =>
-                  new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () =>
-                      resolve({
-                        name: file.name,
-                        content: reader.result.split(",")[1],
-                      });
-                    reader.onerror = () =>
-                      reject(new Error("Unable to read requirement document."));
-                    reader.readAsDataURL(file);
-                  }),
-              ),
-            )
-          : undefined;
-      const response = await sessionRequest("/generation", {
-        method: "POST",
-        body: JSON.stringify({
-          source: request.source,
-          provider: request.model.value,
-          subject:
-            request.subject ||
-            (request.source === "documents"
-              ? "Document test coverage"
-              : "Website test coverage"),
-          prompt: request.prompt,
-          url: request.url,
-          documents,
-          filters: request.filters,
-          configuration: request.configuration,
-        }),
-      });
-      setResult(response.run);
-      setRequest(null);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setGenerating(false);
-    }
-  }
-
   return (
     <div className="min-h-screen bg-[#f6f8f7] text-[#102019] lg:pl-64">
       <DashboardSidebar
@@ -468,7 +361,7 @@ export default function TestGenerator({ user }) {
                           inputMode="numeric"
                           min="1"
                           step="1"
-                          max={staff ? 100 : Number.MAX_SAFE_INTEGER}
+                          max={Number.MAX_SAFE_INTEGER}
                           required
                           value={count}
                           onChange={(event) => {
@@ -482,9 +375,7 @@ export default function TestGenerator({ user }) {
                           id="test-count-hint"
                           className="mt-2 text-[11px] leading-5 text-[#7c8c82]"
                         >
-                          {staff
-                            ? "Unlimited staff runs. Up to 100 cases per request."
-                            : "Enter the number of test cases you need."}
+                          Enter the number of test cases you need.
                         </p>
                       </div>
                       <div>
@@ -586,7 +477,7 @@ export default function TestGenerator({ user }) {
                       </p>
                       <p className="mt-1.5 text-xs leading-5 text-[#7c8c82]">
                         PDF, DOCX, TXT, or Markdown · Up to 5 files,{" "}
-                        {staff ? `10 MB total` : "10 MB each"}
+                        10 MB each
                       </p>
                       <button
                         ref={uploadButton}
@@ -671,9 +562,7 @@ export default function TestGenerator({ user }) {
                       />
                     </div>
                     <p className="mt-2 text-xs leading-5 text-[#7c8c82]">
-                      {staff
-                        ? "Casefy reads the public page as requirements. This generates test cases; it does not execute browser tests."
-                        : "Add the page you want to cover. This preview does not visit the website."}
+                      Add the page you want to cover. This preview does not visit the website.
                     </p>
                   </div>
                 )}
@@ -691,33 +580,13 @@ export default function TestGenerator({ user }) {
           )}
         </div>
 
-        {staff && (
-          <p className="mt-6 rounded-lg border border-[#CFDDD5] bg-white p-4 text-sm text-[#526159]">
-            Admin and manager access: unlimited generation runs, no Casefy
-            monthly credit limit.{" "}
-            <Link
-              to="/admin?view=integrations"
-              className="font-semibold text-[#294137] underline"
-            >
-              Configure AI providers
-            </Link>
-          </p>
-        )}
-        {result && (
-          <div className="mt-6 rounded-xl border border-[#CFDDD5] bg-white p-6">
-            <GenerationResults run={result} />
-          </div>
-        )}
         {request && (
           <AccountModal
             title="Review generation request"
-            busy={generating}
             onDismiss={() => setRequest(null)}
           >
             <p className="mb-5 rounded-lg bg-[#edf3ef] p-3 text-xs leading-5 text-[#526159]">
-              {staff
-                ? "Unlimited staff generation uses your configured provider. Provider charges and rate limits still apply. Click Generate tests to send these requirements."
-                : "This is a request preview. No AI request has been sent and no credits have been used."}
+              This is a request preview. No AI request has been sent and no credits have been used.
             </p>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-5 text-sm">
               {[
@@ -727,8 +596,8 @@ export default function TestGenerator({ user }) {
                 ],
                 ["Workspace", request.workspace?.name || "Not selected"],
                 [
-                  "Model / provider",
-                  `${request.model.label} / ${request.model.version}${staff ? "" : " (preview)"}`,
+                  "Generation mode",
+                  request.generationMode.label,
                 ],
                 ["Test cases", request.filters.count],
                 [
@@ -804,16 +673,6 @@ export default function TestGenerator({ user }) {
                 {error}
               </p>
             )}
-            {staff && (
-              <button
-                type="button"
-                disabled={generating}
-                onClick={generate}
-                className="mt-6 min-h-11 w-full rounded-lg bg-[#294137] px-5 text-sm font-semibold text-white disabled:opacity-50"
-              >
-                {generating ? "Generating tests..." : "Generate tests"}
-              </button>
-            )}
             <div className="mt-6 flex flex-wrap justify-end gap-3">
               <button
                 type="button"
@@ -825,7 +684,6 @@ export default function TestGenerator({ user }) {
               </button>
               <button
                 type="button"
-                disabled={generating}
                 onClick={() => setRequest(null)}
                 className="min-h-11 cursor-pointer rounded-lg bg-[#294137] px-5 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
               >

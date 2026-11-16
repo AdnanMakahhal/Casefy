@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Menu, RefreshCw } from "lucide-react";
 import DashboardSidebar from "../components/DashboardSidebar";
-import ReportsSection from "../features/admin/ReportsSection";
+import ReportsSection from "../features/reports/ReportsSection";
 import "../features/admin/Admin.css";
 
 export default function Reports({ user }) {
@@ -39,7 +39,7 @@ export default function Reports({ user }) {
             Refresh
           </button>
         </header>
-        <ReportsSection session revision={revision} />
+        <ReportsSection revision={revision} />
       </main>
     </div>
   );

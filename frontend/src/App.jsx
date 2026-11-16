@@ -82,18 +82,15 @@ function App() {
             }
           >
             <Route path="dashboard" element={<Dashboard user={user} />} />
+            <Route path="test-generator" element={<TestGenerator user={user} />} />
+            <Route path="reports" element={<Reports user={user} />} />
           </Route>
           <Route element={<ProtectedRoute roles={["admin", "manager"]} />}>
             <Route path="admin" element={<Admin />} />
           </Route>
           <Route element={<ProtectedRoute />}>
             <Route path="profile" element={<Profile user={user} />} />
-            <Route
-              path="test-generator"
-              element={<TestGenerator user={user} />}
-            />
             <Route path="messages" element={<Messages user={user} />} />
-            <Route path="reports" element={<Reports user={user} />} />
             <Route path="workspaces" element={<Workspaces user={user} />} />
             <Route path="workspace-invite" element={<WorkspaceInvite />} />
             <Route

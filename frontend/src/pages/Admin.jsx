@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import { adminViews } from "../features/admin/navigation";
 import { useState, useEffect } from "react";
 import { adminRequest as request } from "../features/admin/api";
-import TestGenerator from "./TestGenerator";
 import DashboardSidebar from "../components/DashboardSidebar";
 import {
   Menu,
@@ -142,7 +141,6 @@ export default function Admin() {
     setParams(next === "users" ? { view: "users" } : {});
     setSidebar(false);
   }
-  if (view === "generator") return <TestGenerator user={user} />;
   return (
     <div className="admin-shell lg:pl-64">
       <a href="#admin-content" className="admin-skip">

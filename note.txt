@@ -9,7 +9,6 @@ DATABASE TABLES
 - _prisma_migrations
 - generation_runs
 - integration_settings
-- paypal_checkouts
 - projects
 - refund_records
 - stripe_webhook_events

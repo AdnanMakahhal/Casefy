@@ -38,15 +38,15 @@ public/           referenced logos and static assets
 
 ## Application behavior
 
-Each page composes reusable components and feature-specific UI. Admin inboxes, payments, refunds, subscriptions, integrations, reports, user dialogs, and the user table are separate modules under features/admin. Checkout's plan preview and receipt animation live under features/checkout. Shared HTTP, display formatting, and browser storage are under lib.
+Each page composes reusable components and feature-specific UI. Admin inboxes, payments, refunds, subscriptions, user dialogs, and the user table are separate modules under features/admin. Checkout's plan preview and receipt animation live under features/checkout. Shared HTTP, display formatting, and browser storage are under lib.
 
 AuthProvider owns the signed-in session. src/lib/api.js sends API requests and handles errors. The API enforces account roles, workspace membership, ownership, and billing entitlements.
 
 Customers manage workspaces, projects, and one-use invitation links through Workspaces. Owners manage membership; editors can modify projects and viewers can read them. The [backend workspace guide](../backend/README.md#private-workspaces) describes permissions, invite expiry, and API endpoints.
 
-The customer's support conversation is a floating widget on the dashboard and supported public pages. Staff handle replies in the shared admin panel at /admin. Administrators and managers share navigation for users, support, subscriptions, payments, refunds, integrations, generation, and reports. See the [staff guide](../backend/README.md#staff-panel) for permissions and configuration.
+The customer's support conversation is a floating widget on the dashboard and supported public pages. Staff handle replies in the shared admin panel at /admin. Administrators and managers share navigation for users, support, subscriptions, payments, and refunds. See the [staff guide](../backend/README.md#staff-panel) for permissions and configuration.
 
-New subscriptions use Stripe checkout. Higher eligible tiers use the existing subscription's upgrade flow. Enterprise requests use the contact form. Customer generation currently previews a request; configured staff generation produces saved reports without running browser tests.
+New subscriptions use Stripe checkout. Higher eligible tiers use the existing subscription's upgrade flow. Enterprise requests use the contact form. Customer generation currently previews a request. Test generation and reports are customer-only pages.
 
 ## Checks and production build
 

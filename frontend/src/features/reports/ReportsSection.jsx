@@ -1,14 +1,14 @@
-import { useStaffData } from "./api";
+import useReportData from "./useReportData";
 import { titleCase, displayDate } from "../../lib/format";
 import AccountModal from "../../components/AccountModal";
-import { Loading, ErrorMessage, Empty, Badge, Pagination } from "./ui";
+import { Loading, ErrorMessage, Empty, Badge, Pagination } from "../admin/ui";
 import GenerationResults from "../test-generation/GenerationResults";
 import { useState } from "react";
-import { panel } from "./styles";
+import { panel } from "../admin/styles";
 import { ArrowUpRight } from "lucide-react";
 
-function ReportDetail({ id, onClose, session }) {
-  const { data, loading, error } = useStaffData(`/reports/${id}`, 0, session);
+function ReportDetail({ id, onClose }) {
+  const { data, loading, error } = useReportData(`/reports/${id}`);
   return (
     <AccountModal title={`Generation report #${id}`} onDismiss={onClose}>
       {loading ? (
@@ -22,13 +22,12 @@ function ReportDetail({ id, onClose, session }) {
   );
 }
 
-export default function ReportsSection({ revision = 0, session = false }) {
+export default function ReportsSection({ revision = 0 }) {
   const [page, setPage] = useState(1),
     [selected, setSelected] = useState(null);
-  const { data, loading, error } = useStaffData(
+  const { data, loading, error } = useReportData(
     `/reports?page=${page}`,
     revision,
-    session,
   );
   if (loading) return <Loading />;
   if (error) return <ErrorMessage>{error}</ErrorMessage>;
@@ -115,7 +114,6 @@ export default function ReportsSection({ revision = 0, session = false }) {
       {selected && (
         <ReportDetail
           id={selected}
-          session={session}
           onClose={() => setSelected(null)}
         />
       )}

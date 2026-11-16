@@ -2,8 +2,6 @@ import prisma from "../db.js";
 import { stripe as defaultStripe, billingConfig } from "../utils/stripe.js";
 import { createBillingService, objectId } from "../services/billingService.js";
 import {
-  integrationProviders,
-  encryptSecret,
   getIntegration,
   deliverEmail,
 } from "../utils/integrations.js";
@@ -83,90 +81,6 @@ export function createStaffController(
       );
   };
   return {
-    async integrations(_req, res) {
-      try {
-        const integrations = [];
-        for (const [provider, definition] of Object.entries(
-          integrationProviders,
-        )) {
-          const configured = await getIntegration(db, provider);
-          integrations.push({
-            provider,
-            name: definition.name,
-            configured: Boolean(configured.secret),
-            enabled: configured.enabled,
-            model: configured.model || "",
-            senderEmail: configured.senderEmail || "",
-          });
-        }
-        return res.json({
-          integrations,
-          stripe: {
-            configured: Boolean(stripe),
-            liveMode: billingConfig().liveMode,
-            webhookConfigured: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
-          },
-        });
-      } catch (error) {
-        return staffFailure(res, error);
-      }
-    },
-    async saveIntegration(req, res) {
-      if (req.user.role !== "admin")
-        return res
-          .status(403)
-          .json({
-            message: "Only administrators can change provider credentials.",
-          });
-      if (!integrationProviders[req.params.provider])
-        return res.status(400).json({ message: "Unknown provider." });
-      const body = req.body || {};
-      if (
-        typeof body.enabled !== "boolean" ||
-        typeof body.model !== "string" ||
-        body.model.length > 100 ||
-        !/^[a-zA-Z0-9._:/-]*$/.test(body.model)
-      )
-        return res
-          .status(400)
-          .json({
-            message: "Provide a valid model ID and integration status.",
-          });
-      if (
-        body.apiKey &&
-        (typeof body.apiKey !== "string" ||
-          body.apiKey.length > 1000 ||
-          /\s/.test(body.apiKey))
-      )
-        return res.status(400).json({ message: "Provide a valid API key." });
-      if (
-        body.senderEmail &&
-        (typeof body.senderEmail !== "string" ||
-          body.senderEmail.length > 254 ||
-          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.senderEmail))
-      )
-        return res
-          .status(400)
-          .json({ message: "Provide a verified sender email address." });
-      try {
-        const data = {
-          model: body.model.trim() || null,
-          enabled: body.enabled,
-          senderEmail: body.senderEmail?.trim() || null,
-          ...(body.apiKey
-            ? { secretCiphertext: encryptSecret(body.apiKey) }
-            : {}),
-        };
-        await db.integrationSetting.upsert({
-          where: { provider: req.params.provider },
-          create: { provider: req.params.provider, ...data },
-          update: data,
-        });
-        return res.json({ message: "Integration settings saved." });
-      } catch (error) {
-        return staffFailure(res, error);
-      }
-    },
     async inbox(req, res) {
       try {
         const { page, skip, take } = pageOptions(req.query);
@@ -299,7 +213,7 @@ export function createStaffController(
           )
             return res.status(503).json({
               message:
-                "Configure Resend email and a verified sender in API integrations first.",
+                "Resend email and a verified sender must be configured first.",
             });
         }
         let message = await db.userMessage.create({
@@ -737,62 +651,7 @@ export function createStaffController(
         return staffFailure(res, error);
       }
     },
-    async reports(req, res) {
-      try {
-        const { page, skip, take } = pageOptions(req.query);
-        const where = ["admin", "manager"].includes(req.user.role)
-          ? {}
-          : { userId: req.userId };
-        const [runs, total, summary] = await Promise.all([
-          db.generationRun.findMany({
-            where,
-            skip,
-            take,
-            orderBy: { id: "desc" },
-            select: {
-              id: true,
-              subject: true,
-              source: true,
-              provider: true,
-              model: true,
-              requestedCount: true,
-              testCount: true,
-              status: true,
-              error: true,
-              createdAt: true,
-              user: { select: { name: true, email: true } },
-            },
-          }),
-          db.generationRun.count({ where }),
-          db.generationRun.groupBy({
-            by: ["status"],
-            where,
-            _count: { _all: true },
-            _sum: { testCount: true },
-          }),
-        ]);
-        return res.json({ runs, total, page, pageSize: take, summary });
-      } catch (error) {
-        return staffFailure(res, error);
-      }
-    },
-    async report(req, res) {
-      if (!isId(req.params.id))
-        return res.status(400).json({ message: "Invalid report." });
-      try {
-        const where = {
-          id: Number(req.params.id),
-          ...(["admin", "manager"].includes(req.user.role)
-            ? {}
-            : { userId: req.userId }),
-        };
-        const run = await db.generationRun.findFirst({ where });
-        if (!run) return res.status(404).json({ message: "Report not found." });
-        return res.json({ run });
-      } catch (error) {
-        return staffFailure(res, error);
-      }
-    },
+
   };
 }
 

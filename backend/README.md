@@ -1,6 +1,6 @@
 # Casefy backend
 
-The backend is an Express API using PostgreSQL and Prisma. It handles authentication, private workspaces, billing, support, staff management, and test generation. See the [root README](../README.md) for shared installation and the [frontend README](../frontend/README.md) for the browser application.
+The backend is an Express API using PostgreSQL and Prisma. It handles authentication, private workspaces, billing, support, staff management, and customer reports. See the [root README](../README.md) for shared installation and the [frontend README](../frontend/README.md) for the browser application.
 
 ## Setup
 
@@ -44,7 +44,7 @@ src/
   db.js           shared Prisma client
   routes/         endpoints grouped by feature
   controllers/    validation, permissions, and responses
-  services/       billing reconciliation and AI generation
+  services/       billing reconciliation
   middleware/     authentication and staff permissions
   utils/          shared domain helpers
 prisma/           schema and database migration history
@@ -70,7 +70,6 @@ scripts/          Stripe setup and database smoke checks
 | supportRoutes    | `/api/support`    | Contact tickets and replies                           |
 | messageRoutes    | `/api/messages`   | The signed-in user's messages                         |
 | reportRoutes     | `/api/reports`    | The signed-in user's saved generation reports         |
-| generationRoutes | `/api/generation` | Staff-only AI generation                              |
 
 Existing URLs are preserved. Workspace ownership, membership changes, project edits and invite acceptance keep their transaction locks. Subscription entitlements are calculated in `utils/subscriptions.js`; Stripe reconciliation lives in `services/billingService.js`.
 
@@ -104,25 +103,19 @@ Apply `npm run db:migrate` and regenerate the Prisma client. `npm run workspace:
 
 ## Staff panel
 
-Open `/admin` as an administrator or manager. Both roles use the same navigation: overview, users, support messages, Enterprise contacts, subscriptions, payments, refunds, integrations, test generator, and reports. The customer dashboard design, sidebar, account menu, responsive layout, and skeleton loading states are shared.
+Open `/admin` as an administrator or manager. Both roles use the same navigation: overview, users, support messages, Enterprise contacts, subscriptions, payments, and refunds. The customer dashboard design, sidebar, account menu, responsive layout, and skeleton loading states are shared.
 
 ### Permissions and blocking
 
-Both staff roles can manage customer accounts, block/unblock customers, handle support, manage billing, message customers, and generate tests without a Casefy monthly credit quota. Only admins can change staff accounts, grant staff roles, or save API credentials. Accounts cannot block or delete themselves. Blocking prevents sign-in and rejects existing session tokens on their next authenticated request; it does not cancel billing.
+Both staff roles can manage customer accounts, block/unblock customers, handle support, manage billing, and message customers. Only admins can change staff accounts, or grant staff roles. Accounts cannot block or delete themselves. Blocking prevents sign-in and rejects existing session tokens on their next authenticated request; it does not cancel billing.
 
 User filters support role, plan, active/blocked access, name/email/workspace search, and sorting. Pagination and filters are reflected in the URL.
 
-### Integration configuration
+### Email configuration
 
-In **API integrations**, save an API key and a model ID available to that provider account. OpenAI, DeepSeek, and Google Gemini are supported. Keys are AES-256-GCM encrypted before database storage and are never returned through the API. Saving with an empty key preserves the existing secret. Disabling an integration prevents its use.
+For email replies, configure `RESEND_API_KEY` and `EMAIL_FROM` with a verified sender email address in the server environment. Existing encrypted Resend settings override these defaults. In-app messages work without email configuration. Guest contacts require email replies because they have no account inbox. Sending an email records provider acceptance, not final inbox delivery.
 
-For email replies, configure **Resend** with its API key and a verified sender email address. In-app messages work without email configuration. Guest contacts require email replies because they have no account inbox. Sending an email records provider acceptance, not final inbox delivery.
-
-Environment variables can supply defaults: `OPENAI_API_KEY`, `OPENAI_MODEL`, `DEEPSEEK_API_KEY`, `DEEPSEEK_MODEL`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `RESEND_API_KEY`, and `EMAIL_FROM`. Database settings override environment defaults.
-
-Set a stable, private `INTEGRATION_ENCRYPTION_KEY` before saving production credentials. The existing `JWT_SECRET` is the development fallback. Changing the encryption secret requires re-entering saved API keys. No actual keys belong in source control.
-
-Stripe continues to use the existing server environment settings. The integrations screen shows whether Stripe and webhook signing are configured, and whether Stripe is in sandbox or live mode.
+Keep the existing `INTEGRATION_ENCRYPTION_KEY` stable when using saved encrypted email credentials; `JWT_SECRET` is the development fallback. No actual keys belong in source control.
 
 ### Billing and refunds
 
@@ -148,19 +141,15 @@ Signed-in requests use the authenticated account ID and email, regardless of sub
 
 The widget supports ticket creation, support/refund/Enterprise topics, conversation history, threaded replies, unread indicators, and account messages. It preserves open state and drafts while navigating between the allowed pages. Open user conversations and staff conversation dialogs poll every five seconds; closed user inboxes poll every thirty seconds and staff ticket lists every fifteen seconds while the page is visible. Polling preserves draft replies and existing content. This is a human support interface; it does not invent bot responses, typing indicators, or staff online status. Request ownership remains checked server-side.
 
-### Generation and reports
+### Customer reports
 
-Admins and managers can generate tests from user stories, PDF/DOCX/TXT/Markdown documents, or publicly accessible HTML/text pages. Staff have unlimited runs without Casefy credit deductions, with up to 100 cases per request and one in-flight request per staff account in the API process. Provider charges, availability, and rate limits still apply.
-
-Documents are limited to five files and 10 MB total. Scanned PDFs without extractable text need OCR before upload. Public URLs are fetched with pinned public IPv4 DNS resolution, redirect validation, timeouts, and response-size limits. Private network addresses are rejected. The fetcher reads page text and does not execute JavaScript or browser tests.
-
-Results are validated, stored, viewable in Reports, and exportable as JSON. Reports show actual generation status and counts; no execution results or pass rates are invented. Ordinary customer generation keeps the existing preview behavior.
+Test generation and reports are available only to customer roles. Customer generation previews a request without making AI calls or executing browser tests. The reports API lists and retrieves only the signed-in customer's own saved results. Staff have no generation endpoint or report access.
 
 ### Validation
 
-From `backend`, run `npm run prisma:validate` and `npm run staff:smoke`. The smoke script exercises the real database using a transaction that rolls back all fixtures, mocks provider generation, and checks PDF text extraction. From `frontend`, run `npm run build` and lint changed files.
+From `backend`, run `npm run prisma:validate` and `npm run staff:smoke`. The smoke script exercises the real database using a transaction that rolls back all fixtures. From `frontend`, run `npm run build` and lint changed files.
 
-Provider implementation references: [Stripe refunds](https://docs.stripe.com/api/refunds/create), [Stripe subscription updates](https://docs.stripe.com/api/subscriptions/update), [OpenAI Responses](https://developers.openai.com/api/reference/resources/responses/methods/create), [DeepSeek chat completions](https://api-docs.deepseek.com/api/create-chat-completion/), [Gemini content generation](https://ai.google.dev/api/generate-content), and [Resend email](https://resend.com/docs/api-reference/emails/send-email).
+Provider implementation references: [Stripe refunds](https://docs.stripe.com/api/refunds/create), [Stripe subscription updates](https://docs.stripe.com/api/subscriptions/update), and [Resend email](https://resend.com/docs/api-reference/emails/send-email).
 
 ## Commands and verification
 
