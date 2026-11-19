@@ -1,6 +1,10 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useReducedMotion } from "motion/react";
-import { ArrowLeft, Check, House } from "lucide-react";
+import {
+  RiArrowLeftLine as ArrowLeft,
+  RiCheckLine as Check,
+  RiHome4Line as House
+} from "react-icons/ri";
 import { Link } from "react-router-dom";
 import {
   ReceiptPrinterHeader,
@@ -26,7 +30,7 @@ export default function CheckoutPlanPreview({
   annualBase,
   money,
   isFree,
-  isEnterprise,
+  isCustom,
   busy,
 }) {
   const [printed, setPrinted] = useState(false);
@@ -39,12 +43,12 @@ export default function CheckoutPlanPreview({
         : "printing";
   const interval = isFree
     ? "No payment required"
-    : isEnterprise
+    : isCustom
       ? "Custom quote"
       : period === "year"
         ? "Annual subscription"
         : "Monthly subscription";
-  const totalLabel = isEnterprise
+  const totalLabel = isCustom
     ? "CUSTOM PRICE"
     : isFree
       ? "PLAN PRICE"
@@ -55,7 +59,7 @@ export default function CheckoutPlanPreview({
   return (
     <aside
       aria-label="Selected plan summary"
-      className="flex min-w-0 flex-col items-center rounded-3xl border border-[#dce6df] bg-[#edf3ef] px-3 pt-6 pb-4 sm:px-5 sm:pt-7"
+      className="flex min-w-0 flex-col items-center rounded-md border border-[#dce6df] bg-[#edf3ef] px-3 pt-6 pb-4 sm:px-5 sm:pt-7"
     >
       <ReceiptPrinterRoot stage={stage} animate={!error}>
         <ReceiptPrinterMachine>
@@ -69,7 +73,7 @@ export default function CheckoutPlanPreview({
             />
             <Link
               to="/"
-              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-3 text-xs font-semibold text-[#edf3ef] shadow-[0_3px_0_#10201966,inset_0_1px_0_#ffffff12] transition-[background-color,transform] hover:bg-white/20 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none"
+              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-white/15 bg-white/10 px-3 text-xs font-semibold text-[#edf3ef] shadow-[0_3px_0_#10201966,inset_0_1px_0_#ffffff12] transition-[background-color,transform] hover:bg-white/20 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none"
             >
               <House size={13} aria-hidden="true" />
               Home
@@ -87,7 +91,7 @@ export default function CheckoutPlanPreview({
               </div>
               <div className="min-w-0 text-right">
                 <p className="text-[10px] tracking-wider text-[#a9c0b1]">
-                  {isEnterprise ? "PRICE" : "TOTAL"}
+                  {isCustom ? "PRICE" : "TOTAL"}
                 </p>
                 <p className="mt-1 break-words text-xl font-bold tracking-tight text-white tabular-nums">
                   {priceLabel}
@@ -197,7 +201,7 @@ export default function CheckoutPlanPreview({
               <p className="text-[10px] leading-5 text-[#7a8d7f]">
                 {isFree
                   ? "Your Free plan needs no payment."
-                  : isEnterprise
+                  : isCustom
                     ? "Contact support for your custom quote."
                     : "Payment is completed securely with Stripe."}
               </p>
@@ -210,7 +214,7 @@ export default function CheckoutPlanPreview({
       </ReceiptPrinterRoot>
       <Link
         to="/pricing"
-        className="mt-1 inline-flex min-h-10 items-center gap-2 rounded text-sm font-semibold text-[#294137] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+        className="mt-1 inline-flex min-h-10 items-center gap-2 rounded-md text-sm font-semibold text-[#294137] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
       >
         <ArrowLeft size={15} aria-hidden="true" />
         Change plan

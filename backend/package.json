@@ -5,17 +5,12 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
-    "staff:smoke": "node scripts/staff-panel-smoke.js",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
     "db:migrate": "prisma migrate deploy",
     "db:dev": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate",
-    "stripe:setup": "node scripts/setup-stripe-sandbox.js",
-    "stripe:listen": "node scripts/stripe-listen.js",
-    "stripe:test": "node scripts/stripe-sandbox-check.js",
-    "workspace:smoke": "node scripts/workspace-smoke.js"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.1",

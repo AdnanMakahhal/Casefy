@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
-import { Check, Trash2 } from "lucide-react";
+import {
+  RiCheckLine as Check,
+  RiDeleteBin6Line as Trash2
+} from "react-icons/ri";
 
 export default function HoldToConfirmButton({
   onConfirm,
@@ -64,7 +67,7 @@ export default function HoldToConfirmButton({
         }
       }}
       aria-description="Press and hold for 1.6 seconds to confirm. Release to cancel."
-      className="relative isolate inline-flex min-h-11 touch-none select-none items-center justify-center gap-2 overflow-hidden rounded-lg bg-red-700 px-4 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+      className="relative isolate inline-flex min-h-11 touch-none select-none items-center justify-center gap-2 overflow-hidden rounded-md bg-red-700 px-4 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700 disabled:cursor-not-allowed disabled:opacity-50"
     >
       {!reduceMotion && (
         <span

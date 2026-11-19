@@ -1,4 +1,5 @@
 import prisma, { isDatabaseConfigured } from "../db.js";
+import { requestCategories, supportDetails } from "../utils/supportDetails.js";
 
 export function createSupportController(db = prisma) {
   return async (req, res) => {
@@ -26,12 +27,14 @@ export function createSupportController(db = prisma) {
         .json({ message: "Please enter a valid email address" });
     const category =
       req.body?.category ||
-      (/enterprise/i.test(data.subject) ? "enterprise" : "support");
-    if (!["support", "enterprise", "refund"].includes(category))
+      (/custom/i.test(data.subject) ? "custom" : "support");
+    if (!requestCategories.includes(category))
       return res
         .status(400)
-        .json({ message: "Choose support, Enterprise, or refund." });
+        .json({ message: "Choose support, Custom, or refund." });
     data.category = category;
+    try { data.details = supportDetails(category, req.body?.details); }
+    catch (error) { return res.status(400).json({ message: error.message }); }
     if (req.user) {
       data.userId = req.user.id;
       data.email = req.user.email;

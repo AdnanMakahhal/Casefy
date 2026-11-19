@@ -1,6 +1,7 @@
+import Heading from "../components/Heading";
 import { useState } from "react";
 import { setLocalValue } from "../lib/storage";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import {
   readRolePreference,
   readWorkspaceName,
@@ -8,7 +9,8 @@ import {
   signupRoles,
   workspaceNameKey,
 } from "../features/authentication/roles";
-import { homeForRole, useAuth } from "../features/authentication/authContext";
+import { useAuth } from "../features/authentication/authContext";
+import { destinationAfterAuth } from "../features/authentication/navigation";
 
 function SelectRole() {
   const { user, isLoading, sessionError, signupDraft, signup, updateProfile } =
@@ -25,10 +27,15 @@ function SelectRole() {
   async function handleContinue(event) {
     event.preventDefault();
     if (isSubmitting) return;
-    if (!signupRoles.some(({ value }) => value === role)) return;
+    if (!signupRoles.some(({ value }) => value === role)) {
+      setError("Choose the role that best describes you.");
+      event.currentTarget.elements.namedItem("role")?.[0]?.focus();
+      return;
+    }
     const trimmedWorkspaceName = workspaceName.trim();
-    if (!trimmedWorkspaceName) {
-      setError("Enter a workspace name to continue.");
+    if (!trimmedWorkspaceName || trimmedWorkspaceName.length > 80) {
+      setError("Enter a workspace name between 1 and 80 characters.");
+      event.currentTarget.elements.namedItem("workspaceName")?.focus();
       return;
     }
     setError("");
@@ -40,12 +47,7 @@ function SelectRole() {
         : (await signup({ ...signupDraft, ...details })).user;
       setLocalValue(workspaceNameKey, trimmedWorkspaceName);
       setLocalValue(rolePreferenceKey, role);
-      const from = location.state?.from;
-      const invited =
-        from?.pathname === "/workspace-invite"
-          ? `${from.pathname}${from.hash || ""}`
-          : null;
-      navigate(user ? "/profile" : invited || homeForRole(currentUser.role), {
+      navigate(user ? "/profile" : destinationAfterAuth(currentUser.role, location.state?.from), {
         replace: true,
       });
     } catch (error) {
@@ -78,9 +80,9 @@ function SelectRole() {
           <p className="text-xs font-semibold tracking-[0.12em] text-[#294137]">
             STEP 2 OF 2
           </p>
-          <h1 className="mt-5 max-w-md text-4xl leading-tight font-bold tracking-tight sm:text-5xl">
+          <Heading as="h1" className="mt-5 max-w-md text-4xl leading-tight font-bold tracking-tight sm:text-5xl">
             Build your QA workspace.
-          </h1>
+          </Heading>
           <p className="mt-5 max-w-md text-base leading-7 text-[#526159]">
             Give your workspace a name and tell us how you work. Keep your
             projects and testing organized in one place.
@@ -111,7 +113,7 @@ function SelectRole() {
             Set up your first Casefy workspace. You can change these details
             later.
           </p>
-          <form onSubmit={handleContinue} className="mt-8">
+          <form onSubmit={handleContinue} noValidate aria-busy={isSubmitting} className="mt-8">
             <label
               htmlFor="workspace-name"
               className="mb-2 block text-sm font-medium"
@@ -131,7 +133,7 @@ function SelectRole() {
               }}
               required
               maxLength={80}
-              className="min-h-14 w-full rounded-lg border border-[#CFDDD5] bg-[#ffffff] px-4 py-3 text-base text-[#102018] placeholder:text-[#526159] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
+              className="min-h-14 w-full rounded-md border border-[#CFDDD5] bg-[#ffffff] px-4 py-3 text-base text-[#102018] placeholder:text-[#526159] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
             />
             <fieldset className="mt-5" aria-describedby="role-hint">
               <legend className="mb-2 text-sm font-medium">
@@ -149,7 +151,7 @@ function SelectRole() {
                       required
                       className="peer sr-only"
                     />
-                    <span className="flex min-h-14 items-center justify-center rounded-lg border border-[#CFDDD5] bg-[#ffffff] px-3 py-2 text-center text-sm font-semibold transition-colors peer-checked:border-[#294137] peer-checked:bg-[#294137] peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#294137]">
+                    <span className="flex min-h-14 items-center justify-center rounded-md border border-[#CFDDD5] bg-[#ffffff] px-3 py-2 text-center text-sm font-semibold transition-colors peer-checked:border-[#294137] peer-checked:bg-[#294137] peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#294137]">
                       {label}
                     </span>
                   </label>
@@ -164,10 +166,15 @@ function SelectRole() {
                 {error}
               </p>
             )}
+            {!user && (
+              <Link to="/signup" state={location.state} className="mt-4 inline-flex min-h-10 items-center rounded-md text-sm font-semibold text-[#294137] underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]">
+                Back to account details
+              </Link>
+            )}
             <button
               type="submit"
-              disabled={isSubmitting || !role || !workspaceName.trim()}
-              className="mt-7 min-h-14 w-full cursor-pointer rounded-lg bg-[#294137] px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={isSubmitting}
+              className="mt-7 min-h-14 w-full cursor-pointer rounded-md bg-[#294137] px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting
                 ? "Saving..."

@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useStaffData, adminRequest } from "./api";
 import { displayDate, titleCase } from "../../lib/format";
 import ComposeMessage from "./ComposeMessage";
+import CustomOfferForm from "./CustomOfferForm";
+import CustomDealCard from "../../components/CustomDealCard";
+import { useAuth } from "../authentication/authContext";
 import AccountModal from "../../components/AccountModal";
 import {
   Loading,
@@ -13,9 +16,13 @@ import {
 } from "./ui";
 import SelectMenu from "../../components/SelectMenu";
 import { statuses, panel } from "./styles";
-import { Send, ArrowUpRight } from "lucide-react";
+import {
+  RiSendPlane2Line as Send,
+  RiArrowRightUpLine as ArrowUpRight,
+} from "react-icons/ri";
 
 function Conversation({ id, onClose, onChanged }) {
+  const { user } = useAuth();
   const [revision, setRevision] = useState(0);
   const { data, loading, error } = useStaffData(
     `/inbox/${id}`,
@@ -40,7 +47,7 @@ function Conversation({ id, onClose, onChanged }) {
     try {
       await adminRequest(`/inbox/${id}`, {
         method: "PATCH",
-        body: JSON.stringify({ status }),
+        body: JSON.stringify(typeof status === "string" ? { status } : status),
       });
       setRevision((value) => value + 1);
       onChanged();
@@ -88,14 +95,59 @@ function Conversation({ id, onClose, onChanged }) {
                 : " · Guest contact"}
             </p>
           </div>
-          <div className="rounded-xl bg-[#f6f8f7] p-4 text-sm leading-7 whitespace-pre-wrap">
+          <div className="rounded-md bg-[#f6f8f7] p-4 text-sm leading-7 whitespace-pre-wrap">
             {data.request.description}
           </div>
+          {data.request.details && (
+            <dl className="grid gap-3 sm:grid-cols-2">
+              {Object.entries(data.request.details).map(([key, value]) => (
+                <div key={key}>
+                  <dt className="text-xs capitalize text-[#526159]">
+                    {key.replace(/([A-Z])/g, " $1")}
+                  </dt>
+                  <dd className="mt-1 break-words text-sm font-medium">
+                    {["budget", "refundAmount"].includes(key)
+                      ? new Intl.NumberFormat(undefined, {
+                          style: "currency",
+                          currency: "USD",
+                        }).format(Number(value) / 100)
+                      : String(value)}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-[#526159]">
+              Assigned to {data.request.assignedTo?.name || "unassigned"}
+            </p>
+            <button
+              disabled={busy}
+              className="admin-button"
+              onClick={() => changeStatus({ assignToMe: true })}
+            >
+              Assign to me
+            </button>
+          </div>
+          {data.request.deals?.map((deal) => (
+            <CustomDealCard key={deal.id} deal={deal} />
+          ))}
+          {data.request.category === "custom" &&
+            data.request.user &&
+            ["admin", "manager"].includes(user.role) && (
+              <CustomOfferForm
+                request={data.request}
+                onSaved={() => {
+                  setRevision((value) => value + 1);
+                  onChanged();
+                }}
+              />
+            )}
           <div className="max-h-64 space-y-3 overflow-y-auto">
             {data.request.messages.map((message) => (
               <article
                 key={message.id}
-                className="rounded-lg border border-[#CFDDD5] p-4"
+                className="rounded-md border border-[#CFDDD5] p-4"
               >
                 <div className="flex flex-wrap justify-between gap-2 text-xs text-[#526159]">
                   <strong>{message.sender?.name || "Casefy team"}</strong>
@@ -168,18 +220,16 @@ export default function Inbox({ category, revision = 0 }) {
   return (
     <>
       <section className={`${panel} overflow-visible`}>
-        <div className="flex flex-wrap items-end gap-4 border-b border-[#CFDDD5] p-5">
+        <div className="flex flex-col items-stretch gap-4 border-b border-[#CFDDD5] p-5 sm:flex-row sm:flex-wrap sm:items-end">
           <SearchForm
             onSearch={(value) => {
               setSearch(value);
               setPage(1);
             }}
             placeholder="Search contacts, emails, or subjects..."
+            liveSearch
           />
-          <div className="w-48 max-w-full">
-            <p className="mb-2 text-xs font-semibold text-[#526159]">
-              Request status
-            </p>
+          <div className="w-full sm:w-48">
             <SelectMenu
               label="Filter request status"
               value={status}
@@ -242,7 +292,7 @@ export default function Inbox({ category, revision = 0 }) {
                 ))}
               </div>
             )}
-            <Pagination data={data} onChange={setPage} />
+            <Pagination data={data} onChange={setPage} label="conversations" />
           </>
         )}
       </section>

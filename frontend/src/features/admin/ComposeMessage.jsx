@@ -4,7 +4,9 @@ import AccountModal from "../../components/AccountModal";
 import SelectMenu from "../../components/SelectMenu";
 import { input } from "./styles";
 import { ErrorMessage } from "./ui";
-import { Send } from "lucide-react";
+import {
+  RiSendPlane2Line as Send
+} from "react-icons/ri";
 
 export default function ComposeMessage({ account, request, onClose, onSaved }) {
   const [channel, setChannel] = useState(account ? "in_app" : "email");

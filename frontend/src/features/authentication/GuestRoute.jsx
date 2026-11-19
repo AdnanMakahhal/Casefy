@@ -1,18 +1,22 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { homeForRole, useAuth } from "./authContext";
+import { Suspense } from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "./authContext";
+import { destinationAfterAuth } from "./navigation";
+import AuthSkeleton from "../../components/AuthSkeleton";
 
 function GuestRoute() {
   const { user, isLoading } = useAuth();
+  const { pathname, state } = useLocation();
 
   if (isLoading)
-    return (
-      <p role="status" className="p-8 text-center">
-        Loading your account...
-      </p>
-    );
-  if (user) return <Navigate to={homeForRole(user.role)} replace />;
+    return <AuthSkeleton signup={pathname === "/signup"} />;
+  if (user) return <Navigate to={destinationAfterAuth(user.role, state?.from)} replace />;
 
-  return <Outlet />;
+  return (
+    <Suspense fallback={<AuthSkeleton signup={pathname === "/signup"} />}>
+      <Outlet />
+    </Suspense>
+  );
 }
 
 export default GuestRoute;

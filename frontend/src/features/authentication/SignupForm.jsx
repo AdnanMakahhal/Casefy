@@ -1,57 +1,63 @@
+import { RiGoogleFill, RiGithubFill } from "react-icons/ri";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./authContext";
+import { validateCredentials } from "./validation";
 
 function SignupForm() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setSignupDraft } = useAuth();
+  const { signupDraft, setSignupDraft } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   return (
     <form
+      noValidate
       onSubmit={(event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        const name = data.get("fullName").trim();
-        if (!name) {
-          setError("Please enter your full name.");
+        const details = { name: data.get("fullName").trim(), email: data.get("email").trim().toLowerCase(), password: data.get("password") };
+        const invalid = validateCredentials(details, true);
+        if (invalid) {
+          setError(invalid.message);
+          event.currentTarget.elements.namedItem(invalid.field)?.focus();
           return;
         }
-        setSignupDraft({
-          name,
-          email: data.get("email").trim().toLowerCase(),
-          password: data.get("password"),
-        });
+        if (!data.get("acceptTerms")) {
+          setError("Agree to the Terms and Privacy Policy to create an account.");
+          event.currentTarget.elements.namedItem("acceptTerms")?.focus();
+          return;
+        }
+        setError("");
+        setSignupDraft(details);
         navigate("/select-role", { state: location.state });
       }}
     >
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+      <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-4">
         <button
           type="button"
-          className="flex min-h-14 cursor-pointer items-center justify-center gap-3 rounded-lg border border-[#CFDDD5] bg-[#ffffff] px-3 py-3 text-base font-medium text-[#102018] transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+          onClick={() => setError("Google sign-up is not available yet. Create an account with email instead.")}
+          className="flex min-h-12 cursor-pointer items-center justify-center gap-3 rounded-md border border-[#CFDDD5] bg-[#ffffff] px-3 py-3 text-base font-medium text-[#102018] transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
         >
-          <img
-            src="/Comp_Logos/Google_Logo.svg"
-            alt=""
-            className="h-7 w-7 shrink-0 object-contain"
-          />
+          <RiGoogleFill size={20} aria-hidden="true" className="shrink-0" />
           <span>Google</span>
         </button>
         <button
           type="button"
-          className="flex min-h-14 cursor-pointer items-center justify-center gap-3 rounded-lg border border-[#CFDDD5] bg-[#ffffff] px-3 py-3 text-base font-medium text-[#102018] transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+          onClick={() => setError("GitHub sign-up is not available yet. Create an account with email instead.")}
+          className="flex min-h-12 cursor-pointer items-center justify-center gap-3 rounded-md border border-[#CFDDD5] bg-[#ffffff] px-3 py-3 text-base font-medium text-[#102018] transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
         >
-          <img
-            src="/Comp_Logos/Github_Logo.svg"
-            alt=""
-            className="h-7 w-7 shrink-0 object-contain"
-          />
+          <RiGithubFill size={20} aria-hidden="true" className="shrink-0" />
           <span>GitHub</span>
         </button>
       </div>
-      <div className="mt-8 space-y-6">
+      <div className="my-6 flex items-center gap-4 text-[10px] font-medium tracking-wider text-[#718578]">
+        <span aria-hidden="true" className="h-px flex-1 bg-[#e5ece7]" />
+        OR SIGN UP WITH EMAIL
+        <span aria-hidden="true" className="h-px flex-1 bg-[#e5ece7]" />
+      </div>
+      <div className="space-y-5">
         <div>
           <label
             htmlFor="full-name"
@@ -62,11 +68,13 @@ function SignupForm() {
           <input
             id="full-name"
             name="fullName"
+            defaultValue={signupDraft?.name || ""}
             type="text"
             autoComplete="name"
+            maxLength={100}
             placeholder="Your name"
             required
-            className="min-h-14 w-full rounded-lg border border-[#CFDDD5] bg-[#ffffff] px-4 py-3 text-base text-[#102018] placeholder:text-[#929b97] focus:border-[#294137] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
+            className="min-h-12 w-full rounded-md border border-[#CFDDD5] bg-[#ffffff] px-4 py-3 text-base text-[#102018] placeholder:text-[#929b97] focus:border-[#294137] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
           />
         </div>
         <div>
@@ -79,11 +87,13 @@ function SignupForm() {
           <input
             id="email"
             name="email"
+            defaultValue={signupDraft?.email || ""}
             type="email"
             autoComplete="email"
+            maxLength={254}
             placeholder="name@company.com"
             required
-            className="min-h-14 w-full rounded-lg border border-[#CFDDD5] bg-[#ffffff] px-4 py-3 text-base text-[#102018] placeholder:text-[#929b97] focus:border-[#294137] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
+            className="min-h-12 w-full rounded-md border border-[#CFDDD5] bg-[#ffffff] px-4 py-3 text-base text-[#102018] placeholder:text-[#929b97] focus:border-[#294137] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
           />
         </div>
         <div>
@@ -97,19 +107,20 @@ function SignupForm() {
             <input
               id="password"
               name="password"
+              defaultValue={signupDraft?.password || ""}
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
               minLength={8}
               placeholder="At least 8 characters"
               required
-              className="min-h-14 w-full rounded-lg border border-[#CFDDD5] bg-[#ffffff] py-3 pr-20 pl-4 text-base text-[#102018] placeholder:text-[#929b97] focus:border-[#294137] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
+              className="min-h-12 w-full rounded-md border border-[#CFDDD5] bg-[#ffffff] py-3 pr-20 pl-4 text-base text-[#102018] placeholder:text-[#929b97] focus:border-[#294137] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
             />
             <button
               type="button"
               onClick={() => setShowPassword((value) => !value)}
               aria-controls="password"
               aria-label={showPassword ? "Hide password" : "Show password"}
-              className="absolute inset-y-0 right-2 my-2 cursor-pointer rounded px-3 text-sm font-medium text-[#526159] hover:text-[#294137] focus-visible:outline-2 focus-visible:outline-[#294137]"
+              className="absolute inset-y-0 right-2 my-2 cursor-pointer rounded-md px-3 text-sm font-medium text-[#526159] hover:text-[#294137] focus-visible:outline-2 focus-visible:outline-[#294137]"
             >
               {showPassword ? "Hide" : "Show"}
             </button>
@@ -131,7 +142,7 @@ function SignupForm() {
         )}
         <button
           type="submit"
-          className="min-h-14 w-full cursor-pointer rounded-lg bg-[#294137] px-6 py-3 text-base font-semibold text-[#ffffff] transition-colors hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+          className="min-h-12 w-full cursor-pointer rounded-md bg-[#294137] px-6 py-3 text-base font-semibold text-[#ffffff] transition-colors hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
         >
           Create account
         </button>
@@ -141,12 +152,12 @@ function SignupForm() {
         <Link
           to="/signin"
           state={location.state}
-          className="rounded font-semibold text-[#102018] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+          className="rounded-md font-semibold text-[#102018] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
         >
           Sign in
         </Link>
       </div>
-      <p className="mt-12 text-xs leading-5 text-[#929b97]">
+      <p className="mt-7 text-xs leading-5 text-[#929b97]">
         Protected by secure authentication and encrypted project data.
       </p>
     </form>

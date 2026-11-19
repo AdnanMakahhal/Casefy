@@ -1,12 +1,13 @@
+import Heading from "../Heading";
 import { Link } from "react-router-dom";
 
 export default function MarketingPage({ title, description, children }) {
   return (
     <section className="mx-auto max-w-6xl px-4 pt-12 pb-16 text-[#102019] sm:px-8 sm:pt-14 sm:pb-20">
       <header className="mx-auto max-w-[700px] text-center">
-        <h1 className="text-4xl leading-[1.12] font-extrabold tracking-tight sm:text-5xl">
+        <Heading as="h1" className="text-4xl leading-[1.12] font-extrabold tracking-tight sm:text-5xl">
           {title}
-        </h1>
+        </Heading>
         <p className="mx-auto mt-6 max-w-[600px] text-base leading-7 font-medium text-[#526159]">
           {description}
         </p>
@@ -26,11 +27,11 @@ export function MarketingCard({
 }) {
   return (
     <article
-      className={`min-w-0 rounded-2xl border p-6 sm:p-8 ${planned ? "border-[#dce6df] bg-[#edf3ef]" : "border-[#CFDDD5] bg-white"}`}
+      className={`min-w-0 rounded-md border p-6 sm:p-8 ${planned ? "border-[#dce6df] bg-[#edf3ef]" : "border-[#CFDDD5] bg-white"}`}
     >
       <div className="mb-6 flex items-center justify-between gap-3">
         <span
-          className={`flex size-12 items-center justify-center rounded-xl ${planned ? "bg-white text-[#294137]" : "bg-[#294137] text-white"}`}
+          className={`flex size-12 items-center justify-center rounded-md ${planned ? "bg-white text-[#294137]" : "bg-[#294137] text-white"}`}
         >
           <Icon size={22} aria-hidden="true" />
         </span>
@@ -51,7 +52,7 @@ export function MarketingCta({
   description = "Prepare your requirements and shape the coverage that fits your workflow.",
 }) {
   return (
-    <section className="rounded-2xl border border-[#CFDDD5] bg-[#edf3ef] px-6 py-10 text-center sm:px-10 sm:py-12">
+    <section className="rounded-md border border-[#CFDDD5] bg-[#edf3ef] px-6 py-10 text-center sm:px-10 sm:py-12">
       <h2 className="text-3xl font-extrabold tracking-tight">{title}</h2>
       <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-[#526159]">
         {description}

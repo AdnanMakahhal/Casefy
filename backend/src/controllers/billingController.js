@@ -7,6 +7,7 @@ import {
   subscriptionState,
 } from "../services/billingService.js";
 import { effectiveUser, planRank } from "../utils/subscriptions.js";
+import { storeCharge, paymentView } from "../services/paymentService.js";
 
 const events = new Set([
   "checkout.session.completed",
@@ -326,6 +327,16 @@ export function createBillingController(
     }
   };
 
+  const history = async (req, res) => {
+    try {
+      const [payments, deals] = await Promise.all([
+        db.paymentRecord.findMany({ where: { userId: req.userId }, orderBy: { createdAt: "desc" }, take: 100 }),
+        db.customDeal.findMany({ where: { userId: req.userId }, orderBy: { createdAt: "desc" } }),
+      ]);
+      return res.json({ payments: payments.map(paymentView), deals });
+    } catch (error) { return failure(res, error); }
+  };
+
   const checkoutStatus = async (req, res) => {
     if (!ready(res)) return;
     if (!/^cs_(test_|live_)?[A-Za-z0-9]+$/.test(req.params.sessionId))
@@ -373,6 +384,12 @@ export function createBillingController(
     }
     if (event.livemode !== config.liveMode)
       return res.status(400).json({ message: "Unexpected webhook mode" });
+    if (["charge.succeeded", "charge.failed", "charge.refunded", "charge.updated"].includes(event.type)) {
+      try {
+        await storeCharge(db, await stripe.charges.retrieve(event.data.object.id));
+        return res.json({ received: true });
+      } catch { return res.status(500).json({ message: "Unable to store payment update." }); }
+    }
     if (
       ["refund.created", "refund.updated", "refund.failed"].includes(event.type)
     ) {
@@ -425,6 +442,7 @@ export function createBillingController(
     createUpgrade,
     createPortal,
     checkoutStatus,
+    history,
     webhook,
     catalog,
     billingStatus,
@@ -436,6 +454,7 @@ export const {
   createUpgrade,
   createPortal,
   checkoutStatus,
+  history,
   webhook,
   catalog,
   billingStatus,

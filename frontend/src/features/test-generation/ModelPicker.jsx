@@ -1,5 +1,11 @@
-﻿import { useEffect, useId, useRef, useState } from "react";
-import { Check, ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
+import {
+  RiCheckLine as Check,
+  RiArrowDownSLine as ChevronDown,
+  RiSearchLine as Search,
+  RiEqualizerLine as SlidersHorizontal,
+  RiCloseLine as X
+} from "react-icons/ri";
 import { DEFAULT_MODEL_CONFIGURATION } from "./models";
 
 export default function ModelPicker({
@@ -78,7 +84,7 @@ export default function ModelPicker({
           setQuery("");
           setOpen(!open);
         }}
-        className="inline-flex min-h-11 max-w-full cursor-pointer items-center gap-2 rounded-lg border border-[#cfddd5] bg-white px-3 py-2 text-sm font-medium text-[#294137] transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:opacity-50"
+        className="inline-flex min-h-11 max-w-full cursor-pointer items-center gap-2 rounded-md border border-[#cfddd5] bg-white px-3 py-2 text-sm font-medium text-[#294137] transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:opacity-50"
       >
         {model?.icon && (
           <model.icon size={20} aria-hidden="true" className="shrink-0" />
@@ -97,7 +103,7 @@ export default function ModelPicker({
           id={`${id}-picker`}
           role="dialog"
           aria-label="Choose a generation mode"
-          className="absolute bottom-full left-0 z-50 mb-2 max-h-[min(65dvh,480px)] w-[min(21rem,calc(100vw_-_4rem))] overflow-y-auto rounded-xl border border-[#cfddd5] bg-white shadow-[0_8px_30px_#20332b1a] outline-none"
+          className="absolute bottom-full left-0 z-50 mb-2 max-h-[min(65dvh,480px)] w-[min(21rem,calc(100vw_-_4rem))] overflow-y-auto rounded-md border border-[#cfddd5] bg-white shadow-[0_8px_30px_#20332b1a] outline-none"
         >
           <div className="flex items-center justify-between gap-2 px-4 pt-3">
             <h3 className="text-xs font-semibold text-[#294137]">
@@ -107,7 +113,7 @@ export default function ModelPicker({
               type="button"
               onClick={close}
               aria-label="Close generation mode picker"
-              className="flex size-9 cursor-pointer items-center justify-center rounded-lg text-[#718578] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]"
+              className="flex size-9 cursor-pointer items-center justify-center rounded-md text-[#718578] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]"
             >
               <X size={15} aria-hidden="true" />
             </button>
@@ -136,7 +142,7 @@ export default function ModelPicker({
                 }
               }}
               placeholder="Search generation modes"
-              className="min-h-11 w-full rounded-lg border border-[#dce6df] bg-[#f6f8f7] pr-3 pl-9 text-sm text-[#294137] placeholder:text-[#8a9890] focus:outline-2 focus:outline-[#91a99a]"
+              className="min-h-11 w-full rounded-md border border-[#dce6df] bg-[#f6f8f7] pr-3 pl-9 text-sm text-[#294137] placeholder:text-[#8a9890] focus:outline-2 focus:outline-[#91a99a]"
             />
           </div>
           <div
@@ -168,7 +174,7 @@ export default function ModelPicker({
                 type="button"
                 aria-pressed={model?.value === item.value}
                 onClick={() => onModelChange?.(item)}
-                className={`flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#294137] ${model?.value === item.value ? "bg-[#edf3ef]" : "hover:bg-[#f6f8f7]"}`}
+                className={`flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-left focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#294137] ${model?.value === item.value ? "bg-[#edf3ef]" : "hover:bg-[#f6f8f7]"}`}
               >
                 <item.icon size={24} aria-hidden="true" className="shrink-0 text-[#294137]" />
                 <span className="min-w-0 flex-1">
@@ -210,7 +216,7 @@ export default function ModelPicker({
                   <legend className="mb-2 text-[11px] font-medium text-[#718578]">
                     Reasoning
                   </legend>
-                  <div className="grid grid-cols-3 gap-1 rounded-lg bg-[#eaf0ec] p-1">
+                  <div className="grid grid-cols-3 gap-1 rounded-md bg-[#eaf0ec] p-1">
                     {["low", "medium", "high"].map((level) => (
                       <button
                         key={level}
@@ -235,7 +241,7 @@ export default function ModelPicker({
                         type="button"
                         aria-pressed={configuration.detail === detail}
                         onClick={() => update("detail", detail)}
-                        className={`min-h-10 cursor-pointer rounded-lg border px-2 text-xs capitalize focus-visible:outline-2 focus-visible:outline-[#294137] ${configuration.detail === detail ? "border-[#91a99a] bg-[#edf3ef] font-semibold text-[#294137]" : "border-[#dce6df] text-[#718578]"}`}
+                        className={`min-h-10 cursor-pointer rounded-md border px-2 text-xs capitalize focus-visible:outline-2 focus-visible:outline-[#294137] ${configuration.detail === detail ? "border-[#91a99a] bg-[#edf3ef] font-semibold text-[#294137]" : "border-[#dce6df] text-[#718578]"}`}
                       >
                         {detail}
                       </button>
@@ -250,7 +256,7 @@ export default function ModelPicker({
             <button
               type="button"
               onClick={close}
-              className="min-h-10 cursor-pointer rounded-lg bg-[#294137] px-4 text-xs font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+              className="min-h-10 cursor-pointer rounded-md bg-[#294137] px-4 text-xs font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
             >
               Done
             </button>

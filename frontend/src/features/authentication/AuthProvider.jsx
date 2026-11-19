@@ -6,7 +6,7 @@ import {
   setSessionValue,
   removeSessionValue,
 } from "../../lib/storage";
-import UndoDeletionProvider from "../../context/UndoDeletionProvider";
+import UndoDeletionProvider from "../../Context/UndoDeletionProvider";
 
 export default function AuthProvider({ children }) {
   const [token, setToken] = useState(() => getSessionValue(tokenKey));
@@ -224,7 +224,7 @@ export default function AuthProvider({ children }) {
         logout,
       }}
     >
-      <UndoDeletionProvider key={user?.id || "guest"}>
+      <UndoDeletionProvider sessionKey={user?.id || "guest"}>
         {children}
       </UndoDeletionProvider>
     </AuthContext.Provider>

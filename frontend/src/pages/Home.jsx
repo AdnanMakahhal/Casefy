@@ -1,3 +1,4 @@
+import Heading from "../components/Heading";
 import { Link } from "react-router-dom";
 import { motion as Motion, useReducedMotion } from "motion/react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -33,10 +34,10 @@ function Home() {
 
   return (
     <section className="mx-auto max-w-6xl px-4 pt-12 pb-10 text-center sm:px-8 sm:pt-14">
-      <h1 className="mx-auto max-w-[700px] text-4xl leading-[1.12] font-extrabold tracking-tight text-[#102019] sm:text-5xl">
+      <Heading as="h1" className="mx-auto max-w-[700px] text-4xl leading-[1.12] font-extrabold tracking-tight text-[#102019] sm:text-5xl">
         Turn Requirements Into
         <br className="hidden sm:block" /> Reliable Test Cases.
-      </h1>
+      </Heading>
       <p className="mx-auto mt-6 max-w-[600px] text-base leading-6 font-medium text-[#526159]">
         Casefy helps QA engineers generate, discover, and execute test cases
         from requirements, diagrams, user stories, and real web pages.
@@ -60,7 +61,7 @@ function Home() {
       <figure
         id="dashboard-preview"
         aria-label="Casefy dashboard preview"
-        className="mx-auto mt-12 max-w-[1040px] scroll-mt-24 overflow-hidden rounded-lg border border-[#CFDDD5] bg-[#ffffff]"
+        className="mx-auto mt-12 max-w-[1040px] scroll-mt-24 overflow-hidden rounded-md border border-[#CFDDD5] bg-[#ffffff]"
       >
         <div className="flex h-10 items-center gap-3 border-b border-[#CFDDD5] px-4 text-left">
           <div aria-hidden="true" className="flex shrink-0 items-center gap-2">
@@ -73,10 +74,11 @@ function Home() {
           </span>
         </div>
         <img
-          src="https://placehold.co/960x620"
-          alt="Placeholder for the Casefy dashboard preview"
-          width="960"
-          height="620"
+          src="/Hero_Bg/Casefy.png"
+          alt="Casefy dashboard showing testing overview, projects, and recent activity"
+          width="2528"
+          height="1274"
+          fetchPriority="high"
           className="block h-auto w-full"
         />
       </figure>

@@ -1,4 +1,6 @@
-import { Download } from "lucide-react";
+import {
+  RiDownloadLine as Download
+} from "react-icons/ri";
 
 export default function GenerationResults({ run }) {
   function download() {
@@ -23,13 +25,13 @@ export default function GenerationResults({ run }) {
         <button
           type="button"
           onClick={download}
-          className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#CFDDD5] px-3 text-sm font-semibold text-[#294137]"
+          className="inline-flex min-h-10 items-center gap-2 rounded-md border border-[#CFDDD5] px-3 text-sm font-semibold text-[#294137]"
         >
           <Download size={16} />
           Export JSON
         </button>
       </div>
-      <p className="rounded-lg bg-[#edf3ef] p-3 text-xs leading-5 text-[#526159]">
+      <p className="rounded-md bg-[#edf3ef] p-3 text-xs leading-5 text-[#526159]">
         These are generated test cases. Review them before use; they have not
         been executed.
       </p>
@@ -42,7 +44,7 @@ export default function GenerationResults({ run }) {
         {(Array.isArray(run.result) ? run.result : []).map((test, index) => (
           <details
             key={test.id || index}
-            className="rounded-xl border border-[#CFDDD5] bg-white p-4"
+            className="rounded-md border border-[#CFDDD5] bg-white p-4"
           >
             <summary className="cursor-pointer text-sm font-semibold text-[#102019]">
               {index + 1}. {test.title}

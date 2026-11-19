@@ -5,7 +5,9 @@ import { Loading, ErrorMessage, Empty, Badge, Pagination } from "../admin/ui";
 import GenerationResults from "../test-generation/GenerationResults";
 import { useState } from "react";
 import { panel } from "../admin/styles";
-import { ArrowUpRight } from "lucide-react";
+import {
+  RiArrowRightUpLine as ArrowUpRight
+} from "react-icons/ri";
 
 function ReportDetail({ id, onClose }) {
   const { data, loading, error } = useReportData(`/reports/${id}`);
@@ -109,7 +111,7 @@ export default function ReportsSection({ revision = 0 }) {
             </table>
           </div>
         )}
-        <Pagination data={data} onChange={setPage} />
+        <Pagination data={data} onChange={setPage} label="reports" />
       </section>
       {selected && (
         <ReportDetail

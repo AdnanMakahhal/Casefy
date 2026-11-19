@@ -1,22 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ArrowLeft,
-  ArrowUpRight,
-  Check,
-  ChevronDown,
-  Inbox,
-  LoaderCircle,
-  MessageCircle,
-  Plus,
-  Send,
-  Ticket,
-  X,
-} from "lucide-react";
+  RiArrowLeftLine as ArrowLeft,
+  RiArrowRightUpLine as ArrowUpRight,
+  RiCheckLine as Check,
+  RiArrowDownSLine as ChevronDown,
+  RiInboxLine as Inbox,
+  RiLoader4Line as LoaderCircle,
+  RiChat3Line as MessageCircle,
+  RiAddLine as Plus,
+  RiSendPlane2Line as Send,
+  RiTicket2Line as Ticket,
+  RiCloseLine as X,
+} from "react-icons/ri";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../features/authentication/authContext";
 import { useSupportChat } from "../features/support-chat/context";
 import { displayDate, titleCase } from "../lib/format";
 import { sessionRequest } from "../lib/api";
+import SelectMenu from "./SelectMenu";
+import SupportRequestFields from "./SupportRequestFields";
+import CustomDealCard from "./CustomDealCard";
 import "./SupportChat.css";
 
 const pages = new Set([
@@ -27,11 +30,14 @@ const pages = new Set([
   "/pricing",
   "/docs",
   "/dashboard",
+  "/executions",
 ]);
 const categoryLabels = {
   support: "General support",
   refund: "Billing & refunds",
-  enterprise: "Enterprise enquiry",
+  custom: "Custom enquiry",
+  contact: "Contact our team",
+  live_chat: "Live chat",
 };
 
 function Skeleton() {
@@ -58,6 +64,7 @@ function Chat({ user }) {
   const [actionError, setActionError] = useState("");
   const [busy, setBusy] = useState(false);
   const [category, setCategory] = useState("support");
+  const [requestDetails, setRequestDetails] = useState({});
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
   const [reply, setReply] = useState("");
@@ -254,6 +261,7 @@ function Chat({ user }) {
           subject: subject.trim(),
           description: description.trim(),
           category,
+          details: requestDetails,
         }),
       });
       if (!lifecycle.current.active) return;
@@ -350,8 +358,8 @@ function Chat({ user }) {
             </span>
             <h3>How can we help?</h3>
             <p>
-              Sign in to open a ticket and chat with a Casefy admin or manager.
-              Your conversations stay in your account.
+              Sign in to chat with the Casefy support team. Your conversations
+              stay in your account.
             </p>
             <Link to="/signin" className="support-chat-primary">
               Sign in to chat <ArrowUpRight size={16} />
@@ -376,8 +384,33 @@ function Chat({ user }) {
                     onClick={() => newTicket()}
                   >
                     <Plus size={17} />
-                    Open a ticket
+                    Start a conversation
                   </button>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {[
+                      ["live_chat", "Live chat"],
+                      ["custom", "Custom plan"],
+                      ["refund", "Refund"],
+                      ["contact", "Contact"],
+                    ].map(([value, label]) => (
+                      <button
+                        key={value}
+                        type="button"
+                        className="min-h-11 rounded-md border border-[#CFDDD5] bg-white px-3 text-xs font-semibold text-[#294137]"
+                        onClick={() => {
+                          setCategory(value);
+                          setRequestDetails({});
+                          newTicket(
+                            value === "live_chat"
+                              ? "Live support conversation"
+                              : "",
+                          );
+                        }}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div
                   className="support-chat-tabs"
@@ -419,23 +452,56 @@ function Chat({ user }) {
               <form className="support-chat-new-ticket" onSubmit={createTicket}>
                 <div className="support-chat-form-body">
                   <h3>Open a support ticket</h3>
-                  <p>Our admins and managers will reply here.</p>
+                  <p>
+                    Our support team will reply here. Conversations are saved to
+                    your account.
+                  </p>
                   <fieldset disabled={busy}>
-                    <label>
-                      Topic
-                      <select
+                    <div>
+                      <label htmlFor="support-chat-topic">Topic</label>
+                      <SelectMenu
+                        id="support-chat-topic"
+                        label="Support topic"
+                        className="mt-2"
                         value={category}
-                        onChange={(event) => setCategory(event.target.value)}
-                      >
-                        {Object.entries(categoryLabels).map(
-                          ([value, label]) => (
-                            <option key={value} value={value}>
-                              {label}
-                            </option>
-                          ),
-                        )}
-                      </select>
-                    </label>
+                        onChange={setCategory}
+                        disabled={busy}
+                        options={[
+                          {
+                            value: "support",
+                            label: categoryLabels.support,
+                            description:
+                              "Account questions and technical issues",
+                          },
+                          {
+                            value: "refund",
+                            label: categoryLabels.refund,
+                            description: "Payments, subscriptions, and refunds",
+                          },
+                          {
+                            value: "custom",
+                            label: categoryLabels.custom,
+                            description:
+                              "Custom plans, seats, and team requirements",
+                          },
+                          {
+                            value: "contact",
+                            label: "Contact our team",
+                            description: "Business and general enquiries",
+                          },
+                          {
+                            value: "live_chat",
+                            label: "Live chat",
+                            description: "Talk to a support agent",
+                          },
+                        ]}
+                      />
+                    </div>
+                    <SupportRequestFields
+                      category={category}
+                      value={requestDetails}
+                      onChange={setRequestDetails}
+                    />
                     <label>
                       Subject
                       <input
@@ -514,6 +580,14 @@ function Chat({ user }) {
                       <p>{selected.description}</p>
                       <small>You · Ticket opened</small>
                     </article>
+                    {selected.deals?.map((deal) => (
+                      <CustomDealCard
+                        key={deal.id}
+                        deal={deal}
+                        customer
+                        onChanged={refresh}
+                      />
+                    ))}
                     {selected.messages.map((message) => (
                       <article
                         key={message.id}
@@ -734,7 +808,16 @@ export default function SupportChat() {
   if (
     isLoading ||
     ["admin", "manager"].includes(user?.role) ||
-    !pages.has(pathname)
+    (!pages.has(pathname) &&
+      !pathname.startsWith("/settings") &&
+      !pathname.startsWith("/workspaces") &&
+      ![
+        "/support",
+        "/messages",
+        "/test-generator",
+        "/reports",
+        "/profile",
+      ].includes(pathname))
   )
     return null;
   return <Chat key={user?.id || "guest"} user={user} />;

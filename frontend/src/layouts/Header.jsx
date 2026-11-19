@@ -1,9 +1,16 @@
 import { useState } from "react";
-import { Menu, Moon, Sun, X } from "lucide-react";
+import {
+  RiMenuLine as Menu,
+  RiMoonLine as Moon,
+  RiSunLine as Sun,
+  RiCloseLine as X,
+} from "react-icons/ri";
 import { Link } from "react-router-dom";
+import BrandLogo from "../components/BrandLogo";
 import HeaderAccountMenu from "../components/HeaderAccountMenu";
 import Navigation from "../components/Navigation";
 import { useAuth } from "../features/authentication/authContext";
+import HeaderActionsSkeleton from "../components/skeletons/HeaderActionsSkeleton";
 
 function Header() {
   const [showSun, setShowSun] = useState(true);
@@ -20,15 +27,9 @@ function Header() {
       <Link
         to="/"
         aria-label="Casefy home"
-        className="flex w-fit shrink-0 items-center rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+        className="flex h-[50px] w-fit shrink-0 items-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
       >
-        <img
-          src="/Logo/Logo_Casefy.svg"
-          alt="Casefy logo"
-          width="150"
-          height="50"
-          className="block h-[50px] w-[150px] object-contain"
-        />
+        <BrandLogo />
       </Link>
       <Navigation
         isMenuOpen={isMenuOpen}
@@ -54,6 +55,7 @@ function Header() {
             className={`absolute transition-all duration-300 motion-reduce:transition-none ${showSun ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"}`}
           />
         </button>
+        {isLoading && <HeaderActionsSkeleton />}
         {!isLoading && !user && (
           <div className="hidden items-center gap-2 lg:flex">
             <Link

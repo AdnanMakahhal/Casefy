@@ -1,5 +1,8 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { LayoutDashboard, LogOut } from "lucide-react";
+import {
+  RiDashboardLine as LayoutDashboard,
+  RiLogoutBoxRLine as LogOut
+} from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { homeForRole } from "../features/authentication/authContext";
 import Avatar from "./Avatar";
@@ -14,7 +17,7 @@ export default function HeaderAccountMenu({ user, onOpen }) {
   const menuId = useId();
   const home = homeForRole(user.role);
   const itemClass =
-    "flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-left text-sm font-medium text-[#102019] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]";
+    "flex min-h-11 w-full items-center gap-3 rounded-md px-3 text-left text-sm font-medium text-[#102019] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]";
 
   useEffect(() => {
     if (!isOpen) return;
@@ -60,7 +63,7 @@ export default function HeaderAccountMenu({ user, onOpen }) {
         <nav
           id={menuId}
           aria-label="Header account options"
-          className="absolute top-full right-0 z-50 mt-6 w-56 max-w-[calc(100vw-2rem)] rounded-xl border border-[#CFDDD5] bg-white p-1.5 shadow-lg shadow-[#102019]/10"
+          className="absolute top-full right-0 z-50 mt-6 w-56 max-w-[calc(100vw-2rem)] rounded-md border border-[#CFDDD5] bg-white p-1.5 shadow-lg shadow-[#102019]/10"
         >
           <Link
             ref={firstOption}

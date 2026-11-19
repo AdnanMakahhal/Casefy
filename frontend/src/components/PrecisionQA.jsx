@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { motion as Motion, useReducedMotion } from "motion/react";
-import { Check, Code2, Globe2, ScanSearch, Sparkles } from "lucide-react";
+import {
+  RiCheckLine as Check,
+  RiCodeSSlashLine as Code2,
+  RiGlobalLine as Globe2,
+  RiFileSearchLine as ScanSearch,
+  RiSparklingLine as Sparkles
+} from "react-icons/ri";
 
 const examples = {
   Playwright: `import { test, expect } from '@playwright/test';
@@ -28,9 +34,9 @@ WebDriverWait(driver, 10).until(EC.text_to_be_present_in_element(
 };
 
 const cardClass =
-  "min-w-0 rounded-2xl border border-[#CFDDD5] bg-white p-6 sm:p-8";
+  "min-w-0 rounded-md border border-[#CFDDD5] bg-white p-6 sm:p-8";
 const iconClass =
-  "mb-6 flex size-12 items-center justify-center rounded-xl bg-[#294137] text-white";
+  "mb-6 flex size-12 items-center justify-center rounded-md bg-[#294137] text-white";
 
 function PrecisionQA() {
   const [framework, setFramework] = useState("Playwright");
@@ -75,7 +81,7 @@ function PrecisionQA() {
             Turn Jira tickets, PRDs, and raw text into testing criteria. Find
             the edge cases before they become bugs.
           </p>
-          <div className="mt-7 flex-1 rounded-xl border border-[#CFDDD5] bg-[#f6f8f7] p-5">
+          <div className="mt-7 flex-1 rounded-md border border-[#CFDDD5] bg-[#f6f8f7] p-5">
             <div className="mb-5 flex items-center justify-between gap-3 border-b border-[#CFDDD5] pb-3 text-xs font-semibold text-[#526159]">
               <span>requirements.md</span>
               <span className="rounded-full bg-[#e2ece6] px-2.5 py-1 text-[#294137]">
@@ -109,7 +115,7 @@ function PrecisionQA() {
             Start with a URL. Explore page structure and user journeys to
             uncover what needs testing across your web application.
           </p>
-          <div className="mt-7 flex flex-1 flex-col rounded-xl border border-[#CFDDD5] bg-[#f6f8f7]">
+          <div className="mt-7 flex flex-1 flex-col rounded-md border border-[#CFDDD5] bg-[#f6f8f7]">
             <div className="flex items-center gap-2 border-b border-[#CFDDD5] px-4 py-3 text-xs font-medium text-[#526159]">
               <Globe2 size={14} aria-hidden="true" />
               <span>your-app.com / checkout</span>
@@ -156,14 +162,14 @@ function PrecisionQA() {
                   type="button"
                   aria-pressed={framework === name}
                   onClick={() => setFramework(name)}
-                  className={`min-h-11 cursor-pointer rounded-lg border px-3.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137] ${framework === name ? "border-[#294137] bg-[#294137] text-white" : "border-[#CFDDD5] bg-[#f6f8f7] text-[#294137] hover:bg-[#e2ece6]"}`}
+                  className={`min-h-11 cursor-pointer rounded-md border px-3.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137] ${framework === name ? "border-[#294137] bg-[#294137] text-white" : "border-[#CFDDD5] bg-[#f6f8f7] text-[#294137] hover:bg-[#e2ece6]"}`}
                 >
                   {name}
                 </button>
               ))}
             </div>
           </div>
-          <div className="min-w-0 overflow-hidden rounded-xl border border-[#CFDDD5] bg-[#f6f8f7]">
+          <div className="min-w-0 overflow-hidden rounded-md border border-[#CFDDD5] bg-[#f6f8f7]">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#CFDDD5] px-5 py-4 text-xs font-semibold text-[#526159]">
               <span>{framework} example</span>
               <span className="text-[#294137]">Checkout flow</span>

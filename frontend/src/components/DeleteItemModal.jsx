@@ -18,7 +18,7 @@ export default function DeleteItemModal({
         <button
           type="button"
           onClick={onDismiss}
-          className="min-h-11 cursor-pointer rounded-lg border border-[#cfddd5] px-4 text-sm font-semibold text-[#294137] focus-visible:outline-2 focus-visible:outline-[#294137]"
+          className="min-h-11 cursor-pointer rounded-md border border-[#cfddd5] px-4 text-sm font-semibold text-[#294137] focus-visible:outline-2 focus-visible:outline-[#294137]"
         >
           Cancel
         </button>

@@ -1,31 +1,32 @@
 import {
-  BarChart3,
-  LayoutDashboard,
-  PlayCircle,
-  Settings2,
-  Sparkles,
-  X,
-} from "lucide-react";
+  RiBarChartBoxLine as BarChart3,
+  RiDashboardLine as LayoutDashboard,
+  RiPlayCircleLine as PlayCircle,
+  RiSparklingLine as Sparkles,
+  RiCloseLine as X,
+} from "react-icons/ri";
 import { Link, useLocation } from "react-router-dom";
+import BrandLogo from "./BrandLogo";
 import WorkspaceMenu from "./WorkspaceMenu";
+import SidebarCredits from "./SidebarCredits";
 import { homeForRole } from "../features/authentication/authContext";
 import { adminNavigation } from "../features/admin/navigation";
+import { settingsNavigation } from "../features/settings/navigation";
 import { Fragment } from "react";
 
 const navigation = [
   { label: "Dashboard", icon: LayoutDashboard, active: true },
   { label: "Test generator", icon: Sparkles, to: "/test-generator" },
-  { label: "Executions", icon: PlayCircle },
+  { label: "Executions", icon: PlayCircle, to: "/executions" },
   { label: "Reports", icon: BarChart3, to: "/reports" },
-  { label: "Settings", icon: Settings2 },
+  ...settingsNavigation,
 ];
 
 function DashboardSidebar({ isOpen, onClose, user, items }) {
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const home = homeForRole(user?.role);
   const links =
-    items ||
-    (home === "/admin" ? adminNavigation(pathname, search) : navigation);
+    items || (home === "/admin" ? adminNavigation(pathname) : navigation);
 
   return (
     <>
@@ -39,7 +40,9 @@ function DashboardSidebar({ isOpen, onClose, user, items }) {
       )}
       <aside
         id="dashboard-sidebar"
-        aria-label="Workspace navigation"
+        aria-label={
+          home === "/admin" ? "Admin navigation" : "Workspace navigation"
+        }
         onKeyDown={(event) => {
           if (event.key === "Escape") onClose();
         }}
@@ -49,21 +52,15 @@ function DashboardSidebar({ isOpen, onClose, user, items }) {
           <Link
             to="/"
             aria-label="Casefy home"
-            className="rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
+            className="flex items-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
           >
-            <img
-              src="/Logo/Logo_Casefy.svg"
-              alt="Casefy logo"
-              width="150"
-              height="50"
-              className="block h-[50px] w-[150px] object-contain"
-            />
+            <BrandLogo />
           </Link>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close navigation"
-            className="absolute -right-4 top-0 flex size-8 items-center justify-center rounded-lg text-[#294137] hover:bg-[#edf3ef] lg:hidden"
+            className="absolute -right-4 top-0 flex size-8 items-center justify-center rounded-md text-[#294137] hover:bg-[#edf3ef] lg:hidden"
           >
             <X size={20} />
           </button>
@@ -84,7 +81,7 @@ function DashboardSidebar({ isOpen, onClose, user, items }) {
                   aria-current={
                     (selected ?? pathname === (to || home)) ? "page" : undefined
                   }
-                  className={`flex min-h-12 items-center gap-3 rounded-lg px-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137] ${(selected ?? pathname === (to || home)) ? "bg-[#294137] text-white" : "text-[#526159] hover:bg-[#edf3ef]"}`}
+                  className={`flex min-h-12 items-center gap-3 rounded-md px-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137] ${(selected ?? pathname === (to || home)) ? "bg-[#294137] text-white" : "text-[#526159] hover:bg-[#edf3ef]"}`}
                 >
                   <Icon size={19} aria-hidden="true" />
                   {!to && home === "/admin" ? "Admin" : label}
@@ -95,7 +92,7 @@ function DashboardSidebar({ isOpen, onClose, user, items }) {
                   type="button"
                   disabled
                   title={`${label} is coming soon`}
-                  className="flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left text-sm text-[#526159]"
+                  className="flex min-h-12 w-full items-center gap-3 rounded-md px-3 text-left text-sm text-[#526159]"
                 >
                   <Icon size={19} aria-hidden="true" />
                   {label}
@@ -107,7 +104,23 @@ function DashboardSidebar({ isOpen, onClose, user, items }) {
             </Fragment>
           ))}
         </nav>
-        <WorkspaceMenu user={user} />
+        <div className="mt-auto">
+          {user &&
+            !["admin", "manager"].includes(user.role) &&
+            !user.isSupportAgent && (
+              <SidebarCredits user={user} onClose={onClose} />
+            )}
+          {user?.isSupportAgent && (
+            <Link
+              to="/staff-support"
+              onClick={onClose}
+              className="mt-4 block rounded-md bg-[#edf3ef] px-3 py-3 text-sm font-semibold text-[#294137]"
+            >
+              Support desk
+            </Link>
+          )}
+          <WorkspaceMenu user={user} />
+        </div>
       </aside>
     </>
   );

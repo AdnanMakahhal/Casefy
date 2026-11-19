@@ -21,7 +21,7 @@ function ToastProvider({ children }) {
           key={toast.id}
           role="status"
           aria-live="polite"
-          className="fixed inset-x-4 bottom-4 z-[100] mx-auto w-fit max-w-sm rounded-lg bg-[#021316] px-4 py-3 text-sm font-medium text-white shadow-xl sm:right-6 sm:left-auto"
+          className="fixed top-4 right-4 z-[100] w-fit max-w-[calc(100vw-2rem)] rounded-md bg-[#021316] px-4 py-3 text-sm font-medium text-white shadow-xl sm:top-6 sm:right-6 sm:max-w-sm"
         >
           {toast.message}
         </div>

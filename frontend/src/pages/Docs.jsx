@@ -1,12 +1,13 @@
-﻿import { useEffect, useRef, useState } from "react";
+import Heading from "../components/Heading";
+import { useEffect, useRef, useState } from "react";
 import {
-  ArrowUpRight,
-  BookOpen,
-  ChartNoAxesCombined,
-  ListChecks,
-  Search,
-  X,
-} from "lucide-react";
+  RiArrowRightUpLine as ArrowUpRight,
+  RiBookOpenLine as BookOpen,
+  RiLineChartLine as ChartNoAxesCombined,
+  RiListCheck2 as ListChecks,
+  RiSearchLine as Search,
+  RiCloseLine as X
+} from "react-icons/ri";
 import { Link } from "react-router-dom";
 import AccountModal from "../components/AccountModal";
 
@@ -36,7 +37,7 @@ const guides = [
       "Choose User story for a subject and description, Documents for requirement files, or Website URL for a page address.",
       "Choose the number of test cases and priority. Combine Functional, Positive, Negative, Edge cases, Security, and Accessibility coverage as needed.",
       "Search the model picker and adjust reasoning and output detail. Each model keeps its own settings while you work.",
-      "Select Review request to check your inputs. This preview does not generate test cases, parse document contents, or visit websites.",
+      "Select Generate tests to check your inputs. This preview does not generate test cases, parse document contents, or visit websites.",
     ],
     to: "/test-generator",
     action: "Try the composer",
@@ -75,7 +76,7 @@ const guides = [
     tag: "Guide",
     description: "Prepare website context for pages and states.",
     steps: [
-      "Website URL input is available on Plus, Pro, and Enterprise. Free includes user stories and documents.",
+      "Website URL input is available on Plus, Pro, and Custom. Free includes user stories and documents.",
       "Choose Website URL and enter an HTTP or HTTPS address without embedded credentials.",
       "Describe the pages, user journeys, or states you want to cover in the additional instructions.",
       "Review the URL and coverage settings before downloading the request. The current preview does not visit the website or generate tests.",
@@ -133,9 +134,9 @@ export default function Docs() {
   return (
     <section className="mx-auto max-w-6xl px-4 pt-12 pb-16 text-[#102019] sm:px-8 sm:pt-14 sm:pb-20">
       <div className="text-center">
-        <h1 className="mx-auto max-w-[700px] text-4xl leading-[1.12] font-extrabold tracking-tight sm:text-5xl">
+        <Heading as="h1" className="mx-auto max-w-[700px] text-4xl leading-[1.12] font-extrabold tracking-tight sm:text-5xl">
           Build with Casefy faster.
-        </h1>
+        </Heading>
         <p className="mx-auto mt-6 max-w-[600px] text-base leading-6 font-medium text-[#526159]">
           Guides and workflow examples for turning stories, documents, and URLs
           into a clear testing plan.
@@ -176,7 +177,7 @@ export default function Docs() {
           ) : (
             <kbd
               aria-hidden="true"
-              className="pointer-events-none absolute top-4 right-4 rounded border border-[#dce6df] px-1.5 text-xs leading-6 text-[#8a9890]"
+              className="pointer-events-none absolute top-4 right-4 rounded-md border border-[#dce6df] px-1.5 text-xs leading-6 text-[#8a9890]"
             >
               /
             </kbd>
@@ -202,7 +203,7 @@ export default function Docs() {
                 key={guide.id}
                 type="button"
                 onClick={() => setActiveGuide(guide)}
-                className="cursor-pointer rounded-2xl border border-[#CFDDD5] bg-white p-6 text-left transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
+                className="cursor-pointer rounded-md border border-[#CFDDD5] bg-white p-6 text-left transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
               >
                 <span className="block text-base font-semibold">
                   {guide.title}
@@ -214,7 +215,7 @@ export default function Docs() {
             ))}
           </div>
           {!matches.length && (
-            <p className="rounded-lg border border-dashed border-[#cfddd5] p-8 text-center text-sm text-[#718578]">
+            <p className="rounded-md border border-dashed border-[#cfddd5] p-8 text-center text-sm text-[#718578]">
               No matching guides. Try searching for stories, documents, or URLs.
             </p>
           )}
@@ -225,9 +226,9 @@ export default function Docs() {
             {guides.slice(0, 3).map((guide, index) => (
               <article
                 key={guide.id}
-                className={`flex min-w-0 flex-col rounded-2xl border border-[#CFDDD5] p-6 sm:p-8 ${index === 0 ? "bg-[#edf3ef]" : "bg-white"}`}
+                className={`flex min-w-0 flex-col rounded-md border border-[#CFDDD5] p-6 sm:p-8 ${index === 0 ? "bg-[#edf3ef]" : "bg-white"}`}
               >
-                <span className="mb-6 flex size-12 items-center justify-center rounded-xl bg-[#294137] text-white">
+                <span className="mb-6 flex size-12 items-center justify-center rounded-md bg-[#294137] text-white">
                   {index === 0 ? (
                     <BookOpen size={22} aria-hidden="true" />
                   ) : index === 1 ? (
@@ -256,7 +257,7 @@ export default function Docs() {
           <div className="mx-auto mt-6 grid max-w-[1040px] gap-5 md:grid-cols-3 sm:gap-6">
             <section
               aria-labelledby="popular-guides"
-              className="min-w-0 rounded-2xl border border-[#CFDDD5] bg-white p-6 sm:p-8"
+              className="min-w-0 rounded-md border border-[#CFDDD5] bg-white p-6 sm:p-8"
             >
               <h2
                 id="popular-guides"
@@ -270,7 +271,7 @@ export default function Docs() {
                     key={guide.id}
                     type="button"
                     onClick={() => setActiveGuide(guide)}
-                    className="group flex min-h-16 w-full cursor-pointer items-center gap-3 rounded-lg px-1 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
+                    className="group flex min-h-16 w-full cursor-pointer items-center gap-3 rounded-md px-1 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
                   >
                     <span
                       aria-hidden="true"
@@ -297,7 +298,7 @@ export default function Docs() {
             </section>
             <section
               aria-labelledby="api-reference"
-              className="flex flex-col min-w-0 rounded-2xl border border-[#CFDDD5] bg-white p-6 sm:p-8"
+              className="flex flex-col min-w-0 rounded-md border border-[#CFDDD5] bg-white p-6 sm:p-8"
             >
               <h2
                 id="api-reference"
@@ -321,7 +322,7 @@ export default function Docs() {
             </section>
             <section
               aria-labelledby="docs-help"
-              className="min-w-0 rounded-2xl border border-[#CFDDD5] bg-white p-6 sm:p-8"
+              className="min-w-0 rounded-md border border-[#CFDDD5] bg-white p-6 sm:p-8"
             >
               <h2
                 id="docs-help"

@@ -2,7 +2,13 @@ import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { useStaffData } from "./api";
 import { formatMoney, displayDate } from "../../lib/format";
-import { X, CreditCard, Mail, ArrowUpRight, RotateCcw } from "lucide-react";
+import {
+  RiCloseLine as X,
+  RiBankCardLine as CreditCard,
+  RiMailLine as Mail,
+  RiArrowRightUpLine as ArrowUpRight,
+  RiRestartLine as RotateCcw,
+} from "react-icons/ri";
 import { Loading, ErrorMessage, Empty, Badge } from "./ui";
 import { panel } from "./styles";
 import RefundModal from "./RefundModal";
@@ -37,7 +43,7 @@ export default function Payments({ revision }) {
         <button
           className="admin-button"
           onClick={() => {
-            setParams({ view: "payments" });
+            setParams({});
             setCursors([""]);
           }}
         >
@@ -55,14 +61,14 @@ export default function Payments({ revision }) {
             <div>
               <h2>Payment history</h2>
               <p>
-                {data.liveMode ? "Live payments" : "Sandbox payments"} · Amounts
-                are shown in the original currency.
+                Stored payment records · Amounts are shown in the original
+                currency.
               </p>
             </div>
             <CreditCard size={20} />
           </header>
           {!data.payments.length ? (
-            <Empty text="No Stripe payments for this selection." />
+            <Empty text="No payment records for this selection." />
           ) : (
             <div className="admin-table-scroll">
               <table className="admin-table">
@@ -93,6 +99,11 @@ export default function Payments({ revision }) {
                       </td>
                       <td>
                         <Badge value={payment.status} />
+                        {payment.source === "synthetic" && (
+                          <span className="mt-1 block text-[10px] text-[#526159]">
+                            Synthetic record
+                          </span>
+                        )}
                         {payment.disputed && (
                           <span className="ml-2 text-xs text-red-700">
                             Disputed
@@ -128,6 +139,7 @@ export default function Payments({ revision }) {
                             className="admin-button"
                             disabled={
                               !payment.user ||
+                              !payment.refundable ||
                               !payment.paid ||
                               payment.disputed ||
                               payment.amountRefunded >= payment.amount

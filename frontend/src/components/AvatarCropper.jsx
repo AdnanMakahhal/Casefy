@@ -86,7 +86,7 @@ export default function AvatarCropper({ file, onDismiss, onSave }) {
       <div
         role="img"
         aria-label="Avatar crop preview. Use the sliders below to adjust the image."
-        className="relative mx-auto aspect-square w-full max-w-[280px] touch-none overflow-hidden rounded-xl bg-[#edf3ef] select-none"
+        className="relative mx-auto aspect-square w-full max-w-[280px] touch-none overflow-hidden rounded-md bg-[#edf3ef] select-none"
         onPointerDown={(event) => {
           if (!image || busy) return;
           event.currentTarget.setPointerCapture(event.pointerId);
@@ -216,7 +216,7 @@ export default function AvatarCropper({ file, onDismiss, onSave }) {
           type="button"
           disabled={busy}
           onClick={onDismiss}
-          className="min-h-11 cursor-pointer rounded-lg border border-[#CFDDD5] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-[#294137] disabled:opacity-50"
+          className="min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-[#294137] disabled:opacity-50"
         >
           Cancel
         </button>
@@ -224,7 +224,7 @@ export default function AvatarCropper({ file, onDismiss, onSave }) {
           type="button"
           disabled={!image || busy}
           onClick={saveAvatar}
-          className="min-h-11 cursor-pointer rounded-lg bg-[#294137] px-4 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50"
+          className="min-h-11 cursor-pointer rounded-md bg-[#294137] px-4 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {busy ? "Saving..." : "Save photo"}
         </button>

@@ -10,7 +10,7 @@ export default function StaffSections({ view, revision }) {
   return (
     <Inbox
       key={view}
-      category={view === "enterprise" ? "enterprise" : "support"}
+      category={view === "custom" ? "custom" : ""}
       revision={revision}
     />
   );

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AccountModal from "./AccountModal";
 import { useAuth } from "../features/authentication/authContext";
-import { useUndoDeletion } from "../context/undoDeletionContext";
+import { useUndoDeletion } from "../Context/undoDeletionContext";
 import HoldToConfirmButton from "./HoldToConfirmButton";
 
 export default function DeleteAccount({ onDismiss }) {
@@ -41,7 +41,7 @@ export default function DeleteAccount({ onDismiss }) {
             required
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="mt-2 min-h-12 w-full rounded-lg border border-[#CFDDD5] px-3 py-2 focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
+            className="mt-2 min-h-12 w-full rounded-md border border-[#CFDDD5] px-3 py-2 focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
           />
         </label>
         {deletionBusy && (
@@ -53,7 +53,7 @@ export default function DeleteAccount({ onDismiss }) {
           <button
             type="button"
             onClick={onDismiss}
-            className="min-h-11 cursor-pointer rounded-lg border border-[#CFDDD5] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-[#294137]"
+            className="min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-[#294137]"
           >
             Keep account
           </button>

@@ -1,6 +1,7 @@
+import Heading from "../components/Heading";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LockKeyhole } from "lucide-react";
+import { RiLock2Line as LockKeyhole } from "react-icons/ri";
 import { useAuth } from "../features/authentication/authContext";
 import { workspaceRequest } from "../features/workspaces/api";
 
@@ -29,11 +30,11 @@ export default function WorkspaceInvite() {
   }
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#FFFFFF] p-5 text-[#102019]">
-      <section className="w-full max-w-lg rounded-2xl border border-[#CFDDD5] bg-white p-8">
+      <section className="w-full max-w-lg rounded-md border border-[#CFDDD5] bg-white p-8">
         <Link
           to="/"
           aria-label="Casefy home"
-          className="mb-7 inline-block rounded bg-white focus-visible:outline-2 focus-visible:outline-[#294137]"
+          className="mb-7 inline-block rounded-md bg-white focus-visible:outline-2 focus-visible:outline-[#294137]"
         >
           <img
             src="/Logo/Logo_Casefy.svg"
@@ -44,7 +45,9 @@ export default function WorkspaceInvite() {
           />
         </Link>
         <LockKeyhole size={32} className="text-[#294137]" />
-        <h1 className="mt-5 text-3xl font-bold">Workspace invitation</h1>
+        <Heading as="h1" className="mt-5 text-3xl font-bold">
+          Workspace invitation
+        </Heading>
         <p className="mt-4 text-sm leading-6 text-[#526159]">
           Join this private workspace using the permission selected by its
           owner. Your own workspace stays private.
@@ -58,7 +61,7 @@ export default function WorkspaceInvite() {
           type="button"
           disabled={busy || !/^[a-f0-9]{64}$/.test(token)}
           onClick={join}
-          className="mt-6 min-h-12 w-full cursor-pointer rounded-lg bg-[#294137] px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-6 min-h-12 w-full cursor-pointer rounded-md bg-[#294137] px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
           {busy ? "Joining…" : "Accept invitation and join"}
         </button>
@@ -68,7 +71,7 @@ export default function WorkspaceInvite() {
           </p>
         )}
         <Link
-          to="/workspaces"
+          to="/settings/workspaces"
           className="mt-5 block text-center text-sm underline"
         >
           Back to my workspaces

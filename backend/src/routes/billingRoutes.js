@@ -1,5 +1,6 @@
 import express from "express";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect, allowRoles } from "../middleware/authMiddleware.js";
+import { signupRoles } from "../utils/roles.js";
 import {
   createCheckout,
   createUpgrade,
@@ -7,15 +8,18 @@ import {
   checkoutStatus,
   catalog,
   billingStatus,
+  history,
 } from "../controllers/billingController.js";
 
 const router = express.Router();
 
 router.get("/plans", catalog);
-router.get("/status", protect, billingStatus);
-router.post("/checkout", protect, createCheckout);
-router.post("/upgrade", protect, createUpgrade);
-router.post("/portal", protect, createPortal);
-router.get("/checkout/:sessionId", protect, checkoutStatus);
+router.use(protect, allowRoles(...signupRoles));
+router.get("/status", billingStatus);
+router.get("/history", history);
+router.post("/checkout", createCheckout);
+router.post("/upgrade", createUpgrade);
+router.post("/portal", createPortal);
+router.get("/checkout/:sessionId", checkoutStatus);
 
 export default router;

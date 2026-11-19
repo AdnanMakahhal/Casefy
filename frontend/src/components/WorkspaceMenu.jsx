@@ -1,11 +1,11 @@
 import { useEffect, useId, useRef, useState } from "react";
 import {
-  Building2,
-  ChevronsUpDown,
-  House,
-  LogOut,
-  UserRound,
-} from "lucide-react";
+  RiBuildingLine as Building2,
+  RiArrowUpDownLine as ChevronsUpDown,
+  RiHome4Line as House,
+  RiLogoutBoxRLine as LogOut,
+  RiUserLine as UserRound,
+} from "react-icons/ri";
 import { Link } from "react-router-dom";
 import Avatar from "./Avatar";
 import LogoutDialog from "./LogoutDialog";
@@ -22,8 +22,9 @@ function WorkspaceMenu({ user }) {
   const firstOption = useRef(null);
   const menuId = useId();
   const role = roleLabels[user ? user.role : readRolePreference()];
+  const staff = ["admin", "manager"].includes(user?.role);
   const itemClass =
-    "flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-lg px-3 text-left text-sm font-medium text-[#102019] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]";
+    "flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-md px-3 text-left text-sm font-medium text-[#102019] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]";
 
   useEffect(() => {
     if (!isOpen) return;
@@ -38,7 +39,7 @@ function WorkspaceMenu({ user }) {
   return (
     <div
       ref={container}
-      className="relative mt-auto pt-5"
+      className="relative pt-5"
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget))
           setIsOpen(false);
@@ -55,25 +56,27 @@ function WorkspaceMenu({ user }) {
         <nav
           id={menuId}
           aria-label="Account options"
-          className="absolute inset-x-0 bottom-full mb-2 rounded-xl border border-[#CFDDD5] bg-white p-1.5 shadow-lg shadow-[#102019]/10"
+          className="absolute inset-x-0 bottom-full mb-2 rounded-md border border-[#CFDDD5] bg-white p-1.5 shadow-lg shadow-[#102019]/10"
         >
           <Link
             ref={firstOption}
-            to="/profile"
+            to="/settings/profile"
             className={itemClass}
             onClick={() => setIsOpen(false)}
           >
             <UserRound size={18} aria-hidden="true" />
             Profile
           </Link>
-          <Link
-            to="/workspaces"
-            className={itemClass}
-            onClick={() => setIsOpen(false)}
-          >
-            <Building2 size={18} aria-hidden="true" />
-            Workspaces
-          </Link>
+          {!staff && (
+            <Link
+              to="/settings/workspaces"
+              className={itemClass}
+              onClick={() => setIsOpen(false)}
+            >
+              <Building2 size={18} aria-hidden="true" />
+              Workspaces
+            </Link>
+          )}
           <Link to="/" className={itemClass} onClick={() => setIsOpen(false)}>
             <House size={18} aria-hidden="true" />
             Back to home page
@@ -97,7 +100,7 @@ function WorkspaceMenu({ user }) {
         aria-expanded={isOpen}
         aria-controls={menuId}
         onClick={() => setIsOpen((value) => !value)}
-        className="mt-3 flex w-full cursor-pointer items-center gap-3 rounded-xl border border-[#CFDDD5] p-3 text-left transition-colors hover:bg-[#f6f8f7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+        className="mt-3 flex w-full cursor-pointer items-center gap-3 rounded-md border border-[#CFDDD5] p-3 text-left transition-colors hover:bg-[#f6f8f7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
       >
         <Avatar user={user} className="size-9 text-sm" />
         <span className="min-w-0 flex-1">

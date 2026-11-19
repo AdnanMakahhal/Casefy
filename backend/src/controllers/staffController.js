@@ -1,4 +1,6 @@
 import prisma from "../db.js";
+import { paymentView } from "../services/paymentService.js";
+import { requestCategories } from "../utils/supportDetails.js";
 import { stripe as defaultStripe, billingConfig } from "../utils/stripe.js";
 import { createBillingService, objectId } from "../services/billingService.js";
 import {
@@ -34,7 +36,7 @@ function pageOptions(query) {
   const page = Number(query.page || 1);
   if (!Number.isSafeInteger(page) || page < 1 || page > 1000000)
     throw Object.assign(new Error("Invalid page."), { status: 400 });
-  return { page, skip: (page - 1) * 20, take: 20 };
+  return { page, skip: (page - 1) * 10, take: 10 };
 }
 const accountSelect = {
   id: true,
@@ -87,7 +89,7 @@ export function createStaffController(
         const { category, status } = req.query;
         if (
           (category &&
-            !["support", "enterprise", "refund"].includes(category)) ||
+            !requestCategories.includes(category)) ||
           (status && !["open", "pending", "resolved"].includes(status))
         )
           return res.status(400).json({ message: "Invalid inbox filter." });
@@ -113,6 +115,7 @@ export function createStaffController(
             take,
             orderBy: { id: "desc" },
             include: {
+              assignedTo: { select: { id: true, name: true } },
               user: { select: { id: true, name: true, plan: true } },
               _count: { select: { messages: true } },
             },
@@ -131,6 +134,8 @@ export function createStaffController(
         const request = await db.supportRequest.findUnique({
           where: { id: Number(req.params.id) },
           include: {
+            deals: { orderBy: { createdAt: "desc" } },
+            assignedTo: { select: { id: true, name: true } },
             user: { select: accountSelect },
             messages: { orderBy: { createdAt: "asc" }, select: messageSelect },
           },
@@ -145,16 +150,19 @@ export function createStaffController(
     async updateRequest(req, res) {
       if (
         !isId(req.params.id) ||
-        !["open", "pending", "resolved"].includes(req.body?.status)
+        (!req.body?.assignToMe && !["open", "pending", "resolved"].includes(req.body?.status))
       )
         return res
           .status(400)
           .json({ message: "Choose a valid request status." });
       try {
+        const existing = await db.supportRequest.findUnique({ where: { id: Number(req.params.id) } });
+        if (!existing) return res.status(404).json({ message: "Request not found." });
+        if (req.user.role === "employee" && ["refund", "custom"].includes(existing.category) && req.body.status === "resolved") return res.status(403).json({ message: "A manager or admin must approve financial and custom-plan requests." });
         return res.json({
           request: await db.supportRequest.update({
             where: { id: Number(req.params.id) },
-            data: { status: req.body.status },
+            data: req.body.assignToMe ? { assignedToId: req.userId } : { status: req.body.status },
           }),
         });
       } catch (error) {
@@ -267,6 +275,7 @@ export function createStaffController(
             ? req.query.search.trim().slice(0, 160)
             : "";
         const where = {
+          role: { notIn: ["admin", "manager"] },
           ...(search
             ? {
                 OR: [
@@ -276,7 +285,7 @@ export function createStaffController(
               }
             : {}),
           ...(req.query.plan &&
-          ["free", "plus", "pro", "enterprise"].includes(req.query.plan)
+          ["free", "plus", "pro", "custom"].includes(req.query.plan)
             ? { AND: [effectivePlanFilter(req.query.plan)] }
             : {}),
         };
@@ -323,6 +332,8 @@ export function createStaffController(
         });
         if (!account)
           return res.status(404).json({ message: "User not found." });
+        if (["admin", "manager"].includes(account.role) && !req.body.remove)
+          return res.status(403).json({ message: "Staff accounts cannot receive subscription plans." });
         if (
           req.user.role === "manager" &&
           ["admin", "manager"].includes(account.role)
@@ -422,66 +433,16 @@ export function createStaffController(
     },
     async payments(req, res) {
       try {
-        ready();
-        if (req.query.after && !/^ch_[a-zA-Z0-9]+$/.test(req.query.after))
-          return res.status(400).json({ message: "Invalid payment cursor." });
-        let account;
-        if (req.query.userId) {
-          if (!isId(req.query.userId))
-            return res.status(400).json({ message: "Invalid user." });
-          account = await db.user.findUnique({
-            where: { id: Number(req.query.userId) },
-            select: accountSelect,
-          });
-          if (!account)
-            return res.status(404).json({ message: "User not found." });
-          if (!account.stripeCustomerId)
-            return res.json({
-              payments: [],
-              hasMore: false,
-              liveMode: billingConfig().liveMode,
-            });
-        }
-        const charges = await stripe.charges.list({
-          limit: 20,
-          ...(account ? { customer: account.stripeCustomerId } : {}),
-          ...(req.query.after ? { starting_after: req.query.after } : {}),
+        if (req.query.userId && !isId(req.query.userId)) return res.status(400).json({ message: "Invalid customer." });
+        if (req.query.after && !/^[0-9a-f-]{36}$/i.test(req.query.after)) return res.status(400).json({ message: "Invalid payment cursor." });
+        const rows = await db.paymentRecord.findMany({
+          where: req.query.userId ? { userId: Number(req.query.userId) } : {},
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 21,
+          ...(req.query.after ? { cursor: { id: req.query.after }, skip: 1 } : {}),
+          include: { user: { select: accountSelect } },
         });
-        const customers = [
-          ...new Set(
-            charges.data
-              .map((charge) => objectId(charge.customer))
-              .filter(Boolean),
-          ),
-        ];
-        const users = await db.user.findMany({
-          where: { stripeCustomerId: { in: customers } },
-          select: accountSelect,
-        });
-        const payments = charges.data.map((charge) => ({
-          id: charge.id,
-          amount: charge.amount,
-          amountRefunded: charge.amount_refunded,
-          currency: charge.currency,
-          status: charge.status,
-          paid: charge.paid,
-          disputed: charge.disputed,
-          receiptUrl: charge.receipt_url,
-          createdAt: new Date(charge.created * 1000),
-          user:
-            users.find(
-              (user) => user.stripeCustomerId === objectId(charge.customer),
-            ) || null,
-        }));
-        return res.json({
-          payments,
-          hasMore: charges.has_more,
-          nextCursor: charges.data.at(-1)?.id,
-          liveMode: billingConfig().liveMode,
-        });
-      } catch (error) {
-        return staffFailure(res, error);
-      }
+        return res.json({ payments: rows.slice(0, 20).map(paymentView), hasMore: rows.length > 20, nextCursor: rows.slice(0, 20).at(-1)?.id, liveMode: billingConfig().liveMode });
+      } catch (error) { return staffFailure(res, error); }
     },
     async refunds(req, res) {
       try {
@@ -646,6 +607,8 @@ export function createStaffController(
                 : refund.status,
           },
         });
+        const updatedCharge = await stripe.charges.retrieve(body.chargeId);
+        await db.paymentRecord.updateMany({ where: { externalId: body.chargeId }, data: { amountRefunded: updatedCharge.amount_refunded } });
         return res.json({ refund: record });
       } catch (error) {
         return staffFailure(res, error);

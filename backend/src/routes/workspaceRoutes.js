@@ -1,11 +1,14 @@
 import { Router } from "express";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect, allowRoles } from "../middleware/authMiddleware.js";
+import { signupRoles } from "../utils/roles.js";
 import {
   getWorkspaces,
   addWorkspace,
   getWorkspaceProjects,
   deleteWorkspace,
   createProject,
+  getProject,
+  moveProject,
   updateProject,
   deleteProject,
   getAccess,
@@ -17,7 +20,7 @@ import {
 
 const router = Router();
 
-router.use(protect);
+router.use(protect, allowRoles(...signupRoles));
 router.get("/workspaces", getWorkspaces);
 router.post("/workspaces", addWorkspace);
 router.post("/workspace-invites/accept", acceptInvite);
@@ -29,6 +32,8 @@ router.delete("/workspaces/:workspaceKey/invites/:inviteId", revokeInvite);
 router.patch("/workspaces/:workspaceKey/members/:memberId", changeMember);
 router.delete("/workspaces/:workspaceKey", deleteWorkspace);
 router.patch("/projects/:projectId", updateProject);
+router.get("/projects/:projectId", getProject);
+router.post("/projects/:projectId/move", moveProject);
 router.delete("/projects/:projectId", deleteProject);
 
 export default router;

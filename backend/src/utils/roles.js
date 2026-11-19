@@ -14,6 +14,8 @@ export const publicUserSelect = {
   name: true,
   email: true,
   role: true,
+  isSupportAgent: true,
+  isSynthetic: true,
   plan: true,
   blockedAt: true,
   seatLimit: true,

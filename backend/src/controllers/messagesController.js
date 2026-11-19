@@ -48,6 +48,7 @@ export function createMessagesController(db = prisma) {
           orderBy: { id: "desc" },
           take: 100,
           include: {
+            deals: { orderBy: { createdAt: "desc" } },
             messages: {
               where: {
                 OR: [

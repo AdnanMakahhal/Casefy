@@ -1,0 +1,7 @@
+# Local account login credentials.
+/note.txt
+
+# Local environment and deployment credentials.
+**/.env
+**/.env.*
+!**/.env.example

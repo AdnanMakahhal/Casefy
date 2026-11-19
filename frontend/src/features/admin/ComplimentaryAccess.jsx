@@ -5,7 +5,7 @@ import { adminRequest } from "./api";
 import { displayDate, titleCase } from "../../lib/format";
 
 const input =
-  "mt-2 min-h-11 w-full rounded-lg border border-[#CFDDD5] bg-white px-3 py-2 text-sm";
+  "mt-2 min-h-11 w-full rounded-md border border-[#CFDDD5] bg-white px-3 py-2 text-sm";
 function localDate(value) {
   const date = new Date(value);
   const pad = (number) => String(number).padStart(2, "0");
@@ -87,7 +87,7 @@ export default function ComplimentaryAccess({ account, onClose, onSaved }) {
         required. Dates use your local timezone.
       </p>
       {account.stripeSubscriptionId && (
-        <div className="mb-5 rounded-lg bg-[#edf3ef] p-4 text-xs leading-6 text-[#526159]">
+        <div className="mb-5 rounded-md bg-[#edf3ef] p-4 text-xs leading-6 text-[#526159]">
           <strong>Stripe billing</strong>
           <br />
           Started: {displayDate(account.subscriptionStartedAt)}
@@ -106,7 +106,7 @@ export default function ComplimentaryAccess({ account, onClose, onSaved }) {
                 label="Complimentary subscription plan"
                 value={plan}
                 onChange={setPlan}
-                options={["plus", "pro", "enterprise"].map((value) => ({
+                options={["plus", "pro", "custom"].map((value) => ({
                   value,
                   label: titleCase(value),
                   description: "Free temporary access",
@@ -172,7 +172,7 @@ export default function ComplimentaryAccess({ account, onClose, onSaved }) {
         {error && (
           <p
             role="alert"
-            className="rounded-lg bg-red-50 p-3 text-sm text-red-800"
+            className="rounded-md bg-red-50 p-3 text-sm text-red-800"
           >
             {error}
           </p>

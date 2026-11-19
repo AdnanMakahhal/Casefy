@@ -4,7 +4,7 @@ import { useAuth } from "../features/authentication/authContext";
 import { roleLabels, signupRoles } from "../features/authentication/roles";
 
 const inputClass =
-  "mt-2 min-h-12 w-full rounded-lg border border-[#CFDDD5] bg-white px-3 py-2 text-base text-[#102019] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]";
+  "mt-2 min-h-12 w-full rounded-md border border-[#CFDDD5] bg-white px-3 py-2 text-base text-[#102019] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]";
 
 export default function EditAccount({
   user,
@@ -40,7 +40,7 @@ export default function EditAccount({
     try {
       const data = { name: details.name, email: details.email };
       if (!privileged) data.role = details.role;
-      if (!privileged || details.workspaceName.trim())
+      if (!privileged)
         data.workspaceName = details.workspaceName;
       if (emailChanged) data.currentPassword = details.currentPassword;
       await updateProfile(data);
@@ -121,7 +121,7 @@ export default function EditAccount({
           </select>
         )}
       </label>
-      <label className="block text-sm font-medium">
+      {!privileged && <label className="block text-sm font-medium">
         Workspace name
         <input
           name="workspaceName"
@@ -132,7 +132,7 @@ export default function EditAccount({
           onChange={change}
           className={inputClass}
         />
-      </label>
+      </label>}
       {error && (
         <p role="alert" className="text-sm text-red-700">
           {error}
@@ -143,14 +143,14 @@ export default function EditAccount({
           type="button"
           disabled={busy}
           onClick={onDismiss}
-          className="min-h-11 cursor-pointer rounded-lg border border-[#CFDDD5] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-[#294137] disabled:opacity-50"
+          className="min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-[#294137] disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={busy}
-          className="min-h-11 cursor-pointer rounded-lg bg-[#294137] px-4 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-wait disabled:opacity-50"
+          className="min-h-11 cursor-pointer rounded-md bg-[#294137] px-4 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-wait disabled:opacity-50"
         >
           {busy ? "Saving..." : "Save changes"}
         </button>

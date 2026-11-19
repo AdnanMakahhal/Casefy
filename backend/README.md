@@ -19,6 +19,12 @@ PORT=8000
 
 Use DIRECT_URL when migrations need a separate direct database connection. Keep environment files private. Configure matching Stripe keys, price IDs, billing portal settings, and the webhook signing secret before using billing. Additional integration settings are described below.
 
+### AI configuration
+
+OpenRouter is the intended AI gateway. Keep `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` in `backend/.env` only. Set `OPENROUTER_MODEL` to your chosen OpenRouter model ID; there is no hard-coded model or fallback. The frontend's LLM and LLM + Playwright choices describe workflow modes, not provider model IDs.
+
+Test Generator currently prepares request previews. Saving OpenRouter settings does not enable generation or browser execution; the generation endpoint still needs to be connected.
+
 ### Database and server
 
 Run these commands from backend:
@@ -48,7 +54,6 @@ src/
   middleware/     authentication and staff permissions
   utils/          shared domain helpers
 prisma/           schema and database migration history
-scripts/          Stripe setup and database smoke checks
 ```
 
 ## Follow a request
@@ -77,11 +82,11 @@ Existing URLs are preserved. Workspace ownership, membership changes, project ed
 
 Every account owns a primary workspace with a permanent UUID, even when several accounts choose the same name. Workspace IDs are identifiers; they grant no access. A database trigger creates the primary workspace on account creation and preserves its ID when the profile workspace name changes. Paid accounts can add more workspaces. Primary workspaces cannot be deleted.
 
-Open **Workspaces**, select a workspace you own, then use **People and invitations**. Viewer is the default permission. Create a link, copy it, and share it with the intended person. Each link expires after seven days and works for one signed-in account. The recipient explicitly accepts the invitation. The invitation survives the sign-in flow and new-account onboarding. A recipient keeps their own private primary workspace as well as access to the shared workspace.
+Open **Workspaces**, select a workspace you own, then use **People and invitations**. Enter an email, choose Viewer or Editor access, and select **Send invitation**. Email invitations can only be accepted by an account with that email address. Each invitation expires after seven days and works for one signed-in account. The recipient explicitly accepts the invitation. The invitation survives the sign-in flow and new-account onboarding. A recipient keeps their own private primary workspace as well as access to the shared workspace.
 
 Only the owner can manage people, change viewer/editor access, revoke pending invitations, or delete additional workspaces. Editors can create, edit and delete projects; viewers can only read them. Removing a member prevents further access and a consumed invite cannot restore their access. A new invitation is required. Reaccepting an invite never silently upgrades an existing member's role. Configured owner seat limits include the owner. Configured project limits apply per workspace; otherwise Free allows 2 projects, Plus 10, and Pro/Enterprise have no default cap.
 
-Invites use 256-bit random tokens. Only SHA-256 hashes are stored; the raw token is returned once and appears in a URL fragment so it is not included in server access logs or referrer headers. The interface copies a link; it does not send email. Anyone holding an unused link can accept it, so share it privately or revoke it. Pending links cannot be recovered from storage; create another if lost.
+Invites use 256-bit random tokens. Only SHA-256 hashes are stored; the raw token is delivered only in the invitation email and appears in a URL fragment so it is not included in server access logs or referrer headers. Email invitations use the existing Resend integration and require `FRONTEND_URL`, `RESEND_API_KEY` (or a saved integration), and a verified `EMAIL_FROM`. An email address is required for every invitation. Shareable invitation creation and copying are disabled. If email delivery fails, the invitation is revoked and an error is shown. Older invitations without an email address cannot be accepted. Owners can revoke pending invitations. Apply the `20261118000000_workspace_invite_email` migration before using email invitations.
 
 All endpoints below require authentication:
 
@@ -90,6 +95,8 @@ All endpoints below require authentication:
 | GET / POST     | `/workspaces`                       | List own/joined; create additional on paid plan    |
 | GET / POST     | `/workspaces/:id/projects`          | Read: member; create: owner/editor                 |
 | PATCH / DELETE | `/projects/:projectId`              | Owner/editor of the project's workspace            |
+| GET            | `/projects/:projectId`              | Workspace member; includes saved request           |
+| POST           | `/projects/:projectId/move`         | Owner/editor in source and destination             |
 | DELETE         | `/workspaces/:id`                   | Owner; name confirmation; primary prohibited       |
 | GET            | `/workspaces/:id/access`            | Owner; members and active invite metadata          |
 | POST           | `/workspaces/:id/invites`           | Owner; `{ role: "viewer" or "editor" }`            |
@@ -99,7 +106,7 @@ All endpoints below require authentication:
 
 Access-changing operations, invitation acceptance and project operations lock the workspace and recheck permissions to prevent concurrent revocations from being bypassed. Staff roles do not bypass workspace membership. Legacy owner-only `primary`/`additional-N` URLs resolve only against that owner's migrated records; new UI links always use UUIDs. Deleting an additional workspace never renumbers another workspace.
 
-Apply `npm run db:migrate` and regenerate the Prisma client. `npm run workspace:smoke` runs the real database workflow with isolated fixtures inside a transaction and rolls it all back: private auto-creation, same-name isolation, one-use/expired/revoked links, viewer/editor/owner permissions, demotion, removal, stable IDs, profile rename and deletion. No emails are sent.
+Apply `npm run db:migrate` and regenerate the Prisma client before starting the API.
 
 ## Staff panel
 
@@ -129,7 +136,7 @@ Subscriptions show each account's plan, status, renewal/end date, and scheduled 
 
 Payments are read from Stripe and show customer mapping, charged/refunded amounts, currency, receipt, and status. Refunds require an explicit amount and reason, validate charge ownership and the remaining balance, and use a persisted operation ID as the Stripe idempotency key. Pending operations can be retried from Refunds → Issued refunds using the original operation. Refunds go to the original payment method and do not cancel subscriptions. Financial refund records prevent deleting their associated account; block access when needed instead.
 
-Configure the Stripe webhook endpoint for the existing subscription/invoice events plus `refund.created`, `refund.updated`, and `refund.failed`. The local `npm run stripe:listen` helper includes those events. Refund events retrieve current provider state so out-of-order deliveries cannot restore an outdated refund status.
+Configure the Stripe webhook endpoint for the existing subscription/invoice events plus `refund.created`, `refund.updated`, and `refund.failed`. Refund events retrieve current provider state so out-of-order deliveries cannot restore an outdated refund status.
 
 No actual payment, refund, subscription cancellation, or outbound email is performed by the test suite or staff smoke script.
 
@@ -145,9 +152,17 @@ The widget supports ticket creation, support/refund/Enterprise topics, conversat
 
 Test generation and reports are available only to customer roles. Customer generation previews a request without making AI calls or executing browser tests. The reports API lists and retrieves only the signed-in customer's own saved results. Staff have no generation endpoint or report access.
 
+### Test projects and workspace moves
+
+Apply migrations with `npm run db:migrate` and regenerate Prisma with `npm run prisma:generate` before starting the updated backend. The `20261117000000_project_generation_request` migration adds a nullable JSONB field to projects; existing projects remain valid.
+
+Open **Create test project** inside a workspace, or choose an editable workspace in the test generator. Enter a test / project name, review the request, and choose **Save as project**. The project stores the description and reviewed request settings, including requirements or document metadata. Document contents are not stored, and saving does not generate AI test cases or use credits. **View project** opens the saved request and offers a JSON download.
+
+**Move project** transfers the project and saved request between owned workspaces or accepted invitations with Editor access. The server requires Owner or Editor access in both workspaces and enforces the destination owner's project limit. The destination workspace owner becomes the project owner, and destination membership controls access after the move. Moves lock both workspaces in a consistent order and reject stale concurrent edits.
+
 ### Validation
 
-From `backend`, run `npm run prisma:validate` and `npm run staff:smoke`. The smoke script exercises the real database using a transaction that rolls back all fixtures. From `frontend`, run `npm run build` and lint changed files.
+From `backend`, run `npm run prisma:validate`. From `frontend`, run `npm run build` and `npm run lint`.
 
 Provider implementation references: [Stripe refunds](https://docs.stripe.com/api/refunds/create), [Stripe subscription updates](https://docs.stripe.com/api/subscriptions/update), and [Resend email](https://resend.com/docs/api-reference/emails/send-email).
 
@@ -158,10 +173,7 @@ Run these from backend:
 | Command                 | Purpose                                                         |
 | ----------------------- | --------------------------------------------------------------- |
 | npm run prisma:validate | Validate the database schema                                    |
-| npm run staff:smoke     | Check staff workflows using rolled-back database fixtures       |
-| npm run workspace:smoke | Check workspace permissions using rolled-back database fixtures |
-| npm run stripe:setup    | Run the Stripe sandbox setup helper                             |
-| npm run stripe:listen   | Forward local Stripe webhook events                             |
-| npm run stripe:test     | Check Stripe sandbox configuration                              |
-
-Smoke checks require a configured database. They roll back their fixtures and do not send email, create charges, or call live AI providers. Smoke scripts protect authentication, payment, and workspace behavior.
+| npm run prisma:generate | Generate the Prisma client                                     |
+| npm run db:migrate      | Apply committed database migrations                            |
+| npm run dev             | Start the API with file watching                               |
+| npm start               | Start the API                                                  |

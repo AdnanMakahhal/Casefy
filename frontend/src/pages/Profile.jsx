@@ -1,5 +1,12 @@
+import Heading from "../components/Heading";
 import { useRef, useState } from "react";
-import { Camera, Menu, Pencil, Save, Trash2 } from "lucide-react";
+import {
+  RiCameraLine as Camera,
+  RiMenuLine as Menu,
+  RiPencilLine as Pencil,
+  RiSaveLine as Save,
+  RiDeleteBin6Line as Trash2
+} from "react-icons/ri";
 import DashboardSidebar from "../components/DashboardSidebar";
 import { roleLabels } from "../features/authentication/roles";
 import { useAuth } from "../features/authentication/authContext";
@@ -7,32 +14,32 @@ import Avatar from "../components/Avatar";
 import AvatarCropper from "../components/AvatarCropper";
 import EditAccount from "../components/EditAccount";
 import DeleteAccount from "../components/DeleteAccount";
-import BillingControls from "../components/BillingControls";
+import { useToast } from "../Context/toastContext";
 
 function Profile({ user }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [modal, setModal] = useState(null);
   const [photo, setPhoto] = useState(null);
-  const [message, setMessage] = useState("");
+  const showToast = useToast();
   const [error, setError] = useState("");
   const [photoBusy, setPhotoBusy] = useState(false);
   const { updateProfile } = useAuth();
   const fileInput = useRef(null);
   const profile = user;
   const role = roleLabels[user.role];
+  const staff = ["admin", "manager"].includes(user.role);
   const workspaceName = user.workspaceName;
   const details = [
     { label: "Full name", value: profile.name },
     { label: "Email address", value: profile.email },
     { label: "Role", value: role },
-    { label: "Workspace name", value: workspaceName },
+    ...(!staff ? [{ label: "Workspace name", value: workspaceName }] : []),
   ];
 
   function selectPhoto(event) {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-    setMessage("");
     setError("");
     if (
       !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
@@ -47,10 +54,9 @@ function Profile({ user }) {
   async function removePhoto() {
     setPhotoBusy(true);
     setError("");
-    setMessage("");
     try {
       await updateProfile({ avatarImage: null });
-      setMessage("Profile photo removed.");
+      showToast("Profile photo removed.");
     } catch (error) {
       setError(error.message);
     } finally {
@@ -73,23 +79,25 @@ function Profile({ user }) {
             aria-controls="dashboard-sidebar"
             aria-expanded={isSidebarOpen}
             onClick={() => setIsSidebarOpen(true)}
-            className="flex size-11 shrink-0 items-center justify-center rounded-lg border border-[#CFDDD5] bg-white text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] lg:hidden"
+            className="flex size-11 shrink-0 items-center justify-center rounded-md border border-[#CFDDD5] bg-white text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] lg:hidden"
           >
             <Menu size={20} aria-hidden="true" />
           </button>
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <Heading as="h1" className="text-3xl font-extrabold tracking-tight sm:text-4xl">
               Profile
-            </h1>
+            </Heading>
             <p className="mt-3 text-sm leading-6 text-[#526159]">
-              Your personal details and workspace information.
+              {staff
+                ? "Your personal details and account information."
+                : "Your personal details and workspace information."}
             </p>
           </div>
         </header>
 
         <section
           aria-labelledby="profile-details-heading"
-          className="mt-9 max-w-3xl overflow-hidden rounded-xl border border-[#CFDDD5] bg-white"
+          className="mt-9 max-w-3xl overflow-hidden rounded-md border border-[#CFDDD5] bg-white"
         >
           <div className="flex flex-wrap items-center gap-5 border-b border-[#CFDDD5] px-6 py-6 sm:px-8">
             <input
@@ -131,14 +139,13 @@ function Profile({ user }) {
                   type="button"
                   disabled={photoBusy}
                   onClick={removePhoto}
-                  className="mt-3 cursor-pointer rounded text-xs font-semibold text-[#526159] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+                  className="mt-3 cursor-pointer rounded-md text-xs font-semibold text-[#526159] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
                 >
                   {photoBusy ? "Removing..." : "Remove photo"}
                 </button>
               )}
             </div>
           </div>
-          <BillingControls user={user} />
           {modal === "edit" ? (
             <div className="p-6 sm:p-8">
               <EditAccount
@@ -147,7 +154,7 @@ function Profile({ user }) {
                 onDismiss={() => setModal(null)}
                 onSaved={() => {
                   setModal(null);
-                  setMessage("Account updated.");
+                  showToast("Account updated.");
                 }}
               />
             </div>
@@ -170,11 +177,10 @@ function Profile({ user }) {
                   type="button"
                   disabled={photoBusy}
                   onClick={() => {
-                    setMessage("");
                     setError("");
                     setModal("edit");
                   }}
-                  className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg bg-[#294137] px-4 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+                  className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md bg-[#294137] px-4 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
                 >
                   <Pencil size={16} aria-hidden="true" />
                   Edit account
@@ -183,7 +189,7 @@ function Profile({ user }) {
                   type="button"
                   disabled
                   title="Choose Edit account to make changes, then save them here"
-                  className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[#CFDDD5] px-4 text-sm font-semibold text-[#526159] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold text-[#526159] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Save size={16} aria-hidden="true" />
                   Save changes
@@ -193,11 +199,10 @@ function Profile({ user }) {
                 type="button"
                 disabled={photoBusy}
                 onClick={() => {
-                  setMessage("");
                   setError("");
                   setModal("delete");
                 }}
-                className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-red-200 px-4 text-sm font-semibold text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
+                className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-red-200 px-4 text-sm font-semibold text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
               >
                 <Trash2 size={16} aria-hidden="true" />
                 Delete account
@@ -205,46 +210,6 @@ function Profile({ user }) {
             </div>
           )}
         </section>
-        {(user.subscriptionStartedAt || user.subscriptionPeriodEnd) && (
-          <details className="mt-6 max-w-3xl rounded-xl border border-[#CFDDD5] bg-white">
-            <summary className="cursor-pointer rounded-xl px-6 py-5 text-base font-semibold text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] sm:px-8">
-              Subscription history
-            </summary>
-            <dl className="grid gap-5 border-t border-[#CFDDD5] px-6 py-5 sm:grid-cols-2 sm:px-8">
-              {user.subscriptionStartedAt && (
-                <div>
-                  <dt className="text-sm text-[#526159]">
-                    Subscription started
-                  </dt>
-                  <dd className="mt-2 text-sm font-medium">
-                    <time dateTime={user.subscriptionStartedAt}>
-                      {new Date(user.subscriptionStartedAt).toLocaleString()}
-                    </time>
-                  </dd>
-                </div>
-              )}
-              {user.subscriptionPeriodEnd && (
-                <div>
-                  <dt className="text-sm text-[#526159]">
-                    {user.cancelAtPeriodEnd
-                      ? "Paid subscription ends"
-                      : "Current billing period ends"}
-                  </dt>
-                  <dd className="mt-2 text-sm font-medium">
-                    <time dateTime={user.subscriptionPeriodEnd}>
-                      {new Date(user.subscriptionPeriodEnd).toLocaleString()}
-                    </time>
-                  </dd>
-                </div>
-              )}
-            </dl>
-          </details>
-        )}
-        {message && (
-          <p role="status" className="mt-4 text-sm text-[#294137]">
-            {message}
-          </p>
-        )}
         {error && (
           <p role="alert" className="mt-4 text-sm text-red-700">
             {error}
@@ -260,7 +225,7 @@ function Profile({ user }) {
             onSave={async (avatarImage) => {
               await updateProfile({ avatarImage });
               setPhoto(null);
-              setMessage("Profile photo updated.");
+              showToast("Profile photo updated.");
             }}
           />
         )}

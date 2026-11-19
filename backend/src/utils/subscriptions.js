@@ -1,4 +1,15 @@
-export const planRank = { free: 0, plus: 1, pro: 2, enterprise: 3 };
+export const planRank = { free: 0, plus: 1, pro: 2, custom: 3 };
+export const planLimits = {
+  free: { seats: 1, projects: 2, credits: 100 },
+  plus: { seats: 1, projects: 10, credits: 1500 },
+  pro: { seats: 2, projects: null, credits: 6000 },
+  custom: { seats: 2, projects: 25, credits: 10000 },
+};
+function withLimits(user) {
+  if (!user) return user;
+  const limits = planLimits[user.plan] || planLimits.free;
+  return { ...user, seatLimit: user.seatLimit ?? limits.seats, projectLimit: user.projectLimit ?? limits.projects, monthlyCreditLimit: user.monthlyCreditLimit ?? limits.credits };
+}
 
 export function effectivePlanFilter(plan, now = new Date()) {
   const lower = Object.keys(planRank).filter(
@@ -37,7 +48,7 @@ export function effectivePlanFilter(plan, now = new Date()) {
 }
 
 export function effectiveUser(user, now = new Date()) {
-  if (!user?.complimentaryPlan) return user;
+  if (!user?.complimentaryPlan) return withLimits(user);
 
   const basePlan = user.basePlan || user.plan;
   const starts = new Date(user.complimentaryStartsAt).getTime();
@@ -55,7 +66,7 @@ export function effectiveUser(user, now = new Date()) {
       ? "scheduled"
       : "expired";
 
-  return {
+  return withLimits({
     ...user,
     basePlan,
     plan:
@@ -66,7 +77,7 @@ export function effectiveUser(user, now = new Date()) {
     ...(!active && basePlan === "free"
       ? { seatLimit: null, projectLimit: null, monthlyCreditLimit: null }
       : {}),
-  };
+  });
 }
 
 export function accessSchedule(body, now = new Date()) {
@@ -77,9 +88,9 @@ export function accessSchedule(body, now = new Date()) {
       complimentaryEndsAt: null,
     };
 
-  if (!["plus", "pro", "enterprise"].includes(body.plan))
+  if (!["plus", "pro", "custom"].includes(body.plan))
     throw new Error(
-      "Choose Plus, Pro, or Enterprise for complimentary access.",
+      "Choose Plus, Pro, or Custom for complimentary access.",
     );
 
   const starts = body.startsAt ? parseTimestamp(body.startsAt) : new Date(now);

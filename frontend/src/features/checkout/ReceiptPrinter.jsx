@@ -4,7 +4,11 @@ import {
   motion as Motion,
   useReducedMotion,
 } from "motion/react";
-import { AlertCircle, CircleCheck, LoaderCircle } from "lucide-react";
+import {
+  RiErrorWarningLine as AlertCircle,
+  RiCheckboxCircleLine as CircleCheck,
+  RiLoader4Line as LoaderCircle
+} from "react-icons/ri";
 
 const ReceiptPrinterContext = createContext(null);
 const classes = (...values) => values.filter(Boolean).join(" ");
@@ -93,7 +97,7 @@ export function ReceiptPrinterMachine({ children, className, ...props }) {
   return (
     <div
       className={classes(
-        "relative isolate w-full overflow-hidden rounded-3xl border border-[#1c3026] bg-[#294137] p-3 pb-8 shadow-[0_15px_35px_-18px_#10201966,inset_0_1px_0_#ffffff26]",
+        "relative isolate w-full overflow-hidden rounded-md border border-[#1c3026] bg-[#294137] p-3 pb-8 shadow-[0_15px_35px_-18px_#10201966,inset_0_1px_0_#ffffff26]",
         className,
       )}
       {...props}
@@ -101,7 +105,7 @@ export function ReceiptPrinterMachine({ children, className, ...props }) {
       {children}
       <div
         aria-hidden="true"
-        className="absolute inset-x-6 bottom-3 z-40 h-2 rounded border border-[#102019] bg-[#102019] shadow-inner"
+        className="absolute inset-x-6 bottom-3 z-40 h-2 rounded-md border border-[#102019] bg-[#102019] shadow-inner"
       />
     </div>
   );
@@ -125,7 +129,7 @@ export function ReceiptPrinterScreen({ children, className, ...props }) {
   return (
     <div
       className={classes(
-        "relative z-10 overflow-hidden rounded-xl border border-[#102019] bg-[#15291f] p-4 text-[#d8e9dd] shadow-[inset_0_0_20px_#10201980]",
+        "relative z-10 overflow-hidden rounded-md border border-[#102019] bg-[#15291f] p-4 text-[#d8e9dd] shadow-[inset_0_0_20px_#10201980]",
         className,
       )}
       {...props}

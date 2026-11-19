@@ -15,9 +15,19 @@
     <meta name="twitter:image" content="/Logo/Casefy_Share.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Casefy</title>
+    <link rel="preload" href="/fonts/alexandria-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/site-loader.css" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="site-loader" role="status" aria-live="polite" aria-busy="true">
+        <span class="site-loader-label">Loading Casefy...</span>
+        <div class="site-loader-word" aria-hidden="true">
+          <span>Casefy</span>
+          <span>Casefy</span>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -1,3 +1,4 @@
+import Heading from "../components/Heading";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { homeForRole, useAuth } from "../features/authentication/authContext";
@@ -40,15 +41,15 @@ export default function CheckoutSuccess() {
 
   const confirmed =
     result?.status === "complete" &&
-    ["plus", "pro", "enterprise"].includes(result.user?.plan);
+    ["plus", "pro", "custom"].includes(result.user?.plan);
   return (
     <section className="mx-auto max-w-xl px-6 py-16">
-      <div className="rounded-xl border border-[#CFDDD5] bg-white p-8">
-        <h1 className="text-3xl font-bold tracking-tight">
+      <div className="rounded-md border border-[#CFDDD5] bg-white p-8">
+        <Heading as="h1" className="text-3xl font-bold tracking-tight">
           {confirmed
             ? "Thanks for your subscription!"
             : "Checking your subscription"}
-        </h1>
+        </Heading>
         <p
           role={error || !sessionId ? "alert" : "status"}
           className="mt-4 text-sm leading-6 text-[#526159]"
@@ -71,21 +72,21 @@ export default function CheckoutSuccess() {
               setError("");
               setAttempt((value) => value + 1);
             }}
-            className="mt-6 min-h-11 cursor-pointer rounded-lg border border-[#CFDDD5] px-4 text-sm font-semibold text-[#294137]"
+            className="mt-6 min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold text-[#294137]"
           >
             Check again
           </button>
         )}
         <div className="mt-6 flex flex-wrap gap-5 text-sm font-semibold text-[#294137]">
           <Link
-            to="/profile"
-            className="rounded hover:underline focus-visible:outline-2"
+            to="/settings/profile"
+            className="rounded-md hover:underline focus-visible:outline-2"
           >
             View profile
           </Link>
           <Link
             to={homeForRole(user.role)}
-            className="rounded hover:underline focus-visible:outline-2"
+            className="rounded-md hover:underline focus-visible:outline-2"
           >
             Go to workspace
           </Link>

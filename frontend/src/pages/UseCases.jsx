@@ -1,11 +1,11 @@
-﻿import {
-  BookOpen,
-  Code2,
-  GraduationCap,
-  ShoppingCart,
-  Users,
-  GitBranch,
-} from "lucide-react";
+import {
+  RiBookOpenLine as BookOpen,
+  RiCodeSSlashLine as Code2,
+  RiGraduationCapLine as GraduationCap,
+  RiShoppingCartLine as ShoppingCart,
+  RiGroupLine as Users,
+  RiGitBranchLine as GitBranch
+} from "react-icons/ri";
 import MarketingPage, {
   MarketingCard,
   MarketingCta,
@@ -76,7 +76,7 @@ export default function UseCases() {
           </p>
         </MarketingCard>
       </div>
-      <p className="rounded-xl border border-[#CFDDD5] bg-white p-5 text-sm leading-7 text-[#526159]">
+      <p className="rounded-md border border-[#CFDDD5] bg-white p-5 text-sm leading-7 text-[#526159]">
         The current generator prepares requests for review and download.
         AI-generated cases, manual case editing, local execution, and CI/CD will
         be added in future stages.

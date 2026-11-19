@@ -1,17 +1,17 @@
-﻿import {
-  BookOpen,
-  BrainCircuit,
-  ClipboardList,
-  FileText,
-  FolderKanban,
-  GitBranch,
-  Globe,
-  ListChecks,
-  Monitor,
-  Settings2,
-  ShieldCheck,
-  Workflow,
-} from "lucide-react";
+import {
+  RiBookOpenLine as BookOpen,
+  RiBrainLine as BrainCircuit,
+  RiClipboardLine as ClipboardList,
+  RiFileTextLine as FileText,
+  RiFolderChartLine as FolderKanban,
+  RiGitBranchLine as GitBranch,
+  RiGlobalLine as Globe,
+  RiListCheck2 as ListChecks,
+  RiComputerLine as Monitor,
+  RiSettings3Line as Settings2,
+  RiShieldCheckLine as ShieldCheck,
+  RiFlowChart as Workflow
+} from "react-icons/ri";
 import MarketingPage, {
   MarketingCard,
   MarketingCta,
@@ -30,8 +30,8 @@ const current = [
   },
   {
     icon: BrainCircuit,
-    title: "Preview your model setup",
-    text: "Choose ChatGPT, DeepSeek, or Gemini and keep separate reasoning and output settings for each model. AI calls are not connected yet.",
+    title: "Preview your generation setup",
+    text: "Choose an LLM workflow and adjust reasoning and output settings. The AI model is configured through OpenRouter on the server. AI calls are not connected yet.",
   },
   {
     icon: FolderKanban,
@@ -41,7 +41,7 @@ const current = [
   {
     icon: Globe,
     title: "Prepare website context",
-    text: "Plus, Pro, and Enterprise include a URL input for your request. The current preview does not visit or test the website.",
+    text: "Plus, Pro, and Custom include a URL input for your request. The current preview does not visit or test the website.",
   },
   {
     icon: ShieldCheck,
@@ -135,7 +135,7 @@ export default function Features() {
           ))}
         </div>
       </section>
-      <div className="flex items-start gap-3 rounded-xl border border-[#CFDDD5] bg-white p-5 text-sm leading-7 text-[#526159]">
+      <div className="flex items-start gap-3 rounded-md border border-[#CFDDD5] bg-white p-5 text-sm leading-7 text-[#526159]">
         <Settings2
           size={19}
           aria-hidden="true"

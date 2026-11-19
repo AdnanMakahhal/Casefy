@@ -7,7 +7,7 @@ export const roles = [
   "developer",
 ];
 
-export const plans = ["free", "plus", "pro", "enterprise"];
+export const plans = ["free", "plus", "pro", "custom"];
 
 export const label = (value) =>
   value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());

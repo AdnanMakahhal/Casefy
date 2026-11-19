@@ -36,11 +36,13 @@ export function createAuthController(db = prisma) {
         .status(400)
         .json({ message: "Name, email, and password are required" });
     }
-    if (password.length < 8)
+    if (normalizedName.length > 100)
+      return res.status(400).json({ message: "Name must be between 1 and 100 characters" });
+    if (!password.trim() || password.length < 8 || Buffer.byteLength(password, "utf8") > 72)
       return res
         .status(400)
-        .json({ message: "Password must be at least 8 characters" });
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+        .json({ message: "Password must be at least 8 characters and no more than 72 bytes" });
+    if (normalizedEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       return res
         .status(400)
         .json({ message: "Please provide a valid email address" });
@@ -85,6 +87,10 @@ export function createAuthController(db = prisma) {
         .status(400)
         .json({ message: "Email and password are required" });
     }
+    if (normalizedEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail))
+      return res.status(400).json({ message: "Please provide a valid email address" });
+    if (!password.trim() || Buffer.byteLength(password, "utf8") > 72)
+      return res.status(400).json({ message: "Enter a password of no more than 72 bytes" });
     if (!isDatabaseConfigured())
       return res.status(503).json({ message: "Database is not configured" });
     try {
@@ -126,6 +132,8 @@ export function createAuthController(db = prisma) {
       data.role = role;
     }
     if (workspaceName !== undefined) {
+      if (adminRoles.has(req.user.role))
+        return res.status(403).json({ message: "Staff accounts do not have workspaces" });
       const workspace =
         typeof workspaceName === "string" ? workspaceName.trim() : "";
       if (!workspace || workspace.length > 80)

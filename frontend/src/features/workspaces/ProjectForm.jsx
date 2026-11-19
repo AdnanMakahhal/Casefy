@@ -17,7 +17,7 @@ export default function ProjectForm({
     setBusy(true);
     setError("");
     try {
-      await workspaceRequest(
+      const savedProject = await workspaceRequest(
         project
           ? `/projects/${project.id}`
           : workspacePath(workspaceId, "/projects"),
@@ -26,7 +26,7 @@ export default function ProjectForm({
           body: JSON.stringify({ name, description }),
         },
       );
-      onSaved();
+      onSaved(savedProject);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -34,7 +34,7 @@ export default function ProjectForm({
     }
   }
   const input =
-    "mt-2 w-full rounded-lg border border-[#CFDDD5] p-3 focus:outline-[#294137]";
+    "mt-2 w-full rounded-md border border-[#CFDDD5] p-3 focus:outline-[#294137]";
   return (
     <AccountModal
       title={project ? "Edit project" : "New project"}
@@ -74,13 +74,13 @@ export default function ProjectForm({
             type="button"
             onClick={onDismiss}
             disabled={busy}
-            className="min-h-11 rounded-lg border border-[#CFDDD5] px-4"
+            className="min-h-11 rounded-md border border-[#CFDDD5] px-4"
           >
             Cancel
           </button>
           <button
             disabled={busy || !name.trim()}
-            className="min-h-11 rounded-lg bg-[#294137] px-4 text-white disabled:opacity-50"
+            className="min-h-11 rounded-md bg-[#294137] px-4 text-white disabled:opacity-50"
           >
             {busy ? "Saving…" : "Save project"}
           </button>

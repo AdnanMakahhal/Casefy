@@ -1,18 +1,30 @@
+import Heading from "../components/Heading";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Building2, FolderKanban, Menu, Trash2 } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import {
+  RiArrowLeftLine as ArrowLeft,
+  RiBuildingLine as Building2,
+  RiFolderChartLine as FolderKanban,
+  RiMenuLine as Menu,
+  RiDeleteBin6Line as Trash2,
+} from "react-icons/ri";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import DashboardSidebar from "../components/DashboardSidebar";
 import { useAuth } from "../features/authentication/authContext";
 import WorkspaceAccess from "../features/workspaces/WorkspaceAccess";
 import ProjectForm from "../features/workspaces/ProjectForm";
+import MoveProjectModal from "../features/workspaces/MoveProjectModal";
+import ProjectDetails from "../features/workspaces/ProjectDetails";
 import DeleteItemModal from "../components/DeleteItemModal";
-import { useUndoDeletion } from "../context/undoDeletionContext";
+import { useUndoDeletion } from "../Context/undoDeletionContext";
 
 function WorkspaceProjectsView({ user, workspaceKey }) {
+  const navigate = useNavigate();
   const { getWorkspaceProjects, deleteProject } = useAuth();
   const { scheduleDeletion, pendingId, deletedProjectIds, deletionBusy } =
     useUndoDeletion();
   const [editing, setEditing] = useState(null);
+  const [moving, setMoving] = useState(null);
+  const [viewing, setViewing] = useState(null);
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -54,8 +66,8 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
       />
       <main className="mx-auto max-w-[1440px] px-4 py-6 sm:px-8 lg:p-10">
         <Link
-          to="/workspaces"
-          className="mb-6 inline-flex min-h-10 items-center gap-2 rounded text-sm font-semibold text-[#294137] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+          to="/settings/workspaces"
+          className="mb-6 inline-flex min-h-10 items-center gap-2 rounded-md text-sm font-semibold text-[#294137] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
         >
           <ArrowLeft size={16} aria-hidden="true" />
           All workspaces
@@ -67,7 +79,7 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
             aria-controls="dashboard-sidebar"
             aria-expanded={isSidebarOpen}
             onClick={() => setIsSidebarOpen(true)}
-            className="flex size-11 shrink-0 items-center justify-center rounded-lg border border-[#CFDDD5] bg-white text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] lg:hidden"
+            className="flex size-11 shrink-0 items-center justify-center rounded-md border border-[#CFDDD5] bg-white text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] lg:hidden"
           >
             <Menu size={20} aria-hidden="true" />
           </button>
@@ -81,11 +93,14 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
                 </span>
               )}
             </div>
-            <h1 className="break-words text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <Heading
+              as="h1"
+              className="break-words text-3xl font-extrabold tracking-tight sm:text-4xl"
+            >
               {error?.status === 404
                 ? "Workspace not found"
                 : workspace?.name || "Workspace projects"}
-            </h1>
+            </Heading>
             <p className="mt-3 text-sm leading-6 text-[#526159]">
               Private | {workspace?.role || "Members only"}
             </p>
@@ -106,13 +121,15 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
           className="mt-9"
         >
           {canEdit && (
-            <button
-              type="button"
-              onClick={() => setAdding(true)}
-              className="mb-5 min-h-11 cursor-pointer rounded-lg bg-[#294137] px-5 text-sm font-semibold text-white"
-            >
-              New project
-            </button>
+            <div className="mb-5 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => setAdding(true)}
+                className="min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] bg-white px-5 text-sm font-semibold text-[#294137]"
+              >
+                New project
+              </button>
+            </div>
           )}
           <h2
             id="workspace-projects-heading"
@@ -128,12 +145,12 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
           {isLoading ? (
             <p
               role="status"
-              className="rounded-xl border border-[#CFDDD5] bg-white p-8 text-sm text-[#526159]"
+              className="rounded-md border border-[#CFDDD5] bg-white p-8 text-sm text-[#526159]"
             >
               Loading projects...
             </p>
           ) : error ? (
-            <div className="rounded-xl border border-[#CFDDD5] bg-white p-8">
+            <div className="rounded-md border border-[#CFDDD5] bg-white p-8">
               <p role="alert" className="text-sm text-red-700">
                 {error.message}
               </p>
@@ -145,7 +162,7 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
                     setIsLoading(true);
                     setAttempt((value) => value + 1);
                   }}
-                  className="mt-4 min-h-11 cursor-pointer rounded-lg border border-[#CFDDD5] px-4 text-sm font-semibold text-[#294137] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]"
+                  className="mt-4 min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold text-[#294137] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]"
                 >
                   Try again
                 </button>
@@ -156,9 +173,9 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
               {projects.map((project) => (
                 <li
                   key={project.id}
-                  className="rounded-xl border border-[#CFDDD5] bg-white p-6"
+                  className="rounded-md border border-[#CFDDD5] bg-white p-6"
                 >
-                  <span className="flex size-11 items-center justify-center rounded-lg bg-[#edf3ef] text-[#294137]">
+                  <span className="flex size-11 items-center justify-center rounded-md bg-[#edf3ef] text-[#294137]">
                     <FolderKanban size={22} aria-hidden="true" />
                   </span>
                   <h3 className="mt-5 break-words text-lg font-semibold">
@@ -175,20 +192,44 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
                       {new Date(project.createdAt).toLocaleDateString()}
                     </time>
                   </p>
+                  {canEdit ? (
+                    <Link
+                      to={`/workspaces/${workspaceKey}/projects/${project.id}`}
+                      className="mt-4 mr-2 inline-flex min-h-9 items-center rounded-md bg-[#294137] px-3 text-xs font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+                    >
+                      Open project
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setViewing(project)}
+                      className="mt-4 mr-2 min-h-9 cursor-pointer rounded-md border border-[#CFDDD5] px-3 text-xs font-semibold"
+                    >
+                      View project
+                    </button>
+                  )}
                   {canEdit && (
                     <>
                       <button
                         type="button"
                         onClick={() => setEditing(project)}
-                        className="mt-4 mr-2 min-h-9 cursor-pointer rounded-lg border border-[#CFDDD5] px-3 text-xs font-semibold"
+                        className="mt-4 mr-2 min-h-9 cursor-pointer rounded-md border border-[#CFDDD5] px-3 text-xs font-semibold"
                       >
                         Edit project
                       </button>
                       <button
                         type="button"
                         disabled={deletionBusy}
+                        onClick={() => setMoving(project)}
+                        className="mt-4 mr-2 min-h-9 cursor-pointer rounded-md border border-[#CFDDD5] px-3 text-xs font-semibold disabled:opacity-50"
+                      >
+                        Move project
+                      </button>
+                      <button
+                        type="button"
+                        disabled={deletionBusy}
                         onClick={() => setDeleting(project)}
-                        className="mt-4 inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-lg px-2 text-xs font-medium text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="mt-4 inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-md px-2 text-xs font-medium text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Trash2 size={14} aria-hidden="true" />
                         Delete project
@@ -199,7 +240,7 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
               ))}
             </ul>
           ) : (
-            <div className="flex min-h-64 flex-col items-center justify-center rounded-xl border border-[#CFDDD5] bg-white px-6 py-10 text-center">
+            <div className="flex min-h-64 flex-col items-center justify-center rounded-md border border-[#CFDDD5] bg-white px-6 py-10 text-center">
               <FolderKanban
                 size={30}
                 className="mb-4 text-[#526159]"
@@ -220,12 +261,29 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
               setAdding(false);
               setEditing(null);
             }}
-            onSaved={() => {
+            onSaved={(project) => {
+              if (adding) {
+                navigate(`/workspaces/${workspaceKey}/projects/${project.id}`);
+                return;
+              }
               setAdding(false);
               setEditing(null);
               setError(null);
               setAttempt((value) => value + 1);
             }}
+          />
+        )}
+        {moving && (
+          <MoveProjectModal
+            project={moving}
+            workspaceId={workspace.id}
+            onDismiss={() => setMoving(null)}
+          />
+        )}
+        {viewing && (
+          <ProjectDetails
+            project={viewing}
+            onDismiss={() => setViewing(null)}
           />
         )}
         {deleting && (

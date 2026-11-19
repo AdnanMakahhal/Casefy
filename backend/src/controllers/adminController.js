@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import prisma from "../db.js";
 import { normalizeWorkspaceName } from "../utils/workspaces.js";
 import { effectiveUser, effectivePlanFilter } from "../utils/subscriptions.js";
+import { adminRoles } from "../utils/roles.js";
 
 const roles = new Set([
   "admin",
@@ -11,7 +12,7 @@ const roles = new Set([
   "employee",
   "developer",
 ]);
-const plans = new Set(["free", "plus", "pro", "enterprise"]);
+const plans = new Set(["free", "plus", "pro", "custom"]);
 const select = {
   id: true,
   name: true,
@@ -35,13 +36,15 @@ const validId = (value) =>
   Number.isSafeInteger(Number(value)) &&
   Number(value) > 0;
 
-function accountData(body, creating) {
+function accountData(body, creating, accountRole) {
   const data = {};
+  const staff = adminRoles.has(body.role ?? accountRole);
   for (const [field, max] of [
     ["name", 100],
     ["email", 254],
     ["workspaceName", 80],
   ]) {
+    if (field === "workspaceName" && staff) continue;
     if (!creating && body[field] === undefined) continue;
     if (
       typeof body[field] !== "string" ||
@@ -90,6 +93,13 @@ function accountData(body, creating) {
     throw new Error(
       "Password must be at least 8 characters and no more than 72 bytes.",
     );
+  if (staff) {
+    delete data.workspaceName;
+    data.plan = "free";
+    data.seatLimit = null;
+    data.projectLimit = null;
+    data.monthlyCreditLimit = null;
+  }
   return data;
 }
 
@@ -198,8 +208,8 @@ export function createAdminController(db = prisma) {
             where,
             select,
             orderBy: sorts[req.query.sort || "newest"],
-            skip: (page - 1) * 20,
-            take: 20,
+            skip: (page - 1) * 10,
+            take: 10,
           }),
           db.user.count({ where }),
         ]);
@@ -207,7 +217,7 @@ export function createAdminController(db = prisma) {
           users: users.map((user) => effectiveUser(user)),
           total,
           page,
-          pageSize: 20,
+          pageSize: 10,
         });
       } catch (error) {
         return failure(res, error);
@@ -241,7 +251,12 @@ export function createAdminController(db = prisma) {
         return res.status(400).json({ message: "Invalid user ID." });
       let data;
       try {
-        data = accountData(req.body || {}, false);
+        const target = await db.user.findUnique({
+          where: { id: Number(req.params.id) },
+          select: { role: true },
+        });
+        if (!target) return res.status(404).json({ message: "User not found." });
+        data = accountData(req.body || {}, false, target.role);
       } catch (error) {
         return res.status(400).json({ message: error.message });
       }

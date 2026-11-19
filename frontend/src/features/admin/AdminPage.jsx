@@ -1,41 +1,41 @@
-import { useAuth } from "../features/authentication/authContext";
-import { useSearchParams } from "react-router-dom";
-import { adminViews } from "../features/admin/navigation";
+import { useAuth } from "../authentication/authContext";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { adminPath, adminViewFromPath, adminViews } from "./navigation";
 import { useState, useEffect } from "react";
-import { adminRequest as request } from "../features/admin/api";
-import DashboardSidebar from "../components/DashboardSidebar";
+import { adminRequest as request } from "./api";
+import DashboardSidebar from "../../components/DashboardSidebar";
 import {
-  Menu,
-  RefreshCw,
-  Plus,
-  X,
-  Users,
-  FolderKanban,
-  ClipboardList,
-  Activity,
-  ArrowUpRight,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import StaffSections from "../features/admin/StaffSections";
-import AdminSkeleton from "../components/AdminSkeleton";
-import { number, label, plans, roles } from "../features/admin/userOptions";
-import SelectMenu from "../components/SelectMenu";
-import UsersTable from "../features/admin/UsersTable";
-import {
-  UserEditor,
-  BlockUser,
-  DeleteUser,
-} from "../features/admin/UserDialogs";
-import "../features/admin/Admin.css";
+  RiMenuLine as Menu,
+  RiRefreshLine as RefreshCw,
+  RiAddLine as Plus,
+  RiCloseLine as X,
+  RiGroupLine as Users,
+  RiFolderChartLine as FolderKanban,
+  RiClipboardLine as ClipboardList,
+  RiPulseLine as Activity,
+  RiArrowRightUpLine as ArrowUpRight,
+  RiSearchLine as Search,
+} from "react-icons/ri";
+import StaffSections from "./StaffSections";
+import AdminSkeleton from "../../components/AdminSkeleton";
+import { number, label, plans, roles } from "./userOptions";
+import SelectMenu from "../../components/SelectMenu";
+import UsersTable from "./UsersTable";
+import { Pagination } from "./ui";
+import { UserEditor, BlockUser, DeleteUser } from "./UserDialogs";
+import "./Admin.css";
 
 export default function Admin() {
   const { user, refreshUser } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
-  const view = Object.hasOwn(adminViews, params.get("view"))
-    ? params.get("view")
-    : "overview";
+  const pathView = adminViewFromPath(location.pathname);
+  const legacyView = params.get("view");
+  const validLegacyView = Object.hasOwn(adminViews, legacyView)
+    ? legacyView
+    : null;
+  const view = validLegacyView || pathView || "overview";
   const isDataView = view === "overview" || view === "users";
   const search = params.get("search") || "";
   const role = params.get("role") || "";
@@ -66,6 +66,19 @@ export default function Admin() {
   });
   const isFetching =
     isDataView && !error && (loading || loadedKey !== requestKey);
+  useEffect(() => {
+    if (pathView && legacyView === null) return;
+    const nextParams = new URLSearchParams(location.search);
+    nextParams.delete("view");
+    const nextSearch = nextParams.toString();
+    navigate(
+      {
+        pathname: adminPath(validLegacyView || pathView || "overview"),
+        search: nextSearch ? `?${nextSearch}` : "",
+      },
+      { replace: true },
+    );
+  }, [legacyView, location.search, navigate, pathView, validLegacyView]);
   useEffect(() => {
     if (!sidebar) return;
     const onKey = (event) => {
@@ -115,7 +128,6 @@ export default function Admin() {
   ]);
   function filter(changes) {
     setParams({
-      view: "users",
       search,
       role,
       plan,
@@ -137,8 +149,8 @@ export default function Admin() {
         setNotice(`${message} Refresh your profile to see your changes.`),
       );
   }
-  function navigate(next) {
-    setParams(next === "users" ? { view: "users" } : {});
+  function goToView(next) {
+    navigate(adminPath(next));
     setSidebar(false);
   }
   return (
@@ -163,7 +175,7 @@ export default function Admin() {
               aria-controls="dashboard-sidebar"
               aria-expanded={sidebar}
               onClick={() => setSidebar(true)}
-              className="flex size-11 shrink-0 items-center justify-center rounded-lg border border-[#CFDDD5] bg-white text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] lg:hidden"
+              className="flex size-11 shrink-0 items-center justify-center rounded-md border border-[#CFDDD5] bg-white text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] lg:hidden"
             >
               <Menu size={20} aria-hidden="true" />
             </button>
@@ -286,7 +298,7 @@ export default function Admin() {
                         </div>
                         <button
                           className="admin-text-button"
-                          onClick={() => navigate("users")}
+                          onClick={() => goToView("users")}
                         >
                           View all <ArrowUpRight size={15} />
                         </button>
@@ -429,7 +441,7 @@ export default function Admin() {
                               value,
                               label: label(value),
                               description:
-                                value === "enterprise"
+                                value === "custom"
                                   ? "Custom team limits"
                                   : label(value) + " accounts",
                             })),
@@ -527,33 +539,11 @@ export default function Admin() {
                     onDelete={setDeleting}
                     onBlock={setBlocking}
                   />
-                  <footer className="admin-pagination">
-                    <span>
-                      {result.total
-                        ? `${(page - 1) * result.pageSize + 1}–${Math.min(page * result.pageSize, result.total)}`
-                        : "0"}{" "}
-                      of {number(result.total)} users
-                    </span>
-                    <div>
-                      <button
-                        className="admin-icon-button"
-                        aria-label="Previous page"
-                        disabled={page <= 1}
-                        onClick={() => filter({ page: String(page - 1) })}
-                      >
-                        <ChevronLeft size={18} />
-                      </button>
-                      <span>Page {page}</span>
-                      <button
-                        className="admin-icon-button"
-                        aria-label="Next page"
-                        disabled={page * result.pageSize >= result.total}
-                        onClick={() => filter({ page: String(page + 1) })}
-                      >
-                        <ChevronRight size={18} />
-                      </button>
-                    </div>
-                  </footer>
+                  <Pagination
+                    data={{ ...result, page }}
+                    label="users"
+                    onChange={(next) => filter({ page: String(next) })}
+                  />
                 </section>
               )}
             </>

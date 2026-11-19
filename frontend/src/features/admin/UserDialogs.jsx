@@ -1,5 +1,7 @@
 import { useRef, useEffect, useState } from "react";
-import { X } from "lucide-react";
+import {
+  RiCloseLine as X
+} from "react-icons/ri";
 import { adminRequest as request } from "./api";
 import { roles, label, plans, number } from "./userOptions";
 
@@ -66,6 +68,7 @@ export function UserEditor({
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const staff = ["admin", "manager"].includes(values.role);
   const field = (name) => ({
     value: values[name] ?? "",
     onChange: (event) => setValues({ ...values, [name]: event.target.value }),
@@ -83,6 +86,10 @@ export function UserEditor({
     for (const key of ["seatLimit", "projectLimit", "monthlyCreditLimit"])
       body[key] =
         values[key] === "" || values[key] == null ? null : Number(values[key]);
+    if (staff) {
+      for (const key of ["workspaceName", "plan", "seatLimit", "projectLimit", "monthlyCreditLimit"])
+        delete body[key];
+    }
     if (creating) body.password = values.password;
     try {
       await request(creating ? "/users" : `/users/${account.id}`, {
@@ -141,10 +148,10 @@ export function UserEditor({
               <small>At least 8 characters; maximum 72 bytes.</small>
             </label>
           )}
-          <label className="admin-span">
+          {!staff && <label className="admin-span">
             Workspace name
             <input {...field("workspaceName")} required maxLength={80} />
-          </label>
+          </label>}
           <label>
             Role
             <select {...field("role")} disabled={account.id === currentId}>
@@ -161,6 +168,7 @@ export function UserEditor({
                 ))}
             </select>
           </label>
+          {!staff && <>
           <label>
             Account plan
             <select {...field("plan")}>
@@ -195,6 +203,7 @@ export function UserEditor({
           <p className="admin-form-note admin-span">
             Leave a limit blank to use the plan default.
           </p>
+          </>}
         </fieldset>
         {error && (
           <p role="alert" className="admin-error">
@@ -309,7 +318,7 @@ export function BlockUser({ account, onClose, onSaved }) {
               maxLength={500}
               rows={3}
               disabled={busy}
-              className="mt-2 w-full rounded-lg border border-[#CFDDD5] bg-white p-3 text-sm"
+              className="mt-2 w-full rounded-md border border-[#CFDDD5] bg-white p-3 text-sm"
             />
           </label>
         )}

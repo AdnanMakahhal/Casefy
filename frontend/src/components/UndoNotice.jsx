@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useReducedMotion } from "motion/react";
-import { CircleCheck, RotateCcw } from "lucide-react";
+import {
+  RiCheckboxCircleLine as CircleCheck,
+  RiRestartLine as RotateCcw
+} from "react-icons/ri";
 
 export default function UndoNotice({
   duration = 5000,
@@ -22,7 +25,7 @@ export default function UndoNotice({
     <div
       role="status"
       aria-live="polite"
-      className="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-[#cfddd5] bg-[#edf3ef] p-1.5 pl-3 shadow-lg"
+      className="flex min-h-12 items-center justify-between gap-3 rounded-md border border-[#cfddd5] bg-[#edf3ef] p-1.5 pl-3 shadow-lg"
     >
       <div className="flex min-w-0 items-center gap-2">
         <CircleCheck
@@ -37,7 +40,7 @@ export default function UndoNotice({
       <button
         type="button"
         onClick={(event) => onUndo(event.detail === 0 ? "keyboard" : "pointer")}
-        className="relative isolate flex min-h-9 min-w-20 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-[#cfddd5] bg-white px-3 text-xs font-semibold text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] active:scale-[0.97] motion-reduce:transform-none"
+        className="relative isolate flex min-h-9 min-w-20 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-md border border-[#cfddd5] bg-white px-3 text-xs font-semibold text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] active:scale-[0.97] motion-reduce:transform-none"
       >
         <span className="flex items-center gap-1.5">
           <RotateCcw size={13} aria-hidden="true" />

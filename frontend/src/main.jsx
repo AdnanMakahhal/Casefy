@@ -4,7 +4,11 @@ import App from "./App.jsx";
 import "./index.css";
 import { ErrorBoundary } from "react-error-boundary";
 import AuthProvider from "./features/authentication/AuthProvider";
-import ToastProvider from "./context/ToastProvider";
+import ToastProvider from "./Context/ToastProvider";
+import { applyFontVariables } from "./styles/fonts";
+import SiteStartup from "./components/SiteStartup";
+
+applyFontVariables();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -14,7 +18,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     >
       <ToastProvider>
         <AuthProvider>
-          <App />
+          <SiteStartup>
+            <App />
+          </SiteStartup>
         </AuthProvider>
       </ToastProvider>
     </ErrorBoundary>

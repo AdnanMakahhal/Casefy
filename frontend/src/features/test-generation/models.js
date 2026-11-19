@@ -1,4 +1,7 @@
-import { Bot, MonitorPlay } from "lucide-react";
+import {
+  RiRobot2Line as Bot,
+  RiVideoOnLine as MonitorPlay
+} from "react-icons/ri";
 
 export const GENERATION_MODES = [
   {
@@ -9,7 +12,7 @@ export const GENERATION_MODES = [
   },
   {
     value: "llm",
-    label: "LLM by itself",
+    label: "LLM",
     description: "AI test generation without browser automation.",
     icon: Bot,
   },

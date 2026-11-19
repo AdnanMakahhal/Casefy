@@ -1,12 +1,12 @@
 import {
-  CreditCard,
-  Handshake,
-  LayoutDashboard,
-  MessageSquare,
-  Receipt,
-  RotateCcw,
-  Users,
-} from "lucide-react";
+  RiBankCardLine as CreditCard,
+  RiShakeHandsLine as Handshake,
+  RiDashboardLine as LayoutDashboard,
+  RiChat1Line as MessageSquare,
+  RiReceiptLine as Receipt,
+  RiRestartLine as RotateCcw,
+  RiGroupLine as Users,
+} from "react-icons/ri";
 
 export const adminViews = {
   overview: {
@@ -26,9 +26,10 @@ export const adminViews = {
     description: "Contact requests and support conversations in one inbox.",
     icon: MessageSquare,
   },
-  enterprise: {
-    title: "Enterprise contacts",
-    description: "Manage Enterprise enquiries and team requirements.",
+  custom: {
+    title: "Custom plan deals",
+    description:
+      "Review requests and agree on custom prices, seats, projects, and credits.",
     icon: Handshake,
   },
   subscriptions: {
@@ -49,16 +50,24 @@ export const adminViews = {
   },
 };
 
-export function adminNavigation(pathname, search) {
-  const view =
-    pathname === "/admin"
-      ? new URLSearchParams(search).get("view") || "overview"
-      : null;
+export function adminPath(view) {
+  return view === "overview" ? "/admin" : `/admin/${view}`;
+}
+
+export function adminViewFromPath(pathname) {
+  const normalized = pathname.replace(/\/+$/, "") || "/";
+  if (normalized === "/admin") return "overview";
+  const match = normalized.match(/^\/admin\/([^/]+)$/);
+  return match && Object.hasOwn(adminViews, match[1]) ? match[1] : null;
+}
+
+export function adminNavigation(pathname) {
+  const view = adminViewFromPath(pathname);
   return Object.entries(adminViews).map(([key, item]) => ({
     label: item.title,
     icon: item.icon,
     section: item.section,
-    to: key === "overview" ? "/admin" : `/admin?view=${key}`,
+    to: adminPath(key),
     selected: view === key,
   }));
 }

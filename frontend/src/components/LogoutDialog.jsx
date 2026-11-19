@@ -14,7 +14,7 @@ export default function LogoutDialog({ onDismiss }) {
         <button
           type="button"
           onClick={onDismiss}
-          className="min-h-11 cursor-pointer rounded-lg border border-[#CFDDD5] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-[#294137]"
+          className="min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-[#294137]"
         >
           Cancel
         </button>
@@ -24,7 +24,7 @@ export default function LogoutDialog({ onDismiss }) {
             logout();
             navigate("/signin", { replace: true });
           }}
-          className="min-h-11 cursor-pointer rounded-lg bg-[#294137] px-4 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+          className="min-h-11 cursor-pointer rounded-md bg-[#294137] px-4 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
         >
           Log out
         </button>

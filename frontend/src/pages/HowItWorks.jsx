@@ -1,4 +1,8 @@
-﻿import { ArrowRight, Check, CircleDashed } from "lucide-react";
+import {
+  RiArrowRightLine as ArrowRight,
+  RiCheckLine as Check,
+  RiLoader3Line as CircleDashed
+} from "react-icons/ri";
 import MarketingPage, {
   MarketingCta,
 } from "../components/marketing/MarketingPage";
@@ -50,9 +54,9 @@ export default function HowItWorks() {
         {steps.map((step, index) => (
           <li
             key={step.title}
-            className="rounded-2xl border border-[#CFDDD5] bg-white p-6 sm:p-8"
+            className="rounded-md border border-[#CFDDD5] bg-white p-6 sm:p-8"
           >
-            <span className="mb-6 flex size-12 items-center justify-center rounded-xl bg-[#294137] text-lg font-bold text-white">
+            <span className="mb-6 flex size-12 items-center justify-center rounded-md bg-[#294137] text-lg font-bold text-white">
               0{index + 1}
             </span>
             <h2 className="text-2xl font-extrabold tracking-tight">
@@ -69,7 +73,7 @@ export default function HowItWorks() {
       </ol>
       <section
         aria-labelledby="next-workflow"
-        className="rounded-2xl border border-[#CFDDD5] bg-[#edf3ef] p-6 sm:p-8"
+        className="rounded-md border border-[#CFDDD5] bg-[#edf3ef] p-6 sm:p-8"
       >
         <h2
           id="next-workflow"
@@ -89,7 +93,7 @@ export default function HowItWorks() {
           ].map((label) => (
             <li
               key={label}
-              className="flex items-start gap-2.5 rounded-xl border border-[#CFDDD5] bg-white p-4 text-sm font-medium text-[#294137]"
+              className="flex items-start gap-2.5 rounded-md border border-[#CFDDD5] bg-white p-4 text-sm font-medium text-[#294137]"
             >
               <CircleDashed
                 size={18}

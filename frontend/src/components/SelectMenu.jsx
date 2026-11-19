@@ -1,5 +1,8 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { Check, ChevronDown } from "lucide-react";
+import {
+  RiCheckLine as Check,
+  RiArrowDownSLine as ChevronDown,
+} from "react-icons/ri";
 
 export default function SelectMenu({
   id,
@@ -10,6 +13,7 @@ export default function SelectMenu({
   className = "",
   placement = "bottom",
   disabled = false,
+  compact = false,
 }) {
   const generatedId = useId();
   const controlId = id || generatedId;
@@ -55,8 +59,10 @@ export default function SelectMenu({
       )
     ) {
       event.preventDefault();
-      if (event.key === "Escape") setOpen(false);
-      else if (!open) show();
+      if (event.key === "Escape") {
+        if (open) event.stopPropagation();
+        setOpen(false);
+      } else if (!open) show();
       else if (event.key === "Enter" || event.key === " ")
         choose(options[active]);
       else if (event.key === "Home") setActive(0);
@@ -101,7 +107,7 @@ export default function SelectMenu({
         onKeyDown={navigate}
         onBlur={() => setOpen(false)}
         onClick={() => (open ? setOpen(false) : show())}
-        className={`flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-xl border bg-white px-3.5 py-2.5 text-left text-sm text-[#294137] shadow-sm transition-colors hover:border-[#91a99a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50 ${open ? "border-[#91a99a] ring-2 ring-[#2941370d]" : "border-[#CFDDD5]"}`}
+        className={`flex w-full cursor-pointer items-center border bg-white text-left text-[#294137] transition-colors hover:border-[#91a99a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50 ${compact ? "min-h-9 gap-2 rounded-md px-2.5 py-1.5 text-xs" : "min-h-11 gap-3 rounded-md px-3.5 py-2.5 text-sm shadow-sm"} ${open ? "border-[#91a99a] ring-2 ring-[#2941370d]" : "border-[#CFDDD5]"}`}
       >
         {selected?.initial && (
           <span
@@ -127,7 +133,7 @@ export default function SelectMenu({
           role="listbox"
           aria-label={label}
           onMouseDown={(event) => event.preventDefault()}
-          className={`absolute left-0 z-40 max-h-64 w-full min-w-0 overflow-y-auto rounded-xl border border-[#dce6df] bg-white p-1.5 shadow-[0_12px_32px_#20332b1a] ${placement === "top" ? "bottom-full mb-2" : "top-full mt-2"}`}
+          className={`absolute left-0 z-40 max-h-50 w-full min-w-0 overflow-y-auto rounded-md border border-[#dce6df] bg-white p-1.5 overflow-hidden shadow-[0_12px_32px_#20332b1a] ${placement === "top" ? "bottom-full mb-2" : "top-full mt-2"}`}
         >
           {options.map((option, index) => (
             <div
@@ -137,7 +143,7 @@ export default function SelectMenu({
               aria-selected={value === option.value}
               onPointerMove={() => setActive(index)}
               onClick={() => choose(option)}
-              className={`flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2.5 text-sm ${active === index ? "bg-[#edf3ef] text-[#20332b]" : "text-[#526159]"}`}
+              className={`flex cursor-pointer items-center gap-2 rounded-md px-3 py-2.5 text-sm ${active === index ? "bg-[#edf3ef] text-[#20332b]" : "text-[#526159]"}`}
             >
               <span className="min-w-0 flex-1">
                 <span
@@ -146,7 +152,7 @@ export default function SelectMenu({
                   {option.label}
                 </span>
                 {option.description && (
-                  <span className="mt-0.5 block text-xs leading-5 text-[#7c8c82]">
+                  <span className="mt-0.5 block text-xs leading-5 text-[#7c8c82] text-ellipsis text-overflow:ellipsis overflow-hidden whitespace-nowrap">
                     {option.description}
                   </span>
                 )}

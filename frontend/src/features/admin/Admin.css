@@ -114,7 +114,7 @@
   justify-content: center;
   min-height: 44px;
   border: 1px solid var(--admin-line);
-  border-radius: 8px;
+  border-radius: var(--radius-md, 0.375rem);
   padding: 10px 20px;
   background: var(--admin-panel);
   color: var(--admin-brand);
@@ -145,7 +145,7 @@
 }
 .admin-stat {
   border: 1px solid var(--admin-line);
-  border-radius: 12px;
+  border-radius: var(--radius-md, 0.375rem);
   padding: 20px;
   background: var(--admin-panel);
 }
@@ -198,7 +198,7 @@
   min-width: 0;
   background: var(--admin-panel);
   border: 1px solid var(--admin-line);
-  border-radius: 12px;
+  border-radius: var(--radius-md, 0.375rem);
   overflow: hidden;
 }
 .admin-panel-header {
@@ -264,10 +264,10 @@
   border-radius: 50%;
   background: var(--admin-subtle);
 }
-.plan-enterprise {
+.plan-custom {
   color: var(--admin-purple);
 }
-.plan-enterprise i {
+.plan-custom i {
   background: var(--admin-purple);
 }
 .plan-pro i {
@@ -292,7 +292,7 @@
 }
 .admin-bar {
   height: 5px;
-  border-radius: 5px;
+  border-radius: var(--radius-md, 0.375rem);
   background: var(--admin-tint);
   overflow: hidden;
 }
@@ -300,7 +300,7 @@
   display: block;
   height: 100%;
   background: var(--admin-brand);
-  border-radius: 5px;
+  border-radius: var(--radius-md, 0.375rem);
 }
 .admin-chart-footer {
   margin: 0;
@@ -309,17 +309,19 @@
   color: var(--admin-muted);
   font-size: 10px;
 }
+
 .admin-count {
   display: inline-block;
   font-size: 11px;
   background: var(--admin-tint);
   color: var(--admin-brand);
   border: 1px solid var(--admin-line);
-  padding: 2px 7px;
-  border-radius: 5px;
+  padding: 2px 4px;
+  border-radius: var(--radius-md, 0.275rem);
   margin-left: 7px;
   vertical-align: middle;
 }
+
 .admin-filters {
   display: flex;
   flex-wrap: wrap;
@@ -334,7 +336,7 @@
   flex: 1;
   min-width: 260px;
   border: 1px solid var(--admin-line);
-  border-radius: 7px;
+  border-radius: var(--radius-md, 0.375rem);
   padding-left: 12px;
   color: var(--admin-subtle);
 }
@@ -352,13 +354,13 @@
   border-top: 0;
   border-right: 0;
   border-bottom: 0;
-  border-radius: 0 6px 6px 0;
+  border-radius: var(--radius-md, 0.375rem);
 }
 .admin-filters select,
 .admin-modal input,
 .admin-modal select {
   border: 1px solid var(--admin-line);
-  border-radius: 7px;
+  border-radius: var(--radius-md, 0.375rem);
   padding: 9px 11px;
   background: var(--admin-panel);
   color: var(--admin-text);
@@ -402,7 +404,7 @@
   padding: 4px 7px;
   color: var(--admin-muted);
   border: 1px solid var(--admin-line);
-  border-radius: 5px;
+  border-radius: var(--radius-md, 0.375rem);
   background: var(--admin-tint);
 }
 .admin-role.is-admin {
@@ -429,7 +431,7 @@
   border: 1px solid transparent;
   background: none;
   color: var(--admin-muted);
-  border-radius: 6px;
+  border-radius: var(--radius-md, 0.375rem);
   padding: 0;
 }
 .admin-icon-button:hover {
@@ -454,7 +456,57 @@
   padding: 15px 24px;
   color: var(--admin-muted);
   border-top: 1px solid var(--admin-line);
-  font-size: 11px;
+  font-size: 12px;
+}
+.admin-pagination-summary {
+  color: var(--admin-muted);
+  font-variant-numeric: tabular-nums;
+}
+.admin-pagination-pages {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.admin-page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.admin-page-number {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md, 0.375rem);
+  background: none;
+  color: var(--admin-muted);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.admin-page-number:hover {
+  background: var(--admin-tint);
+  border-color: var(--admin-line);
+  color: var(--admin-brand);
+}
+.admin-page-number.is-current {
+  background: var(--admin-brand);
+  border-color: var(--admin-brand);
+  color: #ffffff;
+}
+.admin-page-gap {
+  min-width: 18px;
+  text-align: center;
+  color: var(--admin-subtle);
+}
+@media (max-width: 640px) {
+  .admin-pagination {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .admin-page-numbers {
+    display: none;
+  }
 }
 .admin-pagination > div {
   display: flex;
@@ -500,7 +552,7 @@
   font-size: 12px;
   line-height: 1.7;
   margin: 0 0 20px;
-  border-radius: 7px;
+  border-radius: var(--radius-md, 0.375rem);
 }
 .admin-error {
   background: var(--admin-danger-bg);
@@ -526,7 +578,7 @@
   background: var(--admin-panel);
   color: var(--admin-text);
   border: 1px solid var(--admin-line);
-  border-radius: 13px;
+  border-radius: var(--radius-md, 0.375rem);
   box-shadow: 0 24px 100px var(--admin-shadow);
 }
 .admin-modal::backdrop {
@@ -610,7 +662,7 @@
 .admin-panel-header h2 {
   margin: 0;
   font-size: 18px;
-  line-height: 28px;
+  line-height: 18px;
   font-weight: 700;
   letter-spacing: -0.45px;
 }
@@ -640,7 +692,7 @@
   flex-shrink: 0;
   width: 36px;
   height: 36px;
-  border-radius: 8px;
+  border-radius: var(--radius-md, 0.375rem);
   background: var(--admin-tint);
   color: var(--admin-brand);
 }
@@ -666,7 +718,7 @@
   left: 16px;
   z-index: 60;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-md, 0.375rem);
   background: var(--admin-panel);
   color: var(--admin-brand);
 }
@@ -763,7 +815,7 @@
   min-width: 0;
   min-height: 44px;
   border: 1px solid var(--admin-line);
-  border-radius: 8px;
+  border-radius: var(--radius-md, 0.375rem);
   padding: 10px 12px;
   font-size: 14px;
   background: white;
@@ -794,7 +846,7 @@
   gap: 6px;
   background: var(--admin-tint);
   border: 1px solid var(--admin-line);
-  border-radius: 6px;
+  border-radius: var(--radius-md, 0.375rem);
   padding: 5px 8px;
   color: var(--admin-brand);
   font-size: 11px;
@@ -804,7 +856,7 @@
   align-items: center;
   padding: 4px 8px;
   border: 1px solid #cfddd5;
-  border-radius: 6px;
+  border-radius: var(--radius-md, 0.375rem);
   background: #edf3ef;
   color: #526159;
   font-size: 10px;

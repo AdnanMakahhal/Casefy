@@ -10,10 +10,13 @@ import {
   Empty,
   Pagination,
 } from "./ui";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { panel } from "./styles";
 import SelectMenu from "../../components/SelectMenu";
-import { CreditCard, Mail } from "lucide-react";
+import {
+  RiBankCardLine as CreditCard,
+  RiMailLine as Mail,
+} from "react-icons/ri";
 import ComposeMessage from "./ComposeMessage";
 import ComplimentaryAccess from "./ComplimentaryAccess";
 
@@ -73,7 +76,7 @@ function SubscriptionAction({ account, onClose, onSaved }) {
 }
 
 export default function Subscriptions({ revision }) {
-  const [, setParams] = useSearchParams();
+  const navigate = useNavigate();
   const [page, setPage] = useState(1),
     [search, setSearch] = useState(""),
     [plan, setPlan] = useState("");
@@ -101,16 +104,17 @@ export default function Subscriptions({ revision }) {
         </p>
       )}
       <section className={`${panel} overflow-visible`}>
-        <div className="flex flex-wrap items-center gap-4 border-b border-[#CFDDD5] p-5">
+        <div className="flex flex-col items-stretch gap-4 border-b border-[#CFDDD5] p-5 sm:flex-row sm:flex-wrap sm:items-center">
           <SearchForm
             onSearch={(value) => {
               setSearch(value);
               setPage(1);
             }}
+            liveSearch
           />
           <SelectMenu
             label="Subscription plan"
-            className="w-44"
+            className="w-full sm:w-44"
             value={plan}
             onChange={(value) => {
               setPlan(value);
@@ -118,7 +122,7 @@ export default function Subscriptions({ revision }) {
             }}
             options={[
               { value: "", label: "All plans" },
-              ...["free", "plus", "pro", "enterprise"].map((value) => ({
+              ...["free", "plus", "pro", "custom"].map((value) => ({
                 value,
                 label: titleCase(value),
               })),
@@ -173,7 +177,7 @@ export default function Subscriptions({ revision }) {
                             account.subscriptionStatus ||
                             (account.complimentaryStatus
                               ? `complimentary_${account.complimentaryStatus}`
-                              : account.plan === "enterprise"
+                              : account.plan === "custom"
                                 ? "manual_plan"
                                 : "no_subscription")
                           }
@@ -213,10 +217,9 @@ export default function Subscriptions({ revision }) {
                             title="View payments"
                             aria-label={`Payments for ${account.email}`}
                             onClick={() =>
-                              setParams({
-                                view: "payments",
-                                userId: String(account.id),
-                              })
+                              navigate(
+                                `/admin/payments?${new URLSearchParams({ userId: String(account.id) })}`,
+                              )
                             }
                           >
                             <CreditCard size={17} />
@@ -250,7 +253,7 @@ export default function Subscriptions({ revision }) {
               </table>
             </div>
             {!data.users.length && <Empty />}
-            <Pagination data={data} onChange={setPage} />
+            <Pagination data={data} onChange={setPage} label="users" />
           </>
         )}
       </section>

@@ -1,5 +1,11 @@
 import { label, number, date } from "./userOptions";
-import { Pencil, ShieldCheck, ShieldBan, Trash2, Users } from "lucide-react";
+import {
+  RiPencilLine as Pencil,
+  RiShieldCheckLine as ShieldCheck,
+  RiShieldCrossLine as ShieldBan,
+  RiDeleteBin6Line as Trash2,
+  RiGroupLine as Users
+} from "react-icons/ri";
 
 export default function UsersTable({
   users,
@@ -25,6 +31,7 @@ export default function UsersTable({
         </thead>
         <tbody>
           {users.map((account) => {
+            const staff = ["admin", "manager"].includes(account.role);
             const editable =
               actorRole === "admin" ||
               !["admin", "manager"].includes(account.role);
@@ -54,10 +61,10 @@ export default function UsersTable({
                   </span>
                 </td>
                 <td>
-                  <span className={`admin-plan plan-${account.plan}`}>
+                  {staff ? <span className="admin-muted">Not applicable</span> : <span className={`admin-plan plan-${account.plan}`}>
                     <i />
                     {label(account.plan)}
-                  </span>
+                  </span>}
                 </td>
                 <td>
                   <span
@@ -68,8 +75,8 @@ export default function UsersTable({
                   </span>
                 </td>
                 <td>
-                  {number(account._count.projects)}
-                  {account.projectLimit && (
+                  {staff ? "Not applicable" : number(account._count.projects)}
+                  {!staff && account.projectLimit && (
                     <span className="admin-muted">
                       {" "}
                       / {number(account.projectLimit)}

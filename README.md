@@ -50,7 +50,6 @@ Casefy/
     README.md         backend documentation
     src/              Express API
     prisma/           database schema and migrations
-    scripts/          local setup and smoke checks
   frontend/
     README.md         frontend documentation
     src/              React application
@@ -72,3 +71,11 @@ Run these from the repository root:
 When hosting the built frontend separately, forward /api to the API and configure a public HTTPS FRONTEND_URL for billing return URLs.
 
 Customer generation remains a request preview; browser test execution is not connected.
+
+## Deploy to Render
+
+The root `render.yaml` defines one free Node web service that serves both the frontend and API. Create a Render Blueprint from this repository and supply `DATABASE_URL` and the existing `JWT_SECRET` as secret environment variables. Reuse the existing `INTEGRATION_ENCRYPTION_KEY` too if encrypted integration settings depend on it. Never commit these values.
+
+The build command installs each folder's dependencies and builds the frontend. The start command is `npm start --prefix backend`, and `/health` is the health check. `VITE_API_URL=/api` keeps browser requests on the same host. On Render, `FRONTEND_URL` defaults to `RENDER_EXTERNAL_URL`; set `FRONTEND_URL` explicitly when using a custom domain. Add the existing Stripe and Resend environment variables to enable billing and invitation emails.
+
+Database migrations are deliberately excluded from the deploy commands: the pending legacy billing migration deletes PayPal data and must be reviewed before applying the migration queue. The project-generation and email-invitation migrations must also be applied before using those features.

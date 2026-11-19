@@ -21,7 +21,7 @@ export default function Refunds({ revision }) {
       <div
         role="group"
         aria-label="Refund view"
-        className="inline-flex gap-1 rounded-xl border border-[#CFDDD5] bg-white p-1"
+        className="inline-flex gap-1 rounded-md border border-[#CFDDD5] bg-white p-1"
       >
         {[
           ["requests", "Refund requests"],
@@ -30,7 +30,7 @@ export default function Refunds({ revision }) {
           <button
             key={value}
             aria-pressed={tab === value}
-            className={`rounded-lg px-4 py-3 text-sm font-semibold ${tab === value ? "bg-[#294137] text-white" : "text-[#526159]"}`}
+            className={`rounded-md px-4 py-3 text-sm font-semibold ${tab === value ? "bg-[#294137] text-white" : "text-[#526159]"}`}
             onClick={() => setTab(value)}
           >
             {text}
@@ -113,7 +113,7 @@ export default function Refunds({ revision }) {
               </table>
             </div>
           )}
-          <Pagination data={data} onChange={setPage} />
+          <Pagination data={data} onChange={setPage} label="refunds" />
         </section>
       )}
       {retry && (

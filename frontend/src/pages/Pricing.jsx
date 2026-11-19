@@ -1,8 +1,13 @@
+import Heading from "../components/Heading";
 import { useEffect, useState } from "react";
-import { Check, Sparkles } from "lucide-react";
+import {
+  RiCheckLine as Check,
+  RiSparklingLine as Sparkles,
+} from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { useAuth } from "../features/authentication/authContext";
 import { planAction } from "../features/authentication/plans";
+import PricingSkeleton from "../components/skeletons/PricingSkeleton";
 
 const plans = [
   {
@@ -55,39 +60,42 @@ const plans = [
     action: "Start Pro",
   },
   {
-    id: "enterprise",
-    name: "Enterprise",
+    id: "custom",
+    name: "Custom",
     tagline: "Built around your organization",
     description:
       "Get the scale, security, and control your organization needs.",
     features: [
       "Custom seats",
       "Custom credits + projects",
-      "Unlimited live testing",
-      "SSO, audit logs + SLA",
+      "Tailored monthly allowance",
+      "Dedicated support & agreed terms",
     ],
     action: "Contact support",
   },
 ];
 
 function PricingCard({ plan, isAnnual, billingPeriod, user, loading }) {
-  const enterprise = plan.id === "enterprise";
+  const custom = plan.id === "custom";
   const free = plan.id === "free";
+  const staff = ["admin", "manager"].includes(user?.role);
   const action = planAction(user, plan.id);
-  const disabled = loading || ["current", "included"].includes(action);
-  const buttonLabel = loading
-    ? "Loading account..."
-    : action === "current"
-      ? "Current plan"
-      : action === "included"
-        ? "Included in your plan"
-        : action === "upgrade"
-          ? `Upgrade to ${plan.name}`
-          : plan.action;
+  const disabled = staff || loading || ["current", "included"].includes(action);
+  const buttonLabel = staff
+    ? "Plans are for customer accounts"
+    : loading
+      ? "Loading account..."
+      : action === "current"
+        ? "Current plan"
+        : action === "included"
+          ? "Included in your plan"
+          : action === "upgrade"
+            ? `Upgrade to ${plan.name}`
+            : plan.action;
   return (
     <article
       aria-labelledby={`plan-${plan.id}`}
-      className={`relative flex h-full flex-col rounded-2xl border p-6 transition-shadow duration-200 sm:p-7 xl:p-6 ${plan.popular ? "border-[#779b86] bg-[#edf3ef] shadow-[0_8px_28px_#29413712] ring-1 ring-[#779b86]" : "border-[#d5e0d9] bg-white shadow-[0_4px_20px_#29413705] hover:shadow-[0_8px_28px_#2941370c]"}`}
+      className={`relative flex h-full flex-col rounded-md border p-6 transition-shadow duration-200 sm:p-7 xl:p-6 ${plan.popular ? "border-[#779b86] bg-[#edf3ef] shadow-[0_8px_28px_#29413712] ring-1 ring-[#779b86]" : "border-[#d5e0d9] bg-white shadow-[0_4px_20px_#29413705] hover:shadow-[0_8px_28px_#2941370c]"}`}
     >
       <div className="flex min-h-7 items-center justify-between gap-2">
         <h2
@@ -113,20 +121,20 @@ function PricingCard({ plan, isAnnual, billingPeriod, user, loading }) {
       <div className="mt-5 min-h-32">
         <p className="flex min-h-14 flex-wrap items-baseline gap-x-1.5 text-[#20332b]">
           <span
-            className={`${enterprise ? "text-[40px]" : "text-[44px]"} leading-tight font-bold tracking-[-0.045em] tabular-nums`}
+            className={`${custom ? "text-[40px]" : "text-[44px]"} leading-tight font-bold tracking-[-0.045em] tabular-nums`}
           >
-            {enterprise
+            {custom
               ? "Custom"
               : free
                 ? "$0"
                 : `$${isAnnual ? plan.annual : plan.monthly}`}
           </span>
-          {!enterprise && (
+          {!custom && (
             <span className="text-sm font-medium text-[#718578]">/ month</span>
           )}
         </p>
         <p className="mt-2 text-xs leading-5 text-[#718578]">
-          {enterprise
+          {custom
             ? "Pricing tailored to your team"
             : free
               ? "Free to get started"
@@ -146,18 +154,18 @@ function PricingCard({ plan, isAnnual, billingPeriod, user, loading }) {
           type="button"
           disabled
           aria-label={`${buttonLabel}: ${plan.name}`}
-          className="inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center rounded-xl border border-[#CFDDD5] bg-[#e2ece6] px-3 text-sm font-semibold text-[#526159]"
+          className="inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center rounded-md border border-[#CFDDD5] bg-[#e2ece6] px-3 text-sm font-semibold text-[#526159]"
         >
           {buttonLabel}
         </button>
       ) : (
         <Link
           to={
-            enterprise
-              ? "/support?category=enterprise"
+            custom
+              ? "/support?category=custom"
               : `/checkout?plan=${plan.id}&billing=${billingPeriod}`
           }
-          className={`inline-flex min-h-12 w-full items-center justify-center rounded-xl border px-3 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137] ${plan.popular ? "border-[#294137] bg-[#294137] text-white shadow-sm hover:bg-[#20332b]" : "border-[#c2d3c8] bg-white text-[#294137] hover:border-[#91a99a] hover:bg-[#edf3ef]"}`}
+          className={`inline-flex min-h-12 w-full items-center justify-center rounded-md border px-3 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137] ${plan.popular ? "border-[#294137] bg-[#294137] text-white shadow-sm hover:bg-[#20332b]" : "border-[#c2d3c8] bg-white text-[#294137] hover:border-[#91a99a] hover:bg-[#edf3ef]"}`}
         >
           {buttonLabel}
         </Link>
@@ -180,7 +188,6 @@ function PricingCard({ plan, isAnnual, billingPeriod, user, loading }) {
               >
                 <Check
                   size={11}
-                  strokeWidth={2.5}
                   aria-hidden="true"
                   className="text-[#3d7754]"
                 />
@@ -202,12 +209,17 @@ export default function Pricing() {
   const [billingPeriod, setBillingPeriod] = useState("monthly");
   const isAnnual = billingPeriod === "annual";
 
+  if (isLoading) return <PricingSkeleton />;
+
   return (
     <section className="mx-auto max-w-7xl px-4 pt-12 pb-16 sm:px-8 sm:pt-16 sm:pb-20">
       <div className="text-center">
-        <h1 className="mx-auto max-w-[700px] text-4xl leading-[1.12] font-extrabold tracking-tight text-[#102019] sm:text-5xl">
+        <Heading
+          as="h1"
+          className="mx-auto max-w-[700px] text-4xl leading-[1.12] font-extrabold tracking-tight text-[#102019] sm:text-5xl"
+        >
           Plans built for QA teams.
-        </h1>
+        </Heading>
         <p className="mx-auto mt-5 max-w-[540px] text-sm leading-7 text-[#526159] sm:text-base">
           Start with requirements, add live testing when you need it, and scale
           with clear limits.

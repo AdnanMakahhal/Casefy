@@ -8,5 +8,5 @@ export default function Messages({ user }) {
   useEffect(() => {
     if (!staff) openChat();
   }, [staff, openChat]);
-  return <Navigate to={staff ? "/admin?view=support" : "/dashboard"} replace />;
+  return <Navigate to={staff ? "/admin/support" : "/dashboard"} replace />;
 }

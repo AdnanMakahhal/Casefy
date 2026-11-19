@@ -1,12 +1,13 @@
+import Heading from "../components/Heading";
 import { useState } from "react";
 import {
-  ArrowRight,
-  Building2,
-  LockKeyhole,
-  Menu,
-  Plus,
-  Trash2,
-} from "lucide-react";
+  RiArrowRightLine as ArrowRight,
+  RiBuildingLine as Building2,
+  RiLock2Line as LockKeyhole,
+  RiMenuLine as Menu,
+  RiAddLine as Plus,
+  RiDeleteBin6Line as Trash2
+} from "react-icons/ri";
 import { Link } from "react-router-dom";
 import DashboardSidebar from "../components/DashboardSidebar";
 import AccountModal from "../components/AccountModal";
@@ -14,7 +15,7 @@ import { useAuth } from "../features/authentication/authContext";
 import { canAddWorkspace } from "../features/authentication/plans";
 import useWorkspaces from "../features/workspaces/useWorkspaces";
 import DeleteItemModal from "../components/DeleteItemModal";
-import { useUndoDeletion } from "../context/undoDeletionContext";
+import { useUndoDeletion } from "../Context/undoDeletionContext";
 
 function AddWorkspace({ onDismiss, onAdded }) {
   const { addWorkspace } = useAuth();
@@ -63,7 +64,7 @@ function AddWorkspace({ onDismiss, onAdded }) {
             setError("");
           }}
           disabled={busy}
-          className="mt-2 min-h-12 w-full rounded-lg border border-[#CFDDD5] bg-white px-3 py-3 text-base text-[#102019] placeholder:text-[#929b97] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
+          className="mt-2 min-h-12 w-full rounded-md border border-[#CFDDD5] bg-white px-3 py-3 text-base text-[#102019] placeholder:text-[#929b97] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
         />
         {error && (
           <p role="alert" className="mt-4 text-sm text-red-700">
@@ -75,14 +76,14 @@ function AddWorkspace({ onDismiss, onAdded }) {
             type="button"
             disabled={busy}
             onClick={onDismiss}
-            className="min-h-11 cursor-pointer rounded-lg border border-[#CFDDD5] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-[#294137] disabled:opacity-50"
+            className="min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-[#294137] disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={busy || !name.trim()}
-            className="min-h-11 cursor-pointer rounded-lg bg-[#294137] px-4 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50"
+            className="min-h-11 cursor-pointer rounded-md bg-[#294137] px-4 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? "Adding..." : "Add workspace"}
           </button>
@@ -121,14 +122,14 @@ export default function Workspaces({ user }) {
               aria-controls="dashboard-sidebar"
               aria-expanded={isSidebarOpen}
               onClick={() => setIsSidebarOpen(true)}
-              className="flex size-11 shrink-0 items-center justify-center rounded-lg border border-[#CFDDD5] bg-white text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] lg:hidden"
+              className="flex size-11 shrink-0 items-center justify-center rounded-md border border-[#CFDDD5] bg-white text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] lg:hidden"
             >
               <Menu size={20} aria-hidden="true" />
             </button>
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+              <Heading as="h1" className="text-3xl font-extrabold tracking-tight sm:text-4xl">
                 Workspaces
-              </h1>
+              </Heading>
               <p className="mt-3 text-sm leading-6 text-[#526159]">
                 Private workspaces you own or have joined.
               </p>
@@ -142,7 +143,7 @@ export default function Workspaces({ user }) {
                 setMessage("");
                 setIsAdding(true);
               }}
-              className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#294137] px-5 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md bg-[#294137] px-5 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Plus size={18} aria-hidden="true" />
               Add workspace
@@ -156,7 +157,7 @@ export default function Workspaces({ user }) {
           </p>
         )}
         {!canAdd && (
-          <p className="mt-6 rounded-lg border border-[#CFDDD5] bg-white px-4 py-3 text-sm text-[#526159]">
+          <p className="mt-6 rounded-md border border-[#CFDDD5] bg-white px-4 py-3 text-sm text-[#526159]">
             Free plan: use your private workspace or join an invited workspace.
             Upgrade to create additional workspaces.
           </p>
@@ -175,7 +176,7 @@ export default function Workspaces({ user }) {
             <div
               role="status"
               aria-label="Loading workspaces"
-              className="h-52 animate-pulse rounded-xl bg-[#e1e9e4]"
+              className="h-52 animate-pulse rounded-md bg-[#e1e9e4]"
             />
           ) : error ? (
             <p role="alert" className="text-red-700">
@@ -186,14 +187,14 @@ export default function Workspaces({ user }) {
               {workspaces.map(({ key, name, isPrimary, role }) => (
                 <li
                   key={key}
-                  className="flex flex-col overflow-hidden rounded-xl border border-[#CFDDD5] bg-white"
+                  className="flex flex-col overflow-hidden rounded-md border border-[#CFDDD5] bg-white"
                 >
                   <Link
                     to={`/workspaces/${key}`}
                     className="group block flex-1 p-6 transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#294137]"
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <span className="flex size-12 items-center justify-center rounded-xl bg-[#edf3ef] text-[#294137]">
+                      <span className="flex size-12 items-center justify-center rounded-md bg-[#edf3ef] text-[#294137]">
                         <Building2 size={23} aria-hidden="true" />
                       </span>
                       {isPrimary && (
@@ -233,7 +234,7 @@ export default function Workspaces({ user }) {
                         type="button"
                         disabled={deletionBusy}
                         onClick={() => setDeleting({ key, name })}
-                        className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-lg px-2 text-xs font-medium text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-md px-2 text-xs font-medium text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Trash2 size={14} aria-hidden="true" />
                         Delete workspace
@@ -244,7 +245,7 @@ export default function Workspaces({ user }) {
               ))}
             </ul>
           ) : (
-            <div className="rounded-xl border border-dashed border-[#CFDDD5] bg-white p-10 text-center">
+            <div className="rounded-md border border-dashed border-[#CFDDD5] bg-white p-10 text-center">
               <Building2
                 size={30}
                 className="mx-auto text-[#526159]"

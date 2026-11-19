@@ -1,8 +1,10 @@
 import { publicUserSelect } from "../utils/roles.js";
 import { effectiveUser } from "../utils/subscriptions.js";
+import { ensureCredits } from "./creditService.js";
 
 export const objectId = (value) =>
   typeof value === "string" ? value : value?.id;
+
 const blockingStatuses = new Set([
   "active",
   "trialing",
@@ -11,6 +13,7 @@ const blockingStatuses = new Set([
   "incomplete",
   "paused",
 ]);
+
 export const blocksNewSubscription = (subscription) =>
   blockingStatuses.has(subscription.status);
 
@@ -20,7 +23,9 @@ export function subscriptionState(subscriptions, prices) {
       .filter(Boolean)
       .map((id) => [id, plan]),
   );
+
   const plans = new Map(mapping);
+
   const candidates = subscriptions
     .map((subscription) => {
       const plan = subscription.items?.data
@@ -103,13 +108,82 @@ export function createBillingService(db, stripe, config) {
   async function reconcile(tx, user) {
     if (!user.stripeCustomerId) return effectiveUser(user);
     const subscriptions = await subscriptionsFor(user.stripeCustomerId);
-    return effectiveUser(
-      await tx.user.update({
-        where: { id: user.id },
-        data: subscriptionState(subscriptions, config.prices),
-        select: publicUserSelect,
-      }),
+    const customDeals = await tx.customDeal.findMany({
+      where: { userId: user.id, status: { in: ["accepted", "active"] } },
+    });
+    const custom = customDeals.find((deal) =>
+      subscriptions.some(
+        (subscription) => subscription.metadata?.casefy_deal_id === deal.id,
+      ),
     );
+    const customSubscription =
+      custom &&
+      subscriptions.find(
+        (subscription) => subscription.metadata?.casefy_deal_id === custom.id,
+      );
+    const prices = {
+      ...config.prices,
+      ...(customSubscription
+        ? {
+            custom: {
+              negotiated: objectId(customSubscription.items?.data?.[0]?.price),
+            },
+          }
+        : {}),
+    };
+    const state = subscriptionState(subscriptions, prices);
+    if (state.plan === "custom" && custom) {
+      const item = customSubscription.items?.data?.[0];
+      if (
+        item?.price?.unit_amount !== custom.amount ||
+        item.price.currency !== custom.currency ||
+        item.price.recurring?.interval !== custom.interval
+      )
+        throw Object.assign(
+          new Error(
+            "Custom subscription terms do not match the approved agreement.",
+          ),
+          { status: 409 },
+        );
+      await tx.customDeal.update({
+        where: { id: custom.id },
+        data: {
+          status: "active",
+          activatedAt: custom.activatedAt || new Date(),
+          stripeSubscriptionId: customSubscription.id,
+        },
+      });
+      await tx.customDeal.updateMany({
+        where: { userId: user.id, status: "active", id: { not: custom.id } },
+        data: { status: "superseded" },
+      });
+      Object.assign(state, {
+        seatLimit: custom.seats,
+        projectLimit: custom.projects,
+        monthlyCreditLimit: custom.monthlyCredits,
+      });
+    } else if (user.plan === "custom") {
+      Object.assign(state, {
+        seatLimit: null,
+        projectLimit: null,
+        monthlyCreditLimit: null,
+      });
+      if (
+        custom &&
+        ["canceled", "incomplete_expired"].includes(customSubscription.status)
+      )
+        await tx.customDeal.update({
+          where: { id: custom.id },
+          data: { status: "ended" },
+        });
+    }
+    const updated = await tx.user.update({
+      where: { id: user.id },
+      data: state,
+      select: publicUserSelect,
+    });
+    await ensureCredits(tx, user.id);
+    return effectiveUser(updated);
   }
 
   async function syncCustomer(customerId, event) {

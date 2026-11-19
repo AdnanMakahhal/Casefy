@@ -1,3 +1,4 @@
+import Heading from "../components/Heading";
 import { Link, NavLink } from "react-router-dom";
 
 const pages = {
@@ -159,9 +160,9 @@ export default function LegalPage({ kind }) {
   return (
     <section className="mx-auto max-w-6xl px-4 pt-12 pb-16 text-[#102019] sm:px-8 sm:pt-14 sm:pb-20">
       <header className="mx-auto max-w-[700px] text-center">
-        <h1 className="text-4xl leading-[1.12] font-extrabold tracking-tight sm:text-5xl">
+        <Heading as="h1" className="text-4xl leading-[1.12] font-extrabold tracking-tight sm:text-5xl">
           {page.title}
-        </h1>
+        </Heading>
         <p className="mx-auto mt-6 max-w-[600px] text-base leading-7 font-medium text-[#526159]">
           {page.description}
         </p>
@@ -170,7 +171,7 @@ export default function LegalPage({ kind }) {
       <div className="mx-auto mt-10 grid max-w-[1040px] items-start gap-6 lg:grid-cols-[180px_minmax(0,1fr)]">
         <nav
           aria-label="Policy pages"
-          className="flex flex-wrap gap-2 rounded-xl border border-[#CFDDD5] bg-white p-2 lg:sticky lg:top-28 lg:flex-col"
+          className="flex flex-wrap gap-2 rounded-md border border-[#CFDDD5] bg-white p-2 lg:sticky lg:top-28 lg:flex-col"
         >
           {[
             ["policy", "Policy"],
@@ -181,14 +182,14 @@ export default function LegalPage({ kind }) {
               key={key}
               to={`/${key}`}
               className={({ isActive }) =>
-                `inline-flex min-h-11 items-center rounded-lg px-4 text-sm font-medium focus-visible:outline-2 focus-visible:outline-[#294137] ${isActive ? "bg-[#edf3ef] text-[#294137]" : "text-[#718578] hover:bg-[#f6f8f7]"}`
+                `inline-flex min-h-11 items-center rounded-md px-4 text-sm font-medium focus-visible:outline-2 focus-visible:outline-[#294137] ${isActive ? "bg-[#edf3ef] text-[#294137]" : "text-[#718578] hover:bg-[#f6f8f7]"}`
               }
             >
               {label}
             </NavLink>
           ))}
         </nav>
-        <article className="min-w-0 rounded-2xl border border-[#CFDDD5] bg-white p-6 sm:p-9">
+        <article className="min-w-0 rounded-md border border-[#CFDDD5] bg-white p-6 sm:p-9">
           <div className="space-y-8">
             {page.sections.map((section, index) => (
               <section key={section.title} aria-labelledby={`${kind}-${index}`}>
@@ -216,7 +217,7 @@ export default function LegalPage({ kind }) {
                 href="https://stripe.com/privacy"
                 target="_blank"
                 rel="noreferrer"
-                className="rounded font-medium text-[#294137] underline focus-visible:outline-2 focus-visible:outline-[#294137]"
+                className="rounded-md font-medium text-[#294137] underline focus-visible:outline-2 focus-visible:outline-[#294137]"
               >
                 Stripe's privacy notice
               </a>

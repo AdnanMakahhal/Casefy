@@ -1,5 +1,9 @@
+import Heading from "../components/Heading";
 import { useState } from "react";
-import { Menu, RefreshCw } from "lucide-react";
+import {
+  RiMenuLine as Menu,
+  RiRefreshLine as RefreshCw
+} from "react-icons/ri";
 import DashboardSidebar from "../components/DashboardSidebar";
 import ReportsSection from "../features/reports/ReportsSection";
 import "../features/admin/Admin.css";
@@ -18,7 +22,7 @@ export default function Reports({ user }) {
         <header className="admin-page-header">
           <div className="flex gap-3">
             <button
-              className="flex size-11 items-center justify-center rounded-lg border border-[#CFDDD5] bg-white lg:hidden"
+              className="flex size-11 items-center justify-center rounded-md border border-[#CFDDD5] bg-white lg:hidden"
               aria-label="Open navigation"
               aria-expanded={sidebar}
               aria-controls="dashboard-sidebar"
@@ -27,7 +31,7 @@ export default function Reports({ user }) {
               <Menu size={20} />
             </button>
             <div>
-              <h1>Reports</h1>
+              <Heading as="h1">Reports</Heading>
               <p>Your generation history and saved results.</p>
             </div>
           </div>

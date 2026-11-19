@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { Copy, Link2, ShieldCheck, Users } from "lucide-react";
+import {
+  RiMailSendLine as Mail,
+  RiShieldCheckLine as ShieldCheck,
+  RiGroupLine as Users
+} from "react-icons/ri";
 import SelectMenu from "../../components/SelectMenu";
 import { workspacePath, workspaceRequest } from "./api";
 
@@ -16,16 +20,16 @@ const roles = [
   },
 ];
 const button =
-  "min-h-10 cursor-pointer rounded-lg border border-[#CFDDD5] px-3 text-sm font-semibold hover:bg-[#edf3ef] disabled:cursor-not-allowed disabled:opacity-50";
+  "min-h-10 cursor-pointer rounded-md border border-[#CFDDD5] px-3 text-sm font-semibold hover:bg-[#edf3ef] disabled:cursor-not-allowed disabled:opacity-50";
 
 export default function WorkspaceAccess({ workspace }) {
   const [data, setData] = useState(null);
   const [revision, setRevision] = useState(0);
   const [role, setRole] = useState("viewer");
+  const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [link, setLink] = useState("");
   useEffect(() => {
     let active = true;
     workspaceRequest(workspacePath(workspace.id, "/access"))
@@ -49,31 +53,19 @@ export default function WorkspaceAccess({ workspace }) {
         method,
         ...(body ? { body: JSON.stringify(body) } : {}),
       });
-      if (result.token) {
-        setLink(`${window.location.origin}/workspace-invite#${result.token}`);
-        setMessage("Invitation created. Copy the link and share it privately.");
-      } else {
-        setLink("");
-        setMessage(result.message);
-      }
+      setMessage(result.message);
       setRevision((value) => value + 1);
+      return true;
     } catch (error) {
       setError(error.message);
+      return false;
     } finally {
       setBusy(false);
     }
   }
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(link);
-      setMessage("Invite link copied.");
-    } catch {
-      setMessage("Select and copy the invite link below.");
-    }
-  }
   return (
     <section
-      className="mt-8 rounded-xl border border-[#CFDDD5] bg-white p-5 sm:p-6"
+      className="mt-8 rounded-md border border-[#CFDDD5] bg-white p-5 sm:p-6"
       aria-labelledby="workspace-sharing"
     >
       <h2
@@ -88,7 +80,25 @@ export default function WorkspaceAccess({ workspace }) {
         Editors can create, edit and delete projects. Only you can manage
         access.
       </p>
-      <div className="mt-5 flex flex-wrap items-end gap-3">
+      <form className="mt-5 flex flex-wrap items-end gap-3" onSubmit={async (event) => {
+        event.preventDefault();
+        if (busy) return;
+        if (await change("/invites", "POST", { role, email: email.trim() })) setEmail("");
+      }}>
+        <label className="min-w-0 flex-1 text-sm font-medium sm:min-w-60">
+          Invite by email
+          <input
+            type="email"
+            required
+            maxLength={254}
+            autoComplete="email"
+            placeholder="person@example.com"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            disabled={busy}
+            className="mt-2 min-h-11 w-full rounded-md border border-[#CFDDD5] px-3 text-sm focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
+          />
+        </label>
         <SelectMenu
           label="Invite permission"
           value={role}
@@ -98,38 +108,17 @@ export default function WorkspaceAccess({ workspace }) {
           className="w-full sm:w-64"
         />
         <button
-          type="button"
+          type="submit"
           disabled={busy}
-          onClick={() => change("/invites", "POST", { role })}
           className={`${button} inline-flex items-center gap-2 bg-[#294137] text-white hover:bg-[#20332b]`}
         >
-          <Link2 size={16} />
-          Create invite link
+          <Mail size={16} aria-hidden="true" />
+          {busy ? "Updating..." : "Send invitation"}
         </button>
-      </div>
+      </form>
       <p className="mt-3 text-xs leading-5 text-[#526159]">
-        Each link works once, expires after 7 days, and lets anyone holding it
-        join after signing in. Share it only with the intended person.
+        Email invitations expire after 7 days and can only be accepted by the invited email address.
       </p>
-      {link && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          <input
-            aria-label="New invite link"
-            readOnly
-            value={link}
-            onFocus={(event) => event.target.select()}
-            className="min-h-11 min-w-0 flex-1 rounded-lg border border-[#CFDDD5] px-3 text-sm"
-          />
-          <button
-            type="button"
-            className={`${button} inline-flex items-center gap-2`}
-            onClick={copy}
-          >
-            <Copy size={16} />
-            Copy link
-          </button>
-        </div>
-      )}
       {error && (
         <p role="alert" className="mt-4 text-sm text-red-700">
           {error}
@@ -156,7 +145,7 @@ export default function WorkspaceAccess({ workspace }) {
           <div
             role="status"
             aria-label="Loading members"
-            className="mt-5 h-24 animate-pulse rounded-lg bg-[#edf3ef]"
+            className="mt-5 h-24 animate-pulse rounded-md bg-[#edf3ef]"
           />
         )
       ) : (
@@ -199,6 +188,7 @@ export default function WorkspaceAccess({ workspace }) {
                 <button
                   type="button"
                   disabled={busy}
+                  aria-label={`Remove ${member.user.name} from workspace`}
                   onClick={() =>
                     change(`/members/${member.userId}`, "PATCH", {
                       role: "remove",
@@ -216,18 +206,19 @@ export default function WorkspaceAccess({ workspace }) {
           </h3>
           {!data.invites.length && (
             <p className="mt-2 text-sm text-[#526159]">
-              No active invite links.
+              No pending invitations.
             </p>
           )}
           {data.invites.map((invite) => (
             <div
               key={invite.id}
-              className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-[#f6f8f7] p-3"
+              className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-md bg-[#f6f8f7] p-3"
             >
               <div>
                 <p className="text-sm font-medium capitalize">
                   {invite.role} invitation
                 </p>
+                <p className="mt-1 break-all text-sm text-[#294137]">{invite.email || "Legacy invitation (disabled)"}</p>
                 <p className="mt-1 text-xs text-[#526159]">
                   Expires {new Date(invite.expiresAt).toLocaleString()}
                 </p>
@@ -238,7 +229,7 @@ export default function WorkspaceAccess({ workspace }) {
                 onClick={() => change(`/invites/${invite.id}`, "DELETE")}
                 className={`${button} text-red-700`}
               >
-                Revoke link
+                Revoke invitation
               </button>
             </div>
           ))}

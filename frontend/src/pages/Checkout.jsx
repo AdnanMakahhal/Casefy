@@ -1,16 +1,17 @@
+import Heading from "../components/Heading";
 import { useEffect, useRef, useState } from "react";
 import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  ChevronRight,
-  CircleCheck,
-  CreditCard,
-  LifeBuoy,
-  LoaderCircle,
-  LockKeyhole,
-  ShieldCheck,
-} from "lucide-react";
+  RiArrowLeftLine as ArrowLeft,
+  RiArrowRightLine as ArrowRight,
+  RiCheckLine as Check,
+  RiArrowRightSLine as ChevronRight,
+  RiCheckboxCircleLine as CircleCheck,
+  RiBankCardLine as CreditCard,
+  RiLifebuoyLine as LifeBuoy,
+  RiLoader4Line as LoaderCircle,
+  RiLock2Line as LockKeyhole,
+  RiShieldCheckLine as ShieldCheck,
+} from "react-icons/ri";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { homeForRole, useAuth } from "../features/authentication/authContext";
 import { billingRequest } from "../lib/api";
@@ -18,6 +19,7 @@ import { planLabels, planRank } from "../features/authentication/plans";
 import Avatar from "../components/Avatar";
 import CheckoutPlanPreview from "../features/checkout/CheckoutPlanPreview";
 import { formatCheckoutMoney } from "../features/checkout/pricing";
+import CheckoutSkeleton from "../components/skeletons/CheckoutSkeleton";
 
 const planDetails = {
   free: {
@@ -47,7 +49,7 @@ const planDetails = {
       "Live runs and CI/CD",
     ],
   },
-  enterprise: {
+  custom: {
     description: "A testing setup built around your organization.",
     features: [
       "Custom seats and project limits",
@@ -58,7 +60,7 @@ const planDetails = {
   },
 };
 const greenButton =
-  "inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#294137] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]";
+  "inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-[#294137] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]";
 
 function CheckoutPage({ planKey, billing, canceled }) {
   const { user, createCheckout, createUpgrade, openBillingPortal } = useAuth();
@@ -100,6 +102,8 @@ function CheckoutPage({ planKey, billing, canceled }) {
     };
   }, [isPaid, attempt]);
 
+  if (isPaid && loading) return <CheckoutSkeleton />;
+
   const price = catalog?.plans?.[planKey]?.[billing];
   const amount = price
     ? formatCheckoutMoney(
@@ -115,7 +119,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
   const priceLabel =
     planKey === "free"
       ? "Free"
-      : planKey === "enterprise"
+      : planKey === "custom"
         ? "Custom"
         : amount || (loading ? "Loading..." : "Unavailable");
   const monthlyPrice = catalog?.plans?.[planKey]?.monthly;
@@ -185,9 +189,12 @@ function CheckoutPage({ planKey, billing, canceled }) {
       </div>
 
       <header className="mx-auto mt-2 max-w-2xl text-center">
-        <h1 className="text-4xl leading-[1.12] font-extrabold tracking-tight sm:text-5xl">
+        <Heading
+          as="h1"
+          className="text-4xl leading-[1.12] font-extrabold tracking-tight sm:text-5xl"
+        >
           Better testing starts here.
-        </h1>
+        </Heading>
         <p className="mx-auto mt-5 max-w-lg text-base leading-7 text-[#526159]">
           {isPaid
             ? "Review your plan, then choose a secure payment method."
@@ -237,7 +244,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
       {canceled && (
         <div
           role="status"
-          className="mt-8 rounded-lg border border-[#CFDDD5] bg-[#edf3ef] px-5 py-4 text-sm leading-6 text-[#294137]"
+          className="mt-8 rounded-md border border-[#CFDDD5] bg-[#edf3ef] px-5 py-4 text-sm leading-6 text-[#294137]"
         >
           You left Stripe Checkout. Your plan has not changed, and you can
           continue whenever you’re ready.
@@ -259,14 +266,14 @@ function CheckoutPage({ planKey, billing, canceled }) {
           annualBase={annualBase}
           money={money}
           isFree={planKey === "free"}
-          isEnterprise={planKey === "enterprise"}
+          isCustom={planKey === "custom"}
           busy={busy}
         />
 
         <form
           onSubmit={submit}
           aria-labelledby="checkout-details-heading"
-          className="overflow-hidden rounded-xl border border-[#CFDDD5] bg-white"
+          className="overflow-hidden rounded-md border border-[#CFDDD5] bg-white"
         >
           <div className="p-6 sm:p-8">
             <h2
@@ -278,7 +285,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
             <p className="mt-2 text-sm leading-6 text-[#526159]">
               Your plan will be linked to this Casefy account.
             </p>
-            <div className="mt-6 flex items-center gap-4 rounded-lg border border-[#CFDDD5] bg-[#f6f8f7] p-4">
+            <div className="mt-6 flex items-center gap-4 rounded-md border border-[#CFDDD5] bg-[#f6f8f7] p-4">
               <Avatar user={user} className="size-11 text-sm" />
               <div className="min-w-0">
                 <p className="break-words text-sm font-semibold">{user.name}</p>
@@ -311,7 +318,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
                 <dd className="text-right font-medium">
                   {planKey === "free"
                     ? "No payment required"
-                    : planKey === "enterprise"
+                    : planKey === "custom"
                       ? "Custom agreement"
                       : billing === "annual"
                         ? "Annual subscription"
@@ -356,7 +363,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
             {catalogError && isPaid && (
               <div
                 role="alert"
-                className="mt-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800"
+                className="mt-3 rounded-md border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800"
               >
                 <p>{catalogError}</p>
                 <button
@@ -366,7 +373,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
                     setLoading(true);
                     setAttempt((value) => value + 1);
                   }}
-                  className="mt-2 min-h-9 cursor-pointer rounded font-semibold underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
+                  className="mt-2 min-h-9 cursor-pointer rounded-md font-semibold underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
                 >
                   Try loading prices again
                 </button>
@@ -375,12 +382,12 @@ function CheckoutPage({ planKey, billing, canceled }) {
             {!loading && catalog && isPaid && !price && (
               <div
                 role="status"
-                className="mt-3 rounded-lg bg-[#edf3ef] p-4 text-sm leading-6 text-[#294137]"
+                className="mt-3 rounded-md bg-[#edf3ef] p-4 text-sm leading-6 text-[#294137]"
               >
                 This billing option isn’t available.{" "}
                 <Link
                   to={`/checkout?plan=${planKey}&billing=monthly`}
-                  className="rounded font-semibold underline focus-visible:outline-2"
+                  className="rounded-md font-semibold underline focus-visible:outline-2"
                 >
                   Choose monthly billing
                 </Link>{" "}
@@ -394,7 +401,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
                   <button
                     type="button"
                     disabled
-                    className="mt-2 min-h-12 w-full cursor-not-allowed rounded-lg border border-[#CFDDD5] bg-[#edf3ef] px-5 text-sm font-semibold text-[#526159]"
+                    className="mt-2 min-h-12 w-full cursor-not-allowed rounded-md border border-[#CFDDD5] bg-[#edf3ef] px-5 text-sm font-semibold text-[#526159]"
                   >
                     {user.plan === planKey
                       ? "Current plan"
@@ -438,11 +445,11 @@ function CheckoutPage({ planKey, billing, canceled }) {
                     {busy ? "Opening billing..." : "Manage billing"}
                   </button>
                 </>
-              ) : planKey === "enterprise" ? (
+              ) : planKey === "custom" ? (
                 <>
                   <p className="text-sm leading-6 text-[#526159]">
                     Tell us about your team and requirements. We’ll help you
-                    explore an Enterprise plan.
+                    explore an Custom plan.
                   </p>
                   <Link to="/support" className={`${greenButton} mt-5`}>
                     <LifeBuoy size={17} aria-hidden="true" />
@@ -483,7 +490,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
                       busy ? "Processing checkout" : "Continue to Stripe"
                     }
                     aria-busy={busy}
-                    className={`mt-5 flex min-h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#5750e6] bg-[#635BFF] px-6 font-[Arial,Helvetica,sans-serif] text-[18px] leading-none font-semibold tracking-[-0.035em] text-white shadow-[0_4px_12px_#635bff20] transition-[background-color,box-shadow,transform] duration-150 hover:bg-[#5851ea] hover:shadow-[0_6px_16px_#635bff30] active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#635BFF] motion-reduce:transition-none disabled:translate-y-0 disabled:opacity-60 disabled:shadow-none ${busy ? "disabled:cursor-wait" : "disabled:cursor-not-allowed"}`}
+                    className={`mt-5 flex min-h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-[#5750e6] bg-[#635BFF] px-6 font-[Arial,Helvetica,sans-serif] text-[18px] leading-none font-semibold tracking-[-0.035em] text-white shadow-[0_4px_12px_#635bff20] transition-[background-color,box-shadow,transform] duration-150 hover:bg-[#5851ea] hover:shadow-[0_6px_16px_#635bff30] active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#635BFF] motion-reduce:transition-none disabled:translate-y-0 disabled:opacity-60 disabled:shadow-none ${busy ? "disabled:cursor-wait" : "disabled:cursor-not-allowed"}`}
                   >
                     {busy ? (
                       <>
@@ -516,7 +523,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
                     cancellation,{" "}
                     <Link
                       to="/support"
-                      className="rounded underline hover:text-[#294137] focus-visible:outline-2 focus-visible:outline-[#294137]"
+                      className="rounded-md underline hover:text-[#294137] focus-visible:outline-2 focus-visible:outline-[#294137]"
                     >
                       contact support
                     </Link>
@@ -527,7 +534,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
               {error && (
                 <p
                   role="alert"
-                  className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800"
+                  className="mt-4 rounded-md border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800"
                 >
                   {error}
                 </p>
@@ -550,7 +557,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
         Have a question?{" "}
         <Link
           to="/support"
-          className="rounded font-semibold text-[#294137] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+          className="rounded-md font-semibold text-[#294137] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
         >
           Contact support
         </Link>

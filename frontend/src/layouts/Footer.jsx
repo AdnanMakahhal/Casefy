@@ -10,19 +10,19 @@ function Footer() {
       <nav aria-label="Legal" className="flex items-center gap-6">
         <Link
           to="/policy"
-          className="rounded hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
+          className="rounded-md hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
         >
           Policy
         </Link>
         <Link
           to="/privacy"
-          className="rounded hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
+          className="rounded-md hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
         >
           Privacy
         </Link>
         <Link
           to="/terms"
-          className="rounded hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
+          className="rounded-md hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
         >
           Terms
         </Link>
