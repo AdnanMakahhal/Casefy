@@ -12,7 +12,7 @@ const roles = new Set([
   "employee",
   "developer",
 ]);
-const plans = new Set(["free", "plus", "pro", "custom"]);
+const plans = new Set(["free", "plus", "pro", "ultra"]);
 const select = {
   id: true,
   name: true,
@@ -93,6 +93,11 @@ function accountData(body, creating, accountRole) {
     throw new Error(
       "Password must be at least 8 characters and no more than 72 bytes.",
     );
+  if (data.plan === "ultra") {
+    data.seatLimit = null;
+    data.projectLimit = null;
+    data.monthlyCreditLimit = null;
+  }
   if (staff) {
     delete data.workspaceName;
     data.plan = "free";

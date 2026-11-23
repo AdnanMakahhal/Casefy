@@ -1,3 +1,4 @@
+import Span from "../../ui/Span";
 import { createContext, useContext } from "react";
 import {
   AnimatePresence,
@@ -151,7 +152,7 @@ export function ReceiptPrinterStatus({
       className={classes("flex min-w-0 items-center gap-2.5", className)}
       {...props}
     >
-      <span
+      <Span
         aria-hidden="true"
         className="flex size-5 shrink-0 items-center justify-center"
       >
@@ -168,7 +169,7 @@ export function ReceiptPrinterStatus({
             )}
           />
         )}
-      </span>
+      </Span>
       <div role="status" aria-live="polite" className="grid min-w-0 flex-1">
         <AnimatePresence initial={false} mode="sync">
           <Motion.span
@@ -191,13 +192,11 @@ export function ReceiptPrinterPaper({ children, className, style, ...props }) {
   return (
     <article
       className={classes(
-        "relative z-10 min-h-80 bg-[#fffefb] px-5 pt-7 pb-8 font-mono text-[#294137] sm:px-6",
+        "relative z-10 min-h-80 bg-[#fffefb] bg-[image:repeating-linear-gradient(0deg,transparent,transparent_3px,#29413703_3px,#29413703_4px)] px-5 pt-7 pb-8 font-mono text-[#294137] [clip-path:var(--receipt-edge)] sm:px-6",
         className,
       )}
       style={{
-        clipPath: receiptClipPath,
-        backgroundImage:
-          "repeating-linear-gradient(0deg, transparent, transparent 3px, #29413703 3px, #29413703 4px)",
+        "--receipt-edge": receiptClipPath,
         ...style,
       }}
       {...props}

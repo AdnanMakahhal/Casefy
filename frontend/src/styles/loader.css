@@ -1,0 +1,49 @@
+@layer theme, base, components, utilities;
+@reference "tailwindcss";
+
+@font-face {
+  font-family: "Casefy Loader";
+  src: url("/fonts/alexandria-latin-variable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: block;
+}
+
+.site-loader {
+  @apply fixed inset-[0] z-[200] grid place-items-center min-h-[100svh] w-[100vw] [background:#f6f8f7];
+}
+
+.site-loader-word {
+  @apply relative w-[5.4em] h-[1.2em] [font-family:"Casefy_Loader",_sans-serif] [font-synthesis:none] text-[length:clamp(38px,_8vw,_64px)] font-bold leading-[1.2] tracking-[-0.035em] uppercase;
+}
+
+.site-loader-word > span {
+  @apply absolute inset-[0] flex items-center justify-center whitespace-nowrap;
+}
+
+.site-loader-word > span:first-child {
+  @apply text-[color:transparent] [-webkit-text-stroke:0.5px_#6c997c];
+}
+
+.site-loader-word > span:last-child {
+  @apply text-[color:#294137] [-webkit-text-stroke:1px_#294137] [animation:casefy-loader-wave_3s_ease-in-out_infinite];
+}
+
+.site-loader-label {
+  @apply absolute w-[1px] h-[1px] p-[0] overflow-hidden [clip-path:inset(50%)] whitespace-nowrap;
+}
+
+@keyframes casefy-loader-wave {
+  0%, 100% {
+    clip-path: polygon(0% 45%, 15% 44%, 32% 50%, 54% 60%, 70% 61%, 84% 59%, 100% 52%, 100% 100%, 0% 100%);
+  }
+  50% {
+    clip-path: polygon(0% 60%, 16% 65%, 34% 66%, 51% 62%, 67% 50%, 84% 45%, 100% 46%, 100% 100%, 0% 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-loader-word > span:last-child {
+    @apply [animation:none] [clip-path:polygon(0%_55%,_100%_55%,_100%_100%,_0%_100%)];
+  }
+}

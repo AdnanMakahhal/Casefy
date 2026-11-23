@@ -1,3 +1,7 @@
+import H2 from "../../ui/H2";
+import P from "../../ui/P";
+import Span from "../../ui/Span";
+import Button from "../../ui/Button";
 import { useRef, useEffect, useState } from "react";
 import {
   RiCloseLine as X
@@ -28,17 +32,17 @@ function Modal({ title, children, onClose, busy }) {
     >
       <header>
         <div>
-          <span className="admin-eyebrow">ACCOUNT MANAGEMENT</span>
-          <h2 id="admin-modal-title">{title}</h2>
+          <Span className="admin-eyebrow">ACCOUNT MANAGEMENT</Span>
+          <H2 variant="unstyled" id="admin-modal-title">{title}</H2>
         </div>
-        <button
+        <Button variant="unstyled" type="submit"
           className="admin-icon-button"
           aria-label="Close dialog"
           disabled={busy}
           onClick={onClose}
         >
           <X size={20} />
-        </button>
+        </Button>
       </header>
       {children}
     </dialog>
@@ -179,11 +183,11 @@ export function UserEditor({
               ))}
             </select>
           </label>
-          <p className="admin-form-note admin-span">
+          <P variant="unstyled" className="admin-form-note admin-span">
             Account plan and limits control app entitlements. Changes here do
             not update Stripe billing.
-          </p>
-          {[
+          </P>
+          {values.plan !== "ultra" && [
             ["seatLimit", "Seats"],
             ["projectLimit", "Project limit"],
             ["monthlyCreditLimit", "Monthly credits"],
@@ -200,28 +204,28 @@ export function UserEditor({
               />
             </label>
           ))}
-          <p className="admin-form-note admin-span">
-            Leave a limit blank to use the plan default.
-          </p>
+          <P variant="unstyled" className="admin-form-note admin-span">
+            {values.plan === "ultra" ? "Ultra includes unlimited seats, projects, workspaces, and credits." : "Leave a limit blank to use the plan default."}
+          </P>
           </>}
         </fieldset>
         {error && (
-          <p role="alert" className="admin-error">
+          <P variant="unstyled" role="alert" className="admin-error">
             {error}
-          </p>
+          </P>
         )}
         <footer>
-          <button
+          <Button variant="outline" size="md"
             type="button"
-            className="admin-button"
+            className="border px-5 py-2.5 whitespace-nowrap"
             onClick={onClose}
             disabled={busy}
           >
             Cancel
-          </button>
-          <button className="admin-button primary" disabled={busy}>
+          </Button>
+          <Button variant="primary" size="md" type="submit" className="border px-5 py-2.5 whitespace-nowrap border-[#294137]" disabled={busy}>
             {busy ? "Saving…" : creating ? "Create user" : "Save changes"}
-          </button>
+          </Button>
         </footer>
       </form>
     </Modal>
@@ -245,27 +249,27 @@ export function DeleteUser({ account, onClose, onSaved }) {
   }
   return (
     <Modal title="Delete this account?" onClose={onClose} busy={busy}>
-      <p className="admin-delete-copy">
+      <P variant="unstyled" className="admin-delete-copy">
         This permanently deletes <strong>{account.email}</strong>, their
         workspaces, and all {number(account._count.projects)} projects. This
         action cannot be undone.
-      </p>
+      </P>
       {error && (
-        <p role="alert" className="admin-error">
+        <P variant="unstyled" role="alert" className="admin-error">
           {error}
-        </p>
+        </P>
       )}
       <footer>
-        <button className="admin-button" disabled={busy} onClick={onClose}>
+        <Button variant="outline" size="md" type="submit" className="border px-5 py-2.5 whitespace-nowrap" disabled={busy} onClick={onClose}>
           Cancel
-        </button>
-        <button
-          className="admin-button danger"
+        </Button>
+        <Button variant="danger" size="md" type="submit"
+          className="border px-5 py-2.5 whitespace-nowrap border-red-700"
           disabled={busy}
           onClick={remove}
         >
           {busy ? "Deleting…" : "Delete account"}
-        </button>
+        </Button>
       </footer>
     </Modal>
   );
@@ -302,12 +306,12 @@ export function BlockUser({ account, onClose, onSaved }) {
       busy={busy}
     >
       <form onSubmit={submit}>
-        <p className="mb-5 text-sm leading-7 text-[#526159]">
+        <P className="mb-5">
           {account.email}.{" "}
           {account.blockedAt
             ? "The user will be able to sign in again."
             : "This prevents sign-in and stops access from existing sessions. Billing subscriptions are not canceled."}
-        </p>
+        </P>
         {!account.blockedAt && (
           <label className="block text-sm font-medium">
             Reason
@@ -323,21 +327,21 @@ export function BlockUser({ account, onClose, onSaved }) {
           </label>
         )}
         {error && (
-          <p role="alert" className="admin-error">
+          <P variant="unstyled" role="alert" className="admin-error">
             {error}
-          </p>
+          </P>
         )}
         <footer>
-          <button
+          <Button variant="outline" size="md"
             type="button"
-            className="admin-button"
+            className="border px-5 py-2.5 whitespace-nowrap"
             disabled={busy}
             onClick={onClose}
           >
             Cancel
-          </button>
-          <button
-            className={`admin-button ${account.blockedAt ? "primary" : "danger"}`}
+          </Button>
+          <Button variant={account.blockedAt ? "primary" : "danger"} type="submit"
+            className="border border-current px-5 py-2.5 whitespace-nowrap"
             disabled={busy}
           >
             {busy
@@ -345,7 +349,7 @@ export function BlockUser({ account, onClose, onSaved }) {
               : account.blockedAt
                 ? "Unblock user"
                 : "Block user"}
-          </button>
+          </Button>
         </footer>
       </form>
     </Modal>

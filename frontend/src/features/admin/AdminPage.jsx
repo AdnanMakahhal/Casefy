@@ -1,7 +1,12 @@
+import Heading from "../../ui/Heading";
+import H2 from "../../ui/H2";
+import P from "../../ui/P";
+import Span from "../../ui/Span";
+import Button from "../../ui/Button";
 import { useAuth } from "../authentication/authContext";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { adminPath, adminViewFromPath, adminViews } from "./navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { adminRequest as request } from "./api";
 import DashboardSidebar from "../../components/DashboardSidebar";
 import {
@@ -13,17 +18,15 @@ import {
   RiFolderChartLine as FolderKanban,
   RiClipboardLine as ClipboardList,
   RiPulseLine as Activity,
-  RiArrowRightUpLine as ArrowUpRight,
-  RiSearchLine as Search,
 } from "react-icons/ri";
 import StaffSections from "./StaffSections";
-import AdminSkeleton from "../../components/AdminSkeleton";
+import OverviewCards from "./OverviewCards";
+import AdminSkeleton from "../../ui/AdminSkeleton";
 import { number, label, plans, roles } from "./userOptions";
 import SelectMenu from "../../components/SelectMenu";
 import UsersTable from "./UsersTable";
-import { Pagination } from "./ui";
+import { Loading, Pagination, SearchForm } from "./ui";
 import { UserEditor, BlockUser, DeleteUser } from "./UserDialogs";
-import "./Admin.css";
 
 export default function Admin() {
   const { user, refreshUser } = useAuth();
@@ -32,7 +35,7 @@ export default function Admin() {
   const [params, setParams] = useSearchParams();
   const pathView = adminViewFromPath(location.pathname);
   const legacyView = params.get("view");
-  const validLegacyView = Object.hasOwn(adminViews, legacyView)
+  const validLegacyView = ["refunds", "payments"].includes(legacyView) ? "support" : Object.hasOwn(adminViews, legacyView)
     ? legacyView
     : null;
   const view = validLegacyView || pathView || "overview";
@@ -51,6 +54,8 @@ export default function Admin() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [revision, setRevision] = useState(0);
+  const [staffLoading, setStaffLoading] = useState({ view: null, loading: false });
+  const reportStaffLoading = useCallback((nextLoading) => setStaffLoading((current) => current.view === view && current.loading === nextLoading ? current : { view, loading: nextLoading }), [view]);
   const [editor, setEditor] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [blocking, setBlocking] = useState(null);
@@ -66,10 +71,13 @@ export default function Admin() {
   });
   const isFetching =
     isDataView && !error && (loading || loadedKey !== requestKey);
+  const refreshing = isFetching || (!isDataView && staffLoading.view === view && staffLoading.loading);
   useEffect(() => {
     if (pathView && legacyView === null) return;
     const nextParams = new URLSearchParams(location.search);
     nextParams.delete("view");
+    if (legacyView === "refunds") nextParams.set("category", "refund");
+    if (legacyView === "payments") nextParams.set("category", "payment");
     const nextSearch = nextParams.toString();
     navigate(
       {
@@ -149,10 +157,6 @@ export default function Admin() {
         setNotice(`${message} Refresh your profile to see your changes.`),
       );
   }
-  function goToView(next) {
-    navigate(adminPath(next));
-    setSidebar(false);
-  }
   return (
     <div className="admin-shell lg:pl-64">
       <a href="#admin-content" className="admin-skip">
@@ -169,69 +173,70 @@ export default function Admin() {
       >
         <header className="admin-page-header">
           <div className="flex items-start gap-3">
-            <button
+            <Button variant="outline" size="custom"
               type="button"
               aria-label="Open navigation"
               aria-controls="dashboard-sidebar"
               aria-expanded={sidebar}
               onClick={() => setSidebar(true)}
-              className="flex size-11 shrink-0 items-center justify-center rounded-md border border-[#CFDDD5] bg-white text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] lg:hidden"
+              className="flex size-11 shrink-0 lg:hidden"
             >
               <Menu size={20} aria-hidden="true" />
-            </button>
+            </Button>
             <div>
-              <h1>{adminViews[view].title}</h1>
-              <p>{adminViews[view].description}</p>
+              <Heading as="h1">{adminViews[view].title}</Heading>
+              <P variant="unstyled">{adminViews[view].description}</P>
             </div>
           </div>
           <div className="admin-header-actions">
-            <button
-              className="admin-button"
-              disabled={isFetching}
+            <Button variant="outline" size="md" type="submit"
+              className="border px-5 py-2.5 whitespace-nowrap"
+              disabled={refreshing}
+              aria-busy={refreshing}
               onClick={() => setRevision((value) => value + 1)}
             >
-              <RefreshCw size={16} className={isFetching ? "admin-spin" : ""} />
+              <RefreshCw size={16} className={refreshing ? "admin-spin motion-reduce:animate-none" : ""} />
               Refresh
-            </button>
+            </Button>
             {canEdit && isDataView && (
-              <button
-                className="admin-button primary"
+              <Button variant="primary" size="md" type="submit"
+                className="border px-5 py-2.5 whitespace-nowrap border-[#294137]"
                 onClick={() => setEditor({})}
               >
                 <Plus size={17} />
                 Add user
-              </button>
+              </Button>
             )}
           </div>
         </header>
         {notice && (
           <div role="status" className="admin-notice">
             {notice}
-            <button
+            <Button variant="unstyled" type="submit"
               aria-label="Dismiss notification"
               onClick={() => setNotice("")}
             >
               <X size={16} />
-            </button>
+            </Button>
           </div>
         )}
         {isDataView && error && (
           <div className="admin-error" role="alert">
             {error}
-            <button
-              className="admin-button"
+            <Button variant="outline" size="md" type="submit"
+              className="border px-5 py-2.5 whitespace-nowrap"
               onClick={() => setRevision((value) => value + 1)}
             >
               Retry
-            </button>
+            </Button>
           </div>
         )}
         {!isDataView ? (
-          <StaffSections key={view} view={view} revision={revision} />
-        ) : isFetching ? (
+          <StaffSections key={view} view={view} revision={revision} onLoadingChange={reportStaffLoading} />
+        ) : isFetching && view === "overview" ? (
           <AdminSkeleton view={view} />
         ) : (
-          !error && (
+          (!error || view === "users") && (
             <>
               {view === "overview" && overview && (
                 <>
@@ -240,9 +245,9 @@ export default function Admin() {
                     className="admin-overview-section"
                   >
                     <div className="admin-overview-heading">
-                      <h2 id="admin-overview-heading">
+                      <H2 variant="unstyled" id="admin-overview-heading">
                         Administration overview
-                      </h2>
+                      </H2>
                     </div>
                     <div
                       className="admin-stats"
@@ -276,135 +281,52 @@ export default function Admin() {
                       ].map(({ title, value, detail, icon: Icon }) => (
                         <article key={title} className="admin-stat">
                           <div>
-                            <h2>{title}</h2>
+                            <H2 variant="unstyled">{title}</H2>
                             {Icon && (
-                              <span className="admin-stat-icon">
+                              <Span className="admin-stat-icon">
                                 <Icon size={18} aria-hidden="true" />
-                              </span>
+                              </Span>
                             )}
                           </div>
                           <strong>{value}</strong>
-                          <p>{detail}</p>
+                          <P variant="unstyled">{detail}</P>
                         </article>
                       ))}
                     </div>
                   </section>
-                  <div className="admin-overview-grid">
-                    <section className="admin-panel">
-                      <header className="admin-panel-header">
-                        <div>
-                          <h2>Recent users</h2>
-                          <p>The latest accounts to join Casefy</p>
-                        </div>
-                        <button
-                          className="admin-text-button"
-                          onClick={() => goToView("users")}
-                        >
-                          View all <ArrowUpRight size={15} />
-                        </button>
-                      </header>
-                      <div className="admin-recent-list">
-                        {overview.recentUsers.map((account) => (
-                          <div key={account.id} className="admin-recent-user">
-                            <span className="admin-avatar">
-                              {account.name.slice(0, 1).toUpperCase()}
-                            </span>
-                            <div>
-                              <strong>{account.name}</strong>
-                              <span>{account.email}</span>
-                            </div>
-                            <span className={`admin-plan plan-${account.plan}`}>
-                              <i />
-                              {label(account.plan)}
-                            </span>
-                          </div>
-                        ))}
-                        {!overview.recentUsers.length && (
-                          <p className="admin-empty">No accounts yet.</p>
-                        )}
-                      </div>
-                    </section>
-                    <section className="admin-panel">
-                      <header className="admin-panel-header">
-                        <div>
-                          <h2>Plan distribution</h2>
-                          <p>Accounts by current plan</p>
-                        </div>
-                      </header>
-                      <div className="admin-plan-chart">
-                        {plans.map((planName) => {
-                          const count =
-                            overview.planCounts.find(
-                              (item) => item.plan === planName,
-                            )?._count._all || 0;
-                          return (
-                            <div key={planName}>
-                              <div>
-                                <span className={`admin-plan plan-${planName}`}>
-                                  <i />
-                                  {label(planName)}
-                                </span>
-                                <strong>{number(count)}</strong>
-                              </div>
-                              <div className="admin-bar">
-                                <span
-                                  style={{
-                                    width: `${overview.totalUsers ? (count / overview.totalUsers) * 100 : 0}%`,
-                                  }}
-                                />
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <p className="admin-chart-footer">
-                        {number(overview.totalUsers)} total accounts across all
-                        plans
-                      </p>
-                    </section>
-                  </div>
+                  <OverviewCards overview={overview} />
                 </>
               )}
-              {view === "users" && result && (
+              {view === "users" && (
                 <section className="admin-panel admin-users-panel">
                   <header className="admin-panel-header">
                     <div>
-                      <h2>
+                      <H2 variant="unstyled">
                         All users{" "}
-                        <span className="admin-count">
-                          {number(result.total)}
-                        </span>
-                      </h2>
-                      <p>
+                        <Span className="admin-count">
+                          {number(result?.total)}
+                        </Span>
+                      </H2>
+                      <P variant="unstyled">
                         {canEdit
                           ? "Manage account details, permissions, and limits."
                           : "Browse account details and permissions."}
-                      </p>
+                      </P>
                     </div>
                   </header>
                   <div className="staff-user-filters">
-                    <form
-                      className="staff-user-search"
-                      onSubmit={(event) => {
-                        event.preventDefault();
-                        filter({
-                          search: event.currentTarget.elements.search.value,
-                        });
-                      }}
-                    >
-                      <Search size={18} />
-                      <input
-                        key={search}
-                        name="search"
-                        aria-label="Search users"
-                        placeholder="Search name, email, or workspace..."
-                        defaultValue={search}
-                      />
-                      <button className="admin-button">Search</button>
-                    </form>
+                    <SearchForm liveSearch value={search} placeholder="Search name, email, or workspace..." onSearch={(value) => {
+                      setParams((current) => {
+                        const next = new URLSearchParams(current);
+                        if (value) next.set("search", value);
+                        else next.delete("search");
+                        next.set("page", "1");
+                        return next;
+                      }, { replace: true });
+                    }} />
                     <div className="staff-filter-grid">
                       <div>
-                        <p>Role</p>
+                        <P variant="unstyled">Role</P>
                         <SelectMenu
                           label="Filter users by role"
                           value={role}
@@ -426,7 +348,7 @@ export default function Admin() {
                         />
                       </div>
                       <div>
-                        <p>Plan</p>
+                        <P variant="unstyled">Plan</P>
                         <SelectMenu
                           label="Filter users by plan"
                           value={plan}
@@ -441,15 +363,15 @@ export default function Admin() {
                               value,
                               label: label(value),
                               description:
-                                value === "custom"
-                                  ? "Custom team limits"
+                                value === "ultra"
+                                  ? "Unlimited seats, projects, and credits"
                                   : label(value) + " accounts",
                             })),
                           ]}
                         />
                       </div>
                       <div>
-                        <p>Account access</p>
+                        <P variant="unstyled">Account access</P>
                         <SelectMenu
                           label="Filter account access"
                           value={access}
@@ -474,7 +396,7 @@ export default function Admin() {
                         />
                       </div>
                       <div>
-                        <p>Sort by</p>
+                        <P variant="unstyled">Sort by</P>
                         <SelectMenu
                           label="Sort users"
                           value={sort}
@@ -493,9 +415,9 @@ export default function Admin() {
                       access ||
                       sort !== "newest") && (
                       <div className="staff-active-filters">
-                        <span className="text-xs text-[#718578]">
+                        <Span variant="muted" className="text-xs">
                           Active filters
-                        </span>
+                        </Span>
                         {[
                           ["search", search],
                           ["role", role],
@@ -504,7 +426,7 @@ export default function Admin() {
                         ]
                           .filter(([, value]) => value)
                           .map(([key, value]) => (
-                            <button
+                            <Button variant="unstyled" type="submit"
                               key={key}
                               className="staff-filter-chip"
                               aria-label={`Clear ${key} filter`}
@@ -512,9 +434,9 @@ export default function Admin() {
                             >
                               {label(value)}
                               <X size={12} />
-                            </button>
+                            </Button>
                           ))}
-                        <button
+                        <Button variant="unstyled" type="submit"
                           className="admin-text-button"
                           onClick={() =>
                             filter({
@@ -527,10 +449,11 @@ export default function Admin() {
                           }
                         >
                           Reset all
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </div>
+                  {isFetching ? <Loading /> : !error && result && <>
                   <UsersTable
                     users={result.users}
                     actorRole={user.role}
@@ -544,6 +467,7 @@ export default function Admin() {
                     label="users"
                     onChange={(next) => filter({ page: String(next) })}
                   />
+                  </>}
                 </section>
               )}
             </>

@@ -1,4 +1,9 @@
-import Heading from "../components/Heading";
+import H2 from "../ui/H2";
+import P from "../ui/P";
+import Span from "../ui/Span";
+import Button from "../ui/Button";
+import Heading from "../ui/Heading";
+import WorkspaceCardSkeleton from "../ui/WorkspaceCardSkeleton";
 import { useState } from "react";
 import {
   RiArrowRightLine as ArrowRight,
@@ -40,9 +45,9 @@ function AddWorkspace({ onDismiss, onAdded }) {
 
   return (
     <AccountModal title="Add workspace" onDismiss={onDismiss} busy={busy}>
-      <p className="mb-5 text-sm leading-6 text-[#526159]">
+      <P variant="unstyled" className="mb-5 text-sm leading-6 text-[#526159]">
         Give your new workspace a name.
-      </p>
+      </P>
       <form onSubmit={submit}>
         <label
           htmlFor="new-workspace-name"
@@ -67,26 +72,26 @@ function AddWorkspace({ onDismiss, onAdded }) {
           className="mt-2 min-h-12 w-full rounded-md border border-[#CFDDD5] bg-white px-3 py-3 text-base text-[#102019] placeholder:text-[#929b97] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
         />
         {error && (
-          <p role="alert" className="mt-4 text-sm text-red-700">
+          <P variant="unstyled" role="alert" className="mt-4 text-sm text-red-700">
             {error}
-          </p>
+          </P>
         )}
         <div className="mt-6 flex justify-end gap-3">
-          <button
+          <Button variant="unstyled"
             type="button"
             disabled={busy}
             onClick={onDismiss}
             className="min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-[#294137] disabled:opacity-50"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button variant="primary" size="custom"
             type="submit"
             disabled={busy || !name.trim()}
-            className="min-h-11 cursor-pointer rounded-md bg-[#294137] px-4 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50"
+            className="min-h-11 px-4"
           >
             {busy ? "Adding..." : "Add workspace"}
-          </button>
+          </Button>
         </div>
       </form>
     </AccountModal>
@@ -116,121 +121,114 @@ export default function Workspaces({ user }) {
       <main className="mx-auto max-w-[1440px] px-4 py-6 sm:px-8 lg:p-10">
         <header className="flex flex-wrap items-start justify-between gap-5">
           <div className="flex items-start gap-3">
-            <button
+            <Button variant="outline" size="custom"
               type="button"
               aria-label="Open navigation"
               aria-controls="dashboard-sidebar"
               aria-expanded={isSidebarOpen}
               onClick={() => setIsSidebarOpen(true)}
-              className="flex size-11 shrink-0 items-center justify-center rounded-md border border-[#CFDDD5] bg-white text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] lg:hidden"
+              className="flex size-11 shrink-0 lg:hidden"
             >
               <Menu size={20} aria-hidden="true" />
-            </button>
+            </Button>
             <div>
               <Heading as="h1" className="text-3xl font-extrabold tracking-tight sm:text-4xl">
                 Workspaces
               </Heading>
-              <p className="mt-3 text-sm leading-6 text-[#526159]">
+              <P variant="unstyled" className="mt-3 text-sm leading-6 text-[#526159]">
                 Private workspaces you own or have joined.
-              </p>
+              </P>
             </div>
           </div>
           {canAdd && (
-            <button
+            <Button variant="primary" size="custom"
               type="button"
               disabled={deletionBusy}
               onClick={() => {
                 setMessage("");
                 setIsAdding(true);
               }}
-              className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md bg-[#294137] px-5 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50"
+              className="min-h-11 px-5"
             >
               <Plus size={18} aria-hidden="true" />
               Add workspace
-            </button>
+            </Button>
           )}
         </header>
 
         {message && (
-          <p role="status" className="mt-6 text-sm text-[#294137]">
+          <P variant="unstyled" role="status" className="mt-6 text-sm text-[#294137]">
             {message}
-          </p>
+          </P>
         )}
         {!canAdd && (
-          <p className="mt-6 rounded-md border border-[#CFDDD5] bg-white px-4 py-3 text-sm text-[#526159]">
+          <P variant="unstyled" className="mt-6 rounded-md border border-[#CFDDD5] bg-white px-4 py-3 text-sm text-[#526159]">
             Free plan: use your private workspace or join an invited workspace.
             Upgrade to create additional workspaces.
-          </p>
+          </P>
         )}
-        <section aria-labelledby="workspace-list-heading" className="mt-9">
-          <h2
+        <section aria-labelledby="workspace-list-heading" aria-busy={loading} className="mt-7">
+          <H2 variant="unstyled"
             id="workspace-list-heading"
             className="mb-5 text-lg font-bold tracking-tight"
           >
             Your workspaces{" "}
-            <span className="ml-1 text-sm font-medium text-[#526159]">
+            {!loading && !error && <Span className="ml-1 text-sm font-medium text-[#526159]">
               ({workspaces.length})
-            </span>
-          </h2>
+            </Span>}
+          </H2>
           {loading ? (
-            <div
-              role="status"
-              aria-label="Loading workspaces"
-              className="h-52 animate-pulse rounded-md bg-[#e1e9e4]"
-            />
+            <WorkspaceCardSkeleton />
           ) : error ? (
-            <p role="alert" className="text-red-700">
+            <P variant="unstyled" role="alert" className="text-red-700">
               {error}
-            </p>
+            </P>
           ) : workspaces.length ? (
             <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {workspaces.map(({ key, name, isPrimary, role }) => (
                 <li
                   key={key}
-                  className="flex flex-col overflow-hidden rounded-md border border-[#CFDDD5] bg-white"
+                  className="flex min-w-0 flex-col overflow-hidden rounded-md border border-[#CFDDD5] bg-white transition-shadow hover:shadow-sm"
                 >
                   <Link
                     to={`/workspaces/${key}`}
-                    className="group block flex-1 p-6 transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#294137]"
+                    className="group block flex-1 p-5 transition-colors hover:bg-[#f6f8f7] focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#294137]"
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <span className="flex size-12 items-center justify-center rounded-md bg-[#edf3ef] text-[#294137]">
-                        <Building2 size={23} aria-hidden="true" />
-                      </span>
+                      <Span variant="accent" className="flex size-10 items-center justify-center rounded-md bg-[#edf3ef]">
+                        <Building2 size={21} aria-hidden="true" />
+                      </Span>
                       {isPrimary && (
-                        <span className="rounded-full bg-[#edf3ef] px-3 py-1 text-xs font-semibold text-[#294137]">
+                        <Span variant="accent" className="rounded-md bg-[#edf3ef] px-3 py-1 text-xs font-semibold">
                           Primary
-                        </span>
+                        </Span>
                       )}
                     </div>
-                    <h3 className="mt-5 break-words text-lg font-semibold">
+                    <h3 className="mt-4 break-words text-base font-semibold">
                       {name}
                     </h3>
-                    <p className="mt-2 text-sm text-[#526159]">
-                      {`Private | ${role === "owner" ? "Owner" : role === "editor" ? "Editor" : "Viewer"}`}
-                      <span className="mt-2 block break-all text-xs">
-                        ID: {key}
-                      </span>
-                    </p>
-                    <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#294137]">
+                    <P variant="unstyled" className="mt-2 text-xs leading-5 text-[#526159]">
+                      {`Private · ${role === "owner" ? "Owner" : role === "editor" ? "Editor" : "Viewer"}`}
+                    </P>
+                    <Span variant="accent" className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-md border border-[#cfddd5] bg-white px-3 text-xs font-semibold group-hover:border-[#91a99a] group-hover:bg-[#edf3ef]">
                       View projects
                       <ArrowRight
                         size={16}
                         aria-hidden="true"
                         className="transition-transform group-hover:translate-x-1 motion-reduce:transition-none"
                       />
-                    </span>
+                    </Span>
                   </Link>
-                  <div className="border-t border-[#e1e9e4] px-6 py-3">
+                  <div className="border-t border-[#e1e9e4] bg-[#f6f8f7] px-5 py-3">
                     {isPrimary || role !== "owner" ? (
-                      <p className="flex min-h-9 items-center gap-2 text-xs text-[#718578]">
+                      <P variant="unstyled" className="flex min-h-9 items-center gap-2 text-xs text-[#718578]">
                         <LockKeyhole size={14} aria-hidden="true" />
                         {role === "owner"
-                          ? "Primary workspace cannot be deleted"
-                          : `${role === "editor" ? "Editor" : "Viewer"} access | Private`}
-                      </p>
+                          ? "Protected from deletion"
+                          : `${role === "editor" ? "Editor" : "Viewer"} access`}
+                      </P>
                     ) : (
-                      <button
+                      <Button variant="unstyled"
                         type="button"
                         disabled={deletionBusy}
                         onClick={() => setDeleting({ key, name })}
@@ -238,7 +236,7 @@ export default function Workspaces({ user }) {
                       >
                         <Trash2 size={14} aria-hidden="true" />
                         Delete workspace
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </li>
@@ -256,11 +254,11 @@ export default function Workspaces({ user }) {
                   ? "Create your first workspace"
                   : "No workspaces to show"}
               </h3>
-              <p className="mt-2 text-sm leading-6 text-[#526159]">
+              <P variant="unstyled" className="mt-2 text-sm leading-6 text-[#526159]">
                 {canAdd
                   ? "Use Add workspace to get started."
                   : "Your saved workspaces will appear here."}
-              </p>
+              </P>
             </div>
           )}
         </section>

@@ -1,386 +1,193 @@
-import Heading from "../components/Heading";
-import { useEffect, useRef, useState } from "react";
-import {
-  RiArrowRightUpLine as ArrowUpRight,
-  RiBookOpenLine as BookOpen,
-  RiLineChartLine as ChartNoAxesCombined,
-  RiListCheck2 as ListChecks,
-  RiSearchLine as Search,
-  RiCloseLine as X
-} from "react-icons/ri";
-import { Link } from "react-router-dom";
+import Reveal from "../ui/Reveal";
+import { useState } from "react";
+import { RiArrowRightUpLine as ArrowUpRight, RiBookOpenLine as BookOpen, RiLineChartLine as ChartNoAxesCombined, RiListCheck2 as ListChecks } from "react-icons/ri";
+import H2 from "../ui/H2";
+import SupportButton from "../ui/SupportButton";
+import P from "../ui/P";
+import Span from "../ui/Span";
+import Button from "../ui/Button";
+import Heading from "../ui/Heading";
 import AccountModal from "../components/AccountModal";
 
-const guides = [
-  {
-    id: "quick-start",
-    title: "Quick start",
-    tag: "Start here",
-    description:
-      "Set up your workspace and prepare your first test-generation request.",
-    steps: [
-      "Create an account and choose your role and primary workspace name during setup.",
-      "Open Test generator and select your workspace. Choose User story, then enter a subject and description with your acceptance criteria.",
-      "Set the number of test cases, priorities, and test types. Choose a model preview and review your request.",
-      "Download the request as JSON if you want to keep it. Generation is currently a UI preview; it does not send a request to an AI provider.",
-    ],
-    to: "/test-generator",
-    action: "Open test generator",
-  },
-  {
-    id: "generator",
-    title: "Test generator",
-    tag: "Guide",
-    description:
-      "Learn how stories, documents, and URLs shape your test coverage.",
-    steps: [
-      "Choose User story for a subject and description, Documents for requirement files, or Website URL for a page address.",
-      "Choose the number of test cases and priority. Combine Functional, Positive, Negative, Edge cases, Security, and Accessibility coverage as needed.",
-      "Search the model picker and adjust reasoning and output detail. Each model keeps its own settings while you work.",
-      "Select Generate tests to check your inputs. This preview does not generate test cases, parse document contents, or visit websites.",
-    ],
-    to: "/test-generator",
-    action: "Try the composer",
-  },
-  {
-    id: "reports",
-    title: "Run reports",
-    tag: "Workflow",
-    description:
-      "Understand where results and evidence fit into your testing workflow.",
-    steps: [
-      "Start by preparing clear requirements and reviewing the coverage you need in Test generator.",
-      "Test execution and run reports are planned. The current generator preview does not execute tests or produce report data.",
-      "For now, download your generation request to share the proposed inputs and settings with your team.",
-    ],
-    to: "/support",
-    action: "Ask about reports",
-  },
-  {
-    id: "requirements",
-    title: "Import from requirements",
-    tag: "Guide",
-    description: "Work with user stories and requirement documents.",
-    steps: [
-      "For a user story, add a short subject and describe the expected behavior, acceptance criteria, and important rules.",
-      "For documents, attach PDF, DOCX, TXT, or Markdown files. You can select up to 5 files, each containing content and no larger than 10 MB.",
-      "Add optional instructions to explain what to include or exclude, then review your request.",
-      "Files stay in your browser in this preview. Downloaded requests include file names and sizes, without document contents.",
-    ],
-    to: "/test-generator",
-    action: "Add requirements",
-  },
-  {
-    id: "urls",
-    title: "Generate from URLs",
-    tag: "Guide",
-    description: "Prepare website context for pages and states.",
-    steps: [
-      "Website URL input is available on Plus, Pro, and Custom. Free includes user stories and documents.",
-      "Choose Website URL and enter an HTTP or HTTPS address without embedded credentials.",
-      "Describe the pages, user journeys, or states you want to cover in the additional instructions.",
-      "Review the URL and coverage settings before downloading the request. The current preview does not visit the website or generate tests.",
-    ],
-    to: "/test-generator",
-    action: "Open URL input",
-  },
-  {
-    id: "api",
-    title: "API reference",
-    tag: "Coming later",
-    description:
-      "Follow the status of generation APIs and integration workflows.",
-    steps: [
-      "A public test-generation API, CI integration, and generation webhooks are planned. They are not available in the current preview.",
-      "Use the Test generator interface to prepare and download a request with your source, model configuration, and coverage settings.",
-      "Contact support to discuss your integration requirements.",
-    ],
-    to: "/support",
-    action: "Contact support",
-  },
-];
-const buttonBase =
-  "inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-[#2941372e] px-5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]";
-const buttonClass = `${buttonBase} bg-[#294137] text-white hover:bg-[#20332b]`;
-
-export default function Docs() {
-  const [query, setQuery] = useState("");
-  const [activeGuide, setActiveGuide] = useState(null);
-  const search = useRef(null);
-  const matches = guides.filter((guide) =>
-    `${guide.title} ${guide.description} ${guide.steps.join(" ")}`
-      .toLowerCase()
-      .includes(query.trim().toLowerCase()),
-  );
-
-  useEffect(() => {
-    function shortcut(event) {
-      if (
-        event.key === "/" &&
-        !event.ctrlKey &&
-        !event.metaKey &&
-        !event.altKey &&
-        !activeGuide &&
-        !event.target.closest("input, textarea, [contenteditable]")
-      ) {
-        event.preventDefault();
-        search.current?.focus();
-      }
-    }
-    document.addEventListener("keydown", shortcut);
-    return () => document.removeEventListener("keydown", shortcut);
-  }, [activeGuide]);
+function DocGuide({ title, description, tag, to, support = false, actionLabel, icon: Icon, featured = false, compact = false, summary, delay = 0, children }) {
+  const [open, setOpen] = useState(false);
+  const cardClass = compact ? "" : "flex min-w-0 flex-col rounded-md border border-[#CFDDD5] p-6 sm:p-8 " + (featured ? "bg-[#edf3ef]" : "bg-white");
 
   return (
-    <section className="mx-auto max-w-6xl px-4 pt-12 pb-16 text-[#102019] sm:px-8 sm:pt-14 sm:pb-20">
-      <div className="text-center">
-        <Heading as="h1" className="mx-auto max-w-[700px] text-4xl leading-[1.12] font-extrabold tracking-tight sm:text-5xl">
-          Build with Casefy faster.
-        </Heading>
-        <p className="mx-auto mt-6 max-w-[600px] text-base leading-6 font-medium text-[#526159]">
-          Guides and workflow examples for turning stories, documents, and URLs
-          into a clear testing plan.
-        </p>
-        <div role="search" className="relative mx-auto mt-8 max-w-[600px]">
-          <Search
-            size={18}
-            aria-hidden="true"
-            className="pointer-events-none absolute top-4 left-4 text-[#718578]"
-          />
-          <label htmlFor="docs-search" className="sr-only">
-            Search documentation
-          </label>
-          <input
-            ref={search}
-            id="docs-search"
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Escape") setQuery("");
-            }}
-            placeholder="Search docs, guides, integrations..."
-            className="min-h-14 w-full rounded-md border border-[#CFDDD5] bg-white pr-12 pl-12 text-sm text-[#294137] placeholder:text-[#8a9890] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137] [&::-webkit-search-cancel-button]:appearance-none"
-          />
-          {query ? (
-            <button
-              type="button"
-              aria-label="Clear search"
-              onClick={() => {
-                setQuery("");
-                search.current?.focus();
-              }}
-              className="absolute top-2 right-2 flex size-10 cursor-pointer items-center justify-center rounded-md text-[#718578] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]"
-            >
-              <X size={16} />
-            </button>
-          ) : (
-            <kbd
-              aria-hidden="true"
-              className="pointer-events-none absolute top-4 right-4 rounded-md border border-[#dce6df] px-1.5 text-xs leading-6 text-[#8a9890]"
-            >
-              /
-            </kbd>
-          )}
-        </div>
-      </div>
-
-      {query.trim() ? (
-        <section
-          aria-labelledby="docs-results"
-          className="mx-auto mt-12 max-w-[1040px]"
-        >
-          <h2
-            id="docs-results"
-            role="status"
-            className="mb-5 text-sm font-semibold text-[#526159]"
-          >
-            {matches.length} {matches.length === 1 ? "guide" : "guides"} found
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {matches.map((guide) => (
-              <button
-                key={guide.id}
-                type="button"
-                onClick={() => setActiveGuide(guide)}
-                className="cursor-pointer rounded-md border border-[#CFDDD5] bg-white p-6 text-left transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
-              >
-                <span className="block text-base font-semibold">
-                  {guide.title}
-                </span>
-                <span className="mt-2 block text-sm leading-6 text-[#526159]">
-                  {guide.description}
-                </span>
-              </button>
-            ))}
-          </div>
-          {!matches.length && (
-            <p className="rounded-md border border-dashed border-[#cfddd5] p-8 text-center text-sm text-[#718578]">
-              No matching guides. Try searching for stories, documents, or URLs.
-            </p>
-          )}
-        </section>
+    <Reveal as="article" delay={delay} disabled={compact} className={cardClass}>
+      {compact ? (
+        <Button variant="unstyled" onClick={() => setOpen(true)} className="group flex min-h-16 w-full cursor-pointer items-center gap-3 rounded-md px-1 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]">
+          <Span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-[#294137]" />
+          <Span className="flex-1">
+            <Span className="block text-sm font-medium group-hover:underline">{title}</Span>
+            <Span variant="muted" className="mt-1 block text-xs leading-5">{summary}</Span>
+          </Span>
+          <ArrowUpRight size={15} aria-hidden="true" className="shrink-0 text-[#718578]" />
+        </Button>
       ) : (
         <>
-          <div className="mx-auto mt-12 grid max-w-[1040px] gap-5 md:grid-cols-3 sm:gap-6">
-            {guides.slice(0, 3).map((guide, index) => (
-              <article
-                key={guide.id}
-                className={`flex min-w-0 flex-col rounded-md border border-[#CFDDD5] p-6 sm:p-8 ${index === 0 ? "bg-[#edf3ef]" : "bg-white"}`}
-              >
-                <span className="mb-6 flex size-12 items-center justify-center rounded-md bg-[#294137] text-white">
-                  {index === 0 ? (
-                    <BookOpen size={22} aria-hidden="true" />
-                  ) : index === 1 ? (
-                    <ListChecks size={22} aria-hidden="true" />
-                  ) : (
-                    <ChartNoAxesCombined size={22} aria-hidden="true" />
-                  )}
-                </span>
-                <h2 className="text-2xl font-extrabold tracking-tight">
-                  {guide.title}
-                </h2>
-                <p className="mt-3 flex-1 text-sm leading-6 text-[#526159]">
-                  {guide.description}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setActiveGuide(guide)}
-                  className={`${buttonClass} mt-7 w-fit cursor-pointer`}
-                >
-                  {guide.tag}
-                </button>
-              </article>
-            ))}
-          </div>
-
-          <div className="mx-auto mt-6 grid max-w-[1040px] gap-5 md:grid-cols-3 sm:gap-6">
-            <section
-              aria-labelledby="popular-guides"
-              className="min-w-0 rounded-md border border-[#CFDDD5] bg-white p-6 sm:p-8"
-            >
-              <h2
-                id="popular-guides"
-                className="text-2xl font-extrabold tracking-tight"
-              >
-                Popular guides
-              </h2>
-              <div className="mt-4 space-y-3">
-                {guides.slice(3, 5).map((guide) => (
-                  <button
-                    key={guide.id}
-                    type="button"
-                    onClick={() => setActiveGuide(guide)}
-                    className="group flex min-h-16 w-full cursor-pointer items-center gap-3 rounded-md px-1 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="size-2 shrink-0 rounded-full bg-[#294137]"
-                    />
-                    <span className="flex-1">
-                      <span className="block text-sm font-medium group-hover:underline">
-                        {guide.title}
-                      </span>
-                      <span className="mt-1 block text-xs leading-5 text-[#718578]">
-                        {guide.id === "requirements"
-                          ? "User story and document sources"
-                          : "Explore pages and states"}
-                      </span>
-                    </span>
-                    <ArrowUpRight
-                      size={15}
-                      aria-hidden="true"
-                      className="shrink-0 text-[#718578]"
-                    />
-                  </button>
-                ))}
-              </div>
-            </section>
-            <section
-              aria-labelledby="api-reference"
-              className="flex flex-col min-w-0 rounded-md border border-[#CFDDD5] bg-white p-6 sm:p-8"
-            >
-              <h2
-                id="api-reference"
-                className="text-2xl font-extrabold tracking-tight"
-              >
-                API reference
-              </h2>
-              <p className="mt-4 flex-1 text-sm leading-6 text-[#526159]">
-                Generation APIs and integrations are coming later. See what is
-                available in the current preview.
-              </p>
-              <button
-                type="button"
-                onClick={() =>
-                  setActiveGuide(guides.find((guide) => guide.id === "api"))
-                }
-                className={`${buttonClass} mt-5 w-fit cursor-pointer`}
-              >
-                Integration status
-              </button>
-            </section>
-            <section
-              aria-labelledby="docs-help"
-              className="min-w-0 rounded-md border border-[#CFDDD5] bg-white p-6 sm:p-8"
-            >
-              <h2
-                id="docs-help"
-                className="text-2xl font-extrabold tracking-tight"
-              >
-                Need help?
-              </h2>
-              <p className="mt-4 text-sm leading-6 text-[#526159]">
-                Find setup answers, compare plans, or get help with your
-                account.
-              </p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {[
-                  ["Support", "/support"],
-                  ["Policy", "/policy"],
-                  ["Privacy", "/privacy"],
-                  ["Terms", "/terms"],
-                ].map(([label, to]) => (
-                  <Link
-                    key={to}
-                    to={to}
-                    className="inline-flex min-h-11 items-center justify-center rounded-md border border-[#CFDDD5] bg-[#edf3ef] px-3 text-xs font-medium transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </div>
-            </section>
-          </div>
+          {Icon && (
+            <Span className="mb-6 flex size-12 items-center justify-center rounded-md bg-[#294137] text-white">
+              <Icon size={22} aria-hidden="true" />
+            </Span>
+          )}
+          <H2>{title}</H2>
+          <P variant="unstyled" className="mt-3 flex-1 text-sm leading-6 text-[#526159]">{description}</P>
+          <Button onClick={() => setOpen(true)} size="custom" className="mt-7 min-h-12 w-fit border border-[#2941372e] px-5 focus-visible:outline-offset-4">
+            {tag}
+          </Button>
         </>
       )}
-
-      {activeGuide && (
-        <AccountModal
-          title={activeGuide.title}
-          onDismiss={() => setActiveGuide(null)}
-        >
-          <ol className="space-y-4">
-            {activeGuide.steps.map((step, index) => (
-              <li
-                key={step}
-                className="flex gap-3 text-sm leading-6 text-[#526159]"
-              >
-                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold text-[#294137]">
-                  {index + 1}
-                </span>
-                <span>{step}</span>
-              </li>
-            ))}
-          </ol>
+      {open && (
+        <AccountModal title={title} onDismiss={() => setOpen(false)}>
+          <ol className="space-y-4">{children}</ol>
           <div className="mt-6 flex justify-end">
-            <Link to={activeGuide.to} className={buttonClass}>
-              {activeGuide.action}
-              <ArrowUpRight size={14} aria-hidden="true" />
-            </Link>
+            {support ? (
+              <SupportButton onClick={() => setOpen(false)}>{actionLabel}</SupportButton>
+            ) : (
+              <Button to={to} onClick={() => setOpen(false)}>{actionLabel}<ArrowUpRight size={14} aria-hidden="true" /></Button>
+            )}
           </div>
         </AccountModal>
       )}
+    </Reveal>
+  );
+}
+
+export default function Docs() {
+  return (
+    <section className="mx-auto max-w-6xl px-4 pt-12 pb-16 text-[#102019] sm:px-8 sm:pt-14 sm:pb-20">
+      <div className="text-center">
+        <Heading as="h1" className="mx-auto max-w-[700px] text-4xl leading-[1.12] font-extrabold tracking-tight sm:text-5xl">Build with Casefy faster.</Heading>
+        <Reveal delay={0.08}><P variant="unstyled" className="mx-auto mt-6 max-w-[600px] text-base leading-6 font-medium text-[#526159]">
+          Guides and workflow examples for turning stories, documents, and URLs into a clear testing plan.
+        </P></Reveal>
+
+      </div>
+
+      <div className="mx-auto mt-12 max-w-[1040px]">
+        <div className="space-y-6">
+          <div className="grid gap-5 sm:gap-6 md:grid-cols-3">
+          <DocGuide delay={0.0} title="Quick start" description="Set up your workspace and prepare your first test-generation request." tag="Start here" to="/test-generator" actionLabel="Open test generator" icon={BookOpen} featured>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">1</Span>
+              <Span>Create an account and choose your role and primary workspace name during setup.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">2</Span>
+              <Span>Open Test generator and select your workspace. Choose User story, then enter a subject and description with your acceptance criteria.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">3</Span>
+              <Span>Set the number of test cases, priorities, and test types. Configure LLM + Playwright and review your request.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">4</Span>
+              <Span>Download the request as JSON if you want to keep it. Generation is currently a UI preview; it does not send a request to an AI provider.</Span>
+            </li>
+          </DocGuide>
+          <DocGuide delay={0.1} title="Test generator" description="Learn how stories, documents, and URLs shape your test coverage." tag="Guide" to="/test-generator" actionLabel="Try the composer" icon={ListChecks}>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">1</Span>
+              <Span>Choose User story for a subject and description, Documents for requirement files, or Website URL for a page address.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">2</Span>
+              <Span>Choose the number of test cases and priority. Combine Functional, Positive, Negative, Edge cases, Security, and Accessibility coverage as needed.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">3</Span>
+              <Span>Open LLM + Playwright settings to adjust reasoning and output detail. Both work together in one workflow.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">4</Span>
+              <Span>Select Generate tests to check your inputs. This preview does not generate test cases, parse document contents, or visit websites.</Span>
+            </li>
+          </DocGuide>
+          <DocGuide delay={0.2} title="Run reports" description="Understand where results and evidence fit into your testing workflow." tag="Workflow" support actionLabel="Ask about reports" icon={ChartNoAxesCombined}>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">1</Span>
+              <Span>Start by preparing clear requirements and reviewing the coverage you need in Test generator.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">2</Span>
+              <Span>Test execution and run reports are planned. The current generator preview does not execute tests or produce report data.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">3</Span>
+              <Span>For now, download your generation request to share the proposed inputs and settings with your team.</Span>
+            </li>
+          </DocGuide>
+          </div>
+          <div className="grid gap-5 sm:gap-6 md:grid-cols-3">
+            <Reveal as="section" className="min-w-0 rounded-md border border-[#CFDDD5] bg-white p-6 sm:p-8" aria-label="Popular guides">
+              <H2>Popular guides</H2>
+              <div className="mt-4 space-y-3">
+          <DocGuide delay={0.0} title="Import from requirements" description="Work with user stories and requirement documents." tag="Guide" to="/test-generator" actionLabel="Add requirements" compact summary="User story and document sources">
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">1</Span>
+              <Span>For a user story, add a short subject and describe the expected behavior, acceptance criteria, and important rules.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">2</Span>
+              <Span>For documents, attach PDF, DOCX, TXT, or Markdown files. You can select up to 5 files, each containing content and no larger than 10 MB.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">3</Span>
+              <Span>Add optional instructions to explain what to include or exclude, then review your request.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">4</Span>
+              <Span>Files stay in your browser in this preview. Downloaded requests include file names and sizes, without document contents.</Span>
+            </li>
+          </DocGuide>
+          <DocGuide delay={0.1} title="Generate from URLs" description="Prepare website context for pages and states." tag="Guide" to="/test-generator" actionLabel="Open URL input" compact summary="Explore pages and states">
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">1</Span>
+              <Span>Website URL input is available on Plus, Pro, and Ultra. Free includes user stories and documents.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">2</Span>
+              <Span>Choose Website URL and enter an HTTP or HTTPS address without embedded credentials.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">3</Span>
+              <Span>Describe the pages, user journeys, or states you want to cover in the additional instructions.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">4</Span>
+              <Span>Review the URL and coverage settings before downloading the request. The current preview does not visit the website or generate tests.</Span>
+            </li>
+          </DocGuide>
+              </div>
+            </Reveal>
+          <DocGuide delay={0.2} title="API reference" description="Follow the status of generation APIs and integration workflows." tag="Integration status" support actionLabel="Contact support" >
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">1</Span>
+              <Span>A public test-generation API, CI integration, and generation webhooks are planned. They are not available in the current preview.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">2</Span>
+              <Span>Use the Test generator interface to prepare and download a request with your source, model configuration, and coverage settings.</Span>
+            </li>
+            <li className="flex gap-3 text-sm leading-6 text-[#526159]">
+              <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">3</Span>
+              <Span>Contact support to discuss your integration requirements.</Span>
+            </li>
+          </DocGuide>
+              <Reveal as="section" delay={0.2} aria-labelledby="docs-help" className="min-w-0 rounded-md border border-[#CFDDD5] bg-white p-6 sm:p-8">
+                <H2 id="docs-help">Need help?</H2>
+                <P variant="unstyled" className="mt-4 text-sm leading-6 text-[#526159]">Find setup answers, compare plans, or get help with your account.</P>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <SupportButton variant="secondary" size="custom" className="min-h-11 px-3 text-xs font-medium">Support</SupportButton>
+                  <Button to="/policy" variant="secondary" size="custom" className="min-h-11 px-3 text-xs font-medium">Policy</Button>
+                  <Button to="/privacy" variant="secondary" size="custom" className="min-h-11 px-3 text-xs font-medium">Privacy</Button>
+                  <Button to="/terms" variant="secondary" size="custom" className="min-h-11 px-3 text-xs font-medium">Terms</Button>
+                </div>
+              </Reveal>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

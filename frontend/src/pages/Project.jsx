@@ -1,3 +1,5 @@
+import P from "../ui/P";
+import Button from "../ui/Button";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { workspacePath, workspaceRequest } from "../features/workspaces/api";
@@ -38,10 +40,10 @@ function ProjectView({ user, workspaceKey, projectId }) {
       </Link>
       {error ? (
         <div className="mt-6 rounded-md border border-[#CFDDD5] bg-white p-6">
-          <p role="alert" className="text-sm text-red-700">{error}</p>
-          <button type="button" onClick={() => { setError(""); setAttempt((value) => value + 1); }} className="mt-4 min-h-11 rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold">Try again</button>
+          <P variant="unstyled" role="alert" className="text-sm text-red-700">{error}</P>
+          <Button variant="unstyled" type="button" onClick={() => { setError(""); setAttempt((value) => value + 1); }} className="mt-4 min-h-11 rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold">Try again</Button>
         </div>
-      ) : <p role="status" className="mt-6 text-sm">Opening project...</p>}
+      ) : <P variant="unstyled" role="status" className="mt-6 text-sm">Opening project...</P>}
     </main>
   );
 }

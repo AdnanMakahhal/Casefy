@@ -1,4 +1,6 @@
-import Heading from "../components/Heading";
+import P from "../ui/P";
+import Button from "../ui/Button";
+import Heading from "../ui/Heading";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { homeForRole, useAuth } from "../features/authentication/authContext";
@@ -41,7 +43,7 @@ export default function CheckoutSuccess() {
 
   const confirmed =
     result?.status === "complete" &&
-    ["plus", "pro", "custom"].includes(result.user?.plan);
+    ["plus", "pro", "ultra"].includes(result.user?.plan);
   return (
     <section className="mx-auto max-w-xl px-6 py-16">
       <div className="rounded-md border border-[#CFDDD5] bg-white p-8">
@@ -50,7 +52,7 @@ export default function CheckoutSuccess() {
             ? "Thanks for your subscription!"
             : "Checking your subscription"}
         </Heading>
-        <p
+        <P variant="unstyled"
           role={error || !sessionId ? "alert" : "status"}
           className="mt-4 text-sm leading-6 text-[#526159]"
         >
@@ -64,9 +66,9 @@ export default function CheckoutSuccess() {
                   : result
                     ? "Checkout has not been completed. No paid access has been granted."
                     : "Confirming your payment with Stripe...")}
-        </p>
+        </P>
         {sessionId && !confirmed && (
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => {
               setError("");
@@ -75,7 +77,7 @@ export default function CheckoutSuccess() {
             className="mt-6 min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold text-[#294137]"
           >
             Check again
-          </button>
+          </Button>
         )}
         <div className="mt-6 flex flex-wrap gap-5 text-sm font-semibold text-[#294137]">
           <Link

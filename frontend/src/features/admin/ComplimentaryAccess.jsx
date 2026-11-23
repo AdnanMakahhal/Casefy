@@ -1,3 +1,5 @@
+import P from "../../ui/P";
+import Button from "../../ui/Button";
 import { useState } from "react";
 import AccountModal from "../../components/AccountModal";
 import SelectMenu from "../../components/SelectMenu";
@@ -82,10 +84,10 @@ export default function ComplimentaryAccess({ account, onClose, onSaved }) {
       onDismiss={onClose}
       busy={busy}
     >
-      <p className="mb-5 text-sm leading-6 text-[#526159]">
+      <P variant="unstyled" className="mb-5 text-sm leading-6 text-[#526159]">
         Grant {account.email} complimentary plan access. No card or payment is
         required. Dates use your local timezone.
-      </p>
+      </P>
       {account.stripeSubscriptionId && (
         <div className="mb-5 rounded-md bg-[#edf3ef] p-4 text-xs leading-6 text-[#526159]">
           <strong>Stripe billing</strong>
@@ -101,12 +103,12 @@ export default function ComplimentaryAccess({ account, onClose, onSaved }) {
         <fieldset disabled={busy} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="mb-2 text-sm font-medium">Complimentary plan</p>
+              <P variant="unstyled" className="mb-2 text-sm font-medium">Complimentary plan</P>
               <SelectMenu
                 label="Complimentary subscription plan"
                 value={plan}
                 onChange={setPlan}
-                options={["plus", "pro", "custom"].map((value) => ({
+                options={["plus", "pro", "ultra"].map((value) => ({
                   value,
                   label: titleCase(value),
                   description: "Free temporary access",
@@ -114,7 +116,7 @@ export default function ComplimentaryAccess({ account, onClose, onSaved }) {
               />
             </div>
             <div>
-              <p className="mb-2 text-sm font-medium">Duration</p>
+              <P variant="unstyled" className="mb-2 text-sm font-medium">Duration</P>
               <SelectMenu
                 label="Complimentary duration"
                 value={duration}
@@ -163,42 +165,42 @@ export default function ComplimentaryAccess({ account, onClose, onSaved }) {
               />
             </label>
           </div>
-          <p className="text-xs leading-6 text-[#718578]">
+          <P variant="muted" >
             Access activates at the start and expires at the end automatically.
             Accounts without an ongoing Stripe subscription return to Free
             outside these dates. Existing paid Stripe access continues.
-          </p>
+          </P>
         </fieldset>
         {error && (
-          <p
+          <P variant="unstyled"
             role="alert"
             className="rounded-md bg-red-50 p-3 text-sm text-red-800"
           >
             {error}
-          </p>
+          </P>
         )}
         <div className="flex flex-wrap justify-end gap-3 border-t border-[#CFDDD5] pt-5">
           {account.complimentaryPlan && (
-            <button
+            <Button variant="danger" size="md"
               type="button"
               disabled={busy}
               onClick={(event) => save(event, true)}
-              className="admin-button danger"
+              className="border px-5 py-2.5 whitespace-nowrap border-red-700"
             >
               Remove complimentary access
-            </button>
+            </Button>
           )}
-          <button
+          <Button variant="outline" size="md"
             type="button"
             disabled={busy}
             onClick={onClose}
-            className="admin-button"
+            className="border px-5 py-2.5 whitespace-nowrap"
           >
             Cancel
-          </button>
-          <button disabled={busy} className="admin-button primary">
+          </Button>
+          <Button variant="primary" size="md" type="submit" disabled={busy} className="border px-5 py-2.5 whitespace-nowrap border-[#294137]">
             {busy ? "Saving..." : "Save dates & access"}
-          </button>
+          </Button>
         </div>
       </form>
     </AccountModal>

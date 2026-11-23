@@ -1,3 +1,6 @@
+import P from "../../ui/P";
+import Span from "../../ui/Span";
+import Button from "../../ui/Button";
 import { RiGoogleFill, RiGithubFill } from "react-icons/ri";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -74,7 +77,7 @@ function SigninForm() {
               required
               className="min-h-12 w-full rounded-md border border-[#CFDDD5] bg-[#ffffff] py-3 pr-20 pl-4 text-base text-[#102018] placeholder:text-[#929b97] focus:border-[#294137] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
             />
-            <button
+            <Button variant="unstyled"
               type="button"
               onClick={() => setShowPassword((value) => !value)}
               aria-controls="password"
@@ -82,46 +85,46 @@ function SigninForm() {
               className="absolute inset-y-0 right-2 my-2 cursor-pointer rounded-md px-3 text-sm font-medium text-[#526159] hover:text-[#294137] focus-visible:outline-2 focus-visible:outline-[#294137]"
             >
               {showPassword ? "Hide" : "Show"}
-            </button>
+            </Button>
           </div>
         </div>
 
         {error && (
-          <p role="alert" className="text-sm text-red-700">
+          <P variant="unstyled" role="alert" className="text-sm text-red-700">
             {error}
-          </p>
+          </P>
         )}
-        <button
+        <Button variant="primary" size="lg"
           type="submit"
           disabled={isSubmitting}
-          className="min-h-12 w-full cursor-pointer rounded-md bg-[#294137] px-6 py-3 text-base font-semibold text-[#ffffff] transition-colors hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-wait disabled:opacity-50"
+          className="w-full disabled:cursor-wait"
         >
           {isSubmitting ? "Signing in..." : "Login"}
-        </button>
+        </Button>
       </div>
-      <p className="my-8 text-center text-xs font-medium tracking-wider text-[#526159]">
+      <P variant="unstyled" className="my-8 text-center text-xs font-medium tracking-wider text-[#526159]">
         OR CONTINUE WITH
-      </p>
+      </P>
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        <button
+        <Button variant="unstyled"
           type="button"
           onClick={() => setError("Google sign-in is not available yet. Use your email and password.")}
           className="flex min-h-12 cursor-pointer items-center justify-center gap-3 rounded-md border border-[#CFDDD5] bg-[#ffffff] px-3 py-3 text-base font-medium text-[#102018] transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
         >
           <RiGoogleFill size={20} aria-hidden="true" className="shrink-0" />
-          <span>Google</span>
-        </button>
-        <button
+          <Span>Google</Span>
+        </Button>
+        <Button variant="unstyled"
           type="button"
           onClick={() => setError("GitHub sign-in is not available yet. Use your email and password.")}
           className="flex min-h-12 cursor-pointer items-center justify-center gap-3 rounded-md border border-[#CFDDD5] bg-[#ffffff] px-3 py-3 text-base font-medium text-[#102018] transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
         >
           <RiGithubFill size={20} aria-hidden="true" className="shrink-0" />
-          <span>GitHub</span>
-        </button>
+          <Span>GitHub</Span>
+        </Button>
       </div>
       <div className="mt-6 flex flex-wrap items-center justify-between gap-2 text-sm">
-        <p className="text-[#6c7771]">New to Casefy?</p>
+        <P variant="unstyled" className="text-[#6c7771]">New to Casefy?</P>
         <Link
           to="/signup"
           state={location.state}
@@ -130,9 +133,9 @@ function SigninForm() {
           Create an account
         </Link>
       </div>
-      <p className="mt-7 text-xs leading-5 text-[#929b97]">
+      <P variant="unstyled" className="mt-7 text-xs leading-5 text-[#929b97]">
         By continuing, you agree to the Terms and Privacy Policy.
-      </p>
+      </P>
       </fieldset>
     </form>
   );

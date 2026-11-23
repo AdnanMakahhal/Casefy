@@ -1,3 +1,5 @@
+import P from "../../ui/P";
+import Button from "../../ui/Button";
 import { useState } from "react";
 import AccountModal from "../../components/AccountModal";
 import { workspacePath, workspaceRequest } from "./api";
@@ -65,25 +67,25 @@ export default function ProjectForm({
           />
         </label>
         {error && (
-          <p role="alert" className="mt-4 text-sm text-red-700">
+          <P variant="unstyled" role="alert" className="mt-4 text-sm text-red-700">
             {error}
-          </p>
+          </P>
         )}
         <div className="mt-5 flex justify-end gap-3">
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={onDismiss}
             disabled={busy}
             className="min-h-11 rounded-md border border-[#CFDDD5] px-4"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button variant="primary" size="custom" type="submit"
             disabled={busy || !name.trim()}
-            className="min-h-11 rounded-md bg-[#294137] px-4 text-white disabled:opacity-50"
+            className="min-h-11 px-4"
           >
             {busy ? "Saving…" : "Save project"}
-          </button>
+          </Button>
         </div>
       </form>
     </AccountModal>

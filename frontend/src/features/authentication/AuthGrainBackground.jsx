@@ -17,8 +17,7 @@ export default function AuthGrainBackground() {
       frame={2854.5}
       colors={["#edf3ef", "#6c997c", "#294137", "#cfddd5"]}
       colorBack="#102019"
-      className="absolute inset-0"
-      style={{ width: "100%", height: "100%" }}
+      className="absolute inset-0 h-full w-full"
       maxPixelCount={1200000}
     />
   );

@@ -1,3 +1,6 @@
+import P from "../../ui/P";
+import Span from "../../ui/Span";
+import Button from "../../ui/Button";
 import { panel, input } from "./styles";
 import {
   RiChat1Line as MessageSquare,
@@ -11,7 +14,7 @@ import { useEffect, useRef, useState } from "react";
 export function Loading() {
   return (
     <div role="status" aria-busy="true" className={`${panel} space-y-5 p-6`}>
-      <span className="sr-only">Loading section...</span>
+      <Span className="sr-only">Loading section...</Span>
       <div aria-hidden="true" className="space-y-5">
         {Array.from({ length: 6 }, (_, index) => (
           <div
@@ -28,29 +31,29 @@ export function Empty({ text = "No records to show yet." }) {
   return (
     <div className="flex min-h-48 flex-col items-center justify-center gap-3 p-8 text-center text-sm text-[#526159]">
       <MessageSquare size={25} />
-      <p>{text}</p>
+      <P variant="unstyled">{text}</P>
     </div>
   );
 }
 
 export function ErrorMessage({ children }) {
   return children ? (
-    <p
+    <P variant="unstyled"
       role="alert"
       className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800"
     >
       {children}
-    </p>
+    </P>
   ) : null;
 }
 
 export function Badge({ value }) {
   return (
-    <span
+    <Span
       className={`staff-badge ${["failed", "blocked", "canceled"].includes(value) ? "negative" : ["completed", "sent", "active", "succeeded", "resolved"].includes(value) ? "positive" : ""}`}
     >
-      {titleCase(value || "No subscription")}
-    </span>
+      {value === "resolved" ? "Closed" : titleCase(value || "No subscription")}
+    </Span>
   );
 }
 
@@ -78,13 +81,13 @@ export function Pagination({ data, onChange, label = "records" }) {
   const end = Math.min(page * pageSize, data.total);
   return (
     <footer className="admin-pagination">
-      <span className="admin-pagination-summary">
+      <Span className="admin-pagination-summary">
         {data.total
           ? `Showing ${start}–${end} of ${data.total.toLocaleString("en-US")} ${label}`
           : `No ${label}`}
-      </span>
+      </Span>
       <nav className="admin-pagination-pages" aria-label="Pagination">
-        <button
+        <Button variant="unstyled"
           type="button"
           className="admin-icon-button"
           aria-label="Previous page"
@@ -92,11 +95,11 @@ export function Pagination({ data, onChange, label = "records" }) {
           onClick={() => onChange(page - 1)}
         >
           <ChevronLeft size={18} />
-        </button>
-        <span className="admin-page-numbers">
+        </Button>
+        <Span className="admin-page-numbers">
           {pageNumbers(page, totalPages).map((value) =>
             typeof value === "number" ? (
-              <button
+              <Button variant="unstyled"
                 key={value}
                 type="button"
                 className={`admin-page-number${value === page ? " is-current" : ""}`}
@@ -105,15 +108,15 @@ export function Pagination({ data, onChange, label = "records" }) {
                 onClick={() => onChange(value)}
               >
                 {value}
-              </button>
+              </Button>
             ) : (
-              <span key={value} className="admin-page-gap" aria-hidden="true">
+              <Span key={value} className="admin-page-gap" aria-hidden="true">
                 …
-              </span>
+              </Span>
             ),
           )}
-        </span>
-        <button
+        </Span>
+        <Button variant="unstyled"
           type="button"
           className="admin-icon-button"
           aria-label="Next page"
@@ -121,7 +124,7 @@ export function Pagination({ data, onChange, label = "records" }) {
           onClick={() => onChange(page + 1)}
         >
           <ChevronRight size={18} />
-        </button>
+        </Button>
       </nav>
     </footer>
   );
@@ -131,9 +134,16 @@ export function SearchForm({
   onSearch,
   placeholder = "Search name or email...",
   liveSearch = false,
+  value = "",
 }) {
-  const [query, setQuery] = useState("");
+  const [draft, setDraft] = useState({ value, query: value });
+  if (draft.value !== value) setDraft({ value, query: value });
+  const query = draft.value === value ? draft.query : value;
   const searchTimer = useRef(null);
+
+  useEffect(() => {
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+  }, [value]);
 
   useEffect(
     () => () => {
@@ -149,11 +159,11 @@ export function SearchForm({
   }
 
   function changeQuery(event) {
-    const value = event.target.value;
-    setQuery(value);
+    const nextQuery = event.target.value;
+    setDraft({ value, query: nextQuery });
     if (!liveSearch) return;
     if (searchTimer.current) clearTimeout(searchTimer.current);
-    searchTimer.current = setTimeout(() => onSearch(value.trim()), 300);
+    searchTimer.current = setTimeout(() => onSearch(nextQuery.trim()), 300);
   }
 
   return (
@@ -173,7 +183,7 @@ export function SearchForm({
           className={`${input} pl-10`}
         />
       </div>
-      {!liveSearch && <button className="admin-button">Search</button>}
+      {!liveSearch && <Button variant="outline" size="md" type="submit" className="border px-5 py-2.5 whitespace-nowrap">Search</Button>}
     </form>
   );
 }

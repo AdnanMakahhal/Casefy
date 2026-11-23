@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import H2 from "../../ui/H2";
+import P from "../../ui/P";
+import Span from "../../ui/Span";
+import Button from "../../ui/Button";
+import { useEffect, useId, useState } from "react";
 import {
   RiMailSendLine as Mail,
-  RiShieldCheckLine as ShieldCheck,
-  RiGroupLine as Users
 } from "react-icons/ri";
-import SelectMenu from "../../components/SelectMenu";
+import Avatar from "../../components/Avatar";
 import { workspacePath, workspaceRequest } from "./api";
 
 const roles = [
@@ -20,9 +22,10 @@ const roles = [
   },
 ];
 const button =
-  "min-h-10 cursor-pointer rounded-md border border-[#CFDDD5] px-3 text-sm font-semibold hover:bg-[#edf3ef] disabled:cursor-not-allowed disabled:opacity-50";
+  "min-h-10 rounded-md border border-[#CFDDD5] bg-white px-3 text-sm text-[#294137] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50";
 
 export default function WorkspaceAccess({ workspace }) {
+  const id = useId();
   const [data, setData] = useState(null);
   const [revision, setRevision] = useState(0);
   const [role, setRole] = useState("viewer");
@@ -68,25 +71,22 @@ export default function WorkspaceAccess({ workspace }) {
       className="mt-8 rounded-md border border-[#CFDDD5] bg-white p-5 sm:p-6"
       aria-labelledby="workspace-sharing"
     >
-      <h2
+      <H2 variant="unstyled"
         id="workspace-sharing"
-        className="flex items-center gap-2 text-lg font-bold"
+        className="text-base font-semibold"
       >
-        <Users size={20} />
-        People and invitations
-      </h2>
-      <p className="mt-2 text-sm leading-6 text-[#526159]">
-        Only you and invited members can enter. Viewer access is read-only.
-        Editors can create, edit and delete projects. Only you can manage
-        access.
-      </p>
-      <form className="mt-5 flex flex-wrap items-end gap-3" onSubmit={async (event) => {
+        Team access
+      </H2>
+      <P variant="unstyled" className="mt-1 text-sm leading-6 text-[#526159]">
+        Invite teammates to this private workspace.
+      </P>
+      <form className="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_9rem_auto]" onSubmit={async (event) => {
         event.preventDefault();
         if (busy) return;
         if (await change("/invites", "POST", { role, email: email.trim() })) setEmail("");
       }}>
-        <label className="min-w-0 flex-1 text-sm font-medium sm:min-w-60">
-          Invite by email
+        <label className="min-w-0">
+          <Span className="sr-only">Teammate email</Span>
           <input
             type="email"
             required
@@ -96,51 +96,45 @@ export default function WorkspaceAccess({ workspace }) {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             disabled={busy}
-            className="mt-2 min-h-11 w-full rounded-md border border-[#CFDDD5] px-3 text-sm focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
+            className="min-h-11 w-full rounded-md border border-[#CFDDD5] px-3 text-sm focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
           />
         </label>
-        <SelectMenu
-          label="Invite permission"
-          value={role}
-          onChange={setRole}
-          options={roles}
-          disabled={busy}
-          className="w-full sm:w-64"
-        />
-        <button
+        <select aria-label="Invite permission" aria-describedby={`${id}-permission`} value={role} onChange={(event) => setRole(event.target.value)} disabled={busy} className={`${button} min-h-11`}>
+          {roles.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+        </select>
+        <Button
           type="submit"
           disabled={busy}
-          className={`${button} inline-flex items-center gap-2 bg-[#294137] text-white hover:bg-[#20332b]`}
         >
           <Mail size={16} aria-hidden="true" />
-          {busy ? "Updating..." : "Send invitation"}
-        </button>
+          {busy ? "Updating..." : "Send invite"}
+        </Button>
       </form>
-      <p className="mt-3 text-xs leading-5 text-[#526159]">
-        Email invitations expire after 7 days and can only be accepted by the invited email address.
-      </p>
+      <P variant="unstyled" id={`${id}-permission`} className="mt-2 text-xs leading-5 text-[#526159]">
+        {role === "viewer" ? "Viewers can view projects." : "Editors can create, edit, and delete projects."} Invites expire in 7 days.
+      </P>
       {error && (
-        <p role="alert" className="mt-4 text-sm text-red-700">
+        <P variant="unstyled" role="alert" className="mt-4 text-sm text-red-700">
           {error}
-        </p>
+        </P>
       )}
       {message && (
-        <p role="status" className="mt-4 text-sm text-[#294137]">
+        <P variant="unstyled" role="status" className="mt-4 text-sm text-[#294137]">
           {message}
-        </p>
+        </P>
       )}
       {!data ? (
         error ? (
-          <button
+          <Button variant="outline" size="sm"
             type="button"
             onClick={() => {
               setError("");
               setRevision((value) => value + 1);
             }}
-            className={`${button} mt-4`}
+            className="mt-4"
           >
             Reload members
-          </button>
+          </Button>
         ) : (
           <div
             role="status"
@@ -150,42 +144,41 @@ export default function WorkspaceAccess({ workspace }) {
         )
       ) : (
         <>
-          <h3 className="mt-7 font-semibold">
-            Members ({data.members.length + 1})
+          <h3 className="mt-6 flex items-center gap-2 border-t border-[#e1e9e4] pt-5 text-sm font-semibold">
+            Members <Span className="rounded-md bg-[#edf3ef] px-2 py-0.5 text-xs text-[#526159]">{data.members.length + 1}</Span>
           </h3>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-b border-[#e1e9e4] py-3">
-            <div>
-              <p className="font-medium">{data.owner.name} (you)</p>
-              <p className="text-xs text-[#526159]">{data.owner.email}</p>
+          <div className="mt-2 flex items-center gap-3 py-3">
+            <Avatar user={data.owner} className="size-9 shrink-0 text-sm" />
+            <div className="min-w-0 flex-1">
+              <P variant="unstyled" className="break-words text-sm font-medium">{data.owner.name} <Span className="font-normal text-[#718578]">(you)</Span></P>
+              <P variant="unstyled" className="mt-0.5 break-all text-xs text-[#526159]">{data.owner.email}</P>
             </div>
-            <span className="inline-flex items-center gap-1 text-sm text-[#526159]">
-              <ShieldCheck size={16} />
+            <Span className="rounded-md bg-[#edf3ef] px-2.5 py-1 text-xs font-medium text-[#294137]">
               Owner
-            </span>
+            </Span>
           </div>
           {data.members.map((member) => (
             <div
               key={member.userId}
-              className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e1e9e4] py-4"
+              className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e1e9e4] py-3"
             >
               <div className="min-w-0">
-                <p className="break-words font-medium">{member.user.name}</p>
-                <p className="break-all text-xs text-[#526159]">
+                <P variant="unstyled" className="break-words text-sm font-medium">{member.user.name}</P>
+                <P variant="unstyled" className="break-all text-xs text-[#526159]">
                   {member.user.email}
-                </p>
+                </P>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <SelectMenu
-                  label={`Access for ${member.user.name}`}
+                <select
+                  aria-label={`Access for ${member.user.name}`}
                   value={member.role}
-                  options={roles}
                   disabled={busy}
-                  onChange={(role) =>
-                    change(`/members/${member.userId}`, "PATCH", { role })
+                  onChange={(event) =>
+                    change(`/members/${member.userId}`, "PATCH", { role: event.target.value })
                   }
-                  className="w-40"
-                />
-                <button
+                  className={`${button} w-28`}
+                >{roles.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>
+                <Button variant="ghost" size="sm"
                   type="button"
                   disabled={busy}
                   aria-label={`Remove ${member.user.name} from workspace`}
@@ -194,20 +187,18 @@ export default function WorkspaceAccess({ workspace }) {
                       role: "remove",
                     })
                   }
-                  className={`${button} text-red-700`}
+                  className="text-red-700 focus-visible:outline-red-700"
                 >
                   Remove
-                </button>
+                </Button>
               </div>
             </div>
           ))}
-          <h3 className="mt-6 font-semibold">
-            Pending invitations ({data.invites.length})
-          </h3>
+          {data.invites.length > 0 && <h3 className="mt-5 border-t border-[#e1e9e4] pt-5 text-sm font-semibold">Pending invites <Span className="ml-1 text-xs font-normal text-[#718578]">{data.invites.length}</Span></h3>}
           {!data.invites.length && (
-            <p className="mt-2 text-sm text-[#526159]">
+            <P variant="unstyled" className="mt-3 border-t border-[#e1e9e4] pt-3 text-xs text-[#718578]">
               No pending invitations.
-            </p>
+            </P>
           )}
           {data.invites.map((invite) => (
             <div
@@ -215,22 +206,22 @@ export default function WorkspaceAccess({ workspace }) {
               className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-md bg-[#f6f8f7] p-3"
             >
               <div>
-                <p className="text-sm font-medium capitalize">
+                <P variant="unstyled" className="text-sm font-medium capitalize">
                   {invite.role} invitation
-                </p>
-                <p className="mt-1 break-all text-sm text-[#294137]">{invite.email || "Legacy invitation (disabled)"}</p>
-                <p className="mt-1 text-xs text-[#526159]">
+                </P>
+                <P variant="unstyled" className="mt-1 break-all text-sm text-[#294137]">{invite.email || "Legacy invitation (disabled)"}</P>
+                <P variant="unstyled" className="mt-1 text-xs text-[#526159]">
                   Expires {new Date(invite.expiresAt).toLocaleString()}
-                </p>
+                </P>
               </div>
-              <button
+              <Button variant="ghost" size="sm"
                 type="button"
                 disabled={busy}
                 onClick={() => change(`/invites/${invite.id}`, "DELETE")}
-                className={`${button} text-red-700`}
+                className="text-red-700 focus-visible:outline-red-700"
               >
-                Revoke invitation
-              </button>
+                Revoke
+              </Button>
             </div>
           ))}
         </>

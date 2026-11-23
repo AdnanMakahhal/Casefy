@@ -1,0 +1,80 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss";
+@import "./admin.css";
+@import "./support-chat.css";
+
+.partners-swiper .swiper-wrapper {
+  @apply [transition-timing-function:linear];
+}
+
+@theme inline {
+  --font-sans: var(--font-inter, "Inter Variable", sans-serif);
+  --font-heading: var(--font-alexandria, "Alexandria Variable", sans-serif);
+  --font-display: var(--font-unbounded, "Unbounded Variable", sans-serif);
+  --font-arabic: var(--font-alexandria, "Alexandria Variable", sans-serif);
+  --font-urdu: var(--font-notonastaliqurdu, "Noto Nastaliq Urdu Variable", serif);
+  --font-dotted: var(--font-doto, "Doto Variable", sans-serif);
+  --color-primary: #294137;
+}
+
+:root {
+  --font-inter: "Inter Variable", sans-serif;
+  --font-alexandria: "Alexandria Variable", sans-serif;
+  --font-unbounded: "Unbounded Variable", sans-serif;
+  --font-notonastaliqurdu: "Noto Nastaliq Urdu Variable", serif;
+  --font-doto: "Doto Variable", sans-serif;
+  --heading-accent: #4c785d;
+  --heading-line: #548264;
+  --heading-glow: rgb(76 120 93 / 14%);
+}
+
+body {
+  @apply font-sans;
+}
+
+:lang(ar) {
+  @apply font-arabic;
+}
+
+:lang(ur) {
+  @apply font-urdu leading-[2];
+}
+
+html {
+  @apply scroll-smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    @apply scroll-auto;
+  }
+}
+
+body {
+  @apply [background-color:#f6f8f7] text-[color:#102018];
+}
+
+* {
+  @apply [scrollbar-width:thin] [scrollbar-color:#294137_#edf3ef];
+}
+
+::-webkit-scrollbar {
+  @apply w-[10px] h-[10px];
+}
+
+::-webkit-scrollbar-button,
+::-webkit-scrollbar-button:single-button {
+  @apply hidden w-[0] h-[0];
+}
+
+::-webkit-scrollbar-track {
+  @apply [background-color:#edf3ef];
+}
+
+::-webkit-scrollbar-thumb {
+  @apply [border:2px_solid_#edf3ef] rounded-md [background-color:#294137];
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply [background-color:#20332b];
+}

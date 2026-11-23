@@ -1,9 +1,11 @@
+import H1 from "../ui/H1";
+import P from "../ui/P";
+import Button from "../ui/Button";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { RiMenuLine as Menu } from "react-icons/ri";
 import DashboardSidebar from "../components/DashboardSidebar";
 import Inbox from "../features/admin/Inbox";
-import "../features/admin/Admin.css";
 
 export default function StaffSupport({ user }) {
   const [sidebar, setSidebar] = useState(false);
@@ -19,7 +21,7 @@ export default function StaffSupport({ user }) {
       />
       <main className="mx-auto max-w-[1440px] px-4 py-6 sm:px-8 lg:p-10">
         <header className="flex items-start gap-3">
-          <button
+          <Button variant="unstyled"
             className="flex size-11 items-center justify-center rounded-md border border-[#CFDDD5] bg-white lg:hidden"
             type="button"
             aria-label="Open navigation"
@@ -28,13 +30,13 @@ export default function StaffSupport({ user }) {
             onClick={() => setSidebar(true)}
           >
             <Menu size={20} />
-          </button>
+          </Button>
           <div>
-            <h1 className="text-3xl font-bold">Support desk</h1>
-            <p className="mt-3 text-sm leading-6 text-[#526159]">
+            <H1 variant="unstyled" className="text-3xl font-bold">Support desk</H1>
+            <P variant="unstyled" className="mt-3 text-sm leading-6 text-[#526159]">
               Reply to customers, claim conversations, and coordinate with your
-              team. Managers and admins approve custom offers and refunds.
-            </p>
+              team. Managers and admins approve refunds.
+            </P>
           </div>
         </header>
         <div
@@ -46,18 +48,17 @@ export default function StaffSupport({ user }) {
             ["", "All requests"],
             ["live_chat", "Live chat"],
             ["support", "Support"],
-            ["custom", "Custom plans"],
             ["contact", "Contact"],
             ["refund", "Refunds"],
           ].map(([value, label]) => (
-            <button
+            <Button variant="unstyled" type="submit"
               key={value}
               aria-pressed={category === value}
               className={`min-h-11 rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold ${category === value ? "bg-[#294137] text-white" : "bg-white text-[#294137]"}`}
               onClick={() => setCategory(value)}
             >
               {label}
-            </button>
+            </Button>
           ))}
         </div>
         <Inbox key={category} category={category} />

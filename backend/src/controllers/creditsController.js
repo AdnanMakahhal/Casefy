@@ -13,6 +13,6 @@ export async function getCredits(req, res) {
       prisma.creditEntry.count({ where }),
       prisma.creditEntry.groupBy({ by: ["kind"], where, _sum: { amount: true }, _count: { _all: true } }),
     ]);
-    res.json({ balance: state.balance, allowance: state.allowance, periodStart: state.periodStart, periodEnd: state.periodEnd, entries, total, page, pageSize: 20, breakdown });
+    res.json({ balance: state.balance, allowance: state.allowance, unlimited: state.unlimited, periodStart: state.periodStart, periodEnd: state.periodEnd, entries, total, page, pageSize: 20, breakdown });
   } catch (error) { return staffFailure(res, error); }
 }

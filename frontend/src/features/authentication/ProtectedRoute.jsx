@@ -1,11 +1,13 @@
+import P from "../../ui/P";
+import Button from "../../ui/Button";
 import { Suspense, useEffect } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { homeForRole, useAuth } from "./authContext";
 import { useToast } from "../../Context/toastContext";
-import AdminSkeleton from "../../components/AdminSkeleton";
-import ProfileSkeleton from "../../components/ProfileSkeleton";
-import DashboardSkeleton from "../../components/DashboardSkeleton";
-import CheckoutSkeleton from "../../components/skeletons/CheckoutSkeleton";
+import AdminSkeleton from "../../ui/AdminSkeleton";
+import ProfileSkeleton from "../../ui/ProfileSkeleton";
+import DashboardSkeleton from "../../ui/DashboardSkeleton";
+import CheckoutSkeleton from "../../ui/CheckoutSkeleton";
 import { adminViewFromPath } from "../admin/navigation";
 
 function ProtectedRoute({ roles, loginNotice }) {
@@ -34,14 +36,14 @@ function ProtectedRoute({ roles, loginNotice }) {
   if (sessionError)
     return (
       <div className="p-8 text-center">
-        <p role="alert">{sessionError}</p>
-        <button
+        <P variant="unstyled" role="alert">{sessionError}</P>
+        <Button variant="unstyled"
           type="button"
           onClick={() => window.location.reload()}
           className="mt-4 cursor-pointer underline"
         >
           Try again
-        </button>
+        </Button>
       </div>
     );
 

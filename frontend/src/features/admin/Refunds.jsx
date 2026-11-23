@@ -1,3 +1,7 @@
+import H2 from "../../ui/H2";
+import P from "../../ui/P";
+import Span from "../../ui/Span";
+import Button from "../../ui/Button";
 import { useState } from "react";
 import { useStaffData } from "./api";
 import { formatMoney, displayDate } from "../../lib/format";
@@ -27,20 +31,20 @@ export default function Refunds({ revision }) {
           ["requests", "Refund requests"],
           ["history", "Issued refunds"],
         ].map(([value, text]) => (
-          <button
+          <Button variant="unstyled" type="submit"
             key={value}
             aria-pressed={tab === value}
             className={`rounded-md px-4 py-3 text-sm font-semibold ${tab === value ? "bg-[#294137] text-white" : "text-[#526159]"}`}
             onClick={() => setTab(value)}
           >
             {text}
-          </button>
+          </Button>
         ))}
       </div>
       {notice && (
-        <p role="status" className="admin-notice">
+        <P variant="unstyled" role="status" className="admin-notice">
           {notice}
-        </p>
+        </P>
       )}
       {tab === "requests" ? (
         <Inbox category="refund" revision={revision} />
@@ -52,8 +56,8 @@ export default function Refunds({ revision }) {
         <section className={`${panel} overflow-hidden`}>
           <header className="admin-panel-header">
             <div>
-              <h2>Refund history</h2>
-              <p>Includes pending operations that can be safely retried.</p>
+              <H2 variant="unstyled">Refund history</H2>
+              <P variant="unstyled">Includes pending operations that can be safely retried.</P>
             </div>
           </header>
           {!data.refunds.length ? (
@@ -76,35 +80,35 @@ export default function Refunds({ revision }) {
                     <tr key={refund.id}>
                       <td>
                         {refund.user.email}
-                        <p className="mt-1 text-xs text-[#718578]">
+                        <P variant="unstyled" className="mt-1 text-xs text-[#718578]">
                           Issued by{" "}
                           {refund.actor?.name || "Former staff member"}
-                        </p>
+                        </P>
                       </td>
                       <td>{formatMoney(refund.amount, refund.currency)}</td>
                       <td>
                         <Badge value={refund.status} />
                       </td>
                       <td>
-                        <span
+                        <Span
                           className="block max-w-52 truncate"
                           title={refund.reason}
                         >
                           {refund.reason}
-                        </span>
-                        <span className="mt-1 block text-xs text-[#718578]">
+                        </Span>
+                        <Span variant="muted" className="mt-1 block text-xs">
                           {refund.stripeRefundId || refund.id}
-                        </span>
+                        </Span>
                       </td>
                       <td>{displayDate(refund.createdAt)}</td>
                       <td>
                         {refund.status === "pending" && (
-                          <button
-                            className="admin-button"
+                          <Button variant="outline" size="md" type="submit"
+                            className="border px-5 py-2.5 whitespace-nowrap"
                             onClick={() => setRetry(refund)}
                           >
                             Retry
-                          </button>
+                          </Button>
                         )}
                       </td>
                     </tr>

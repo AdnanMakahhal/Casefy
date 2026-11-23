@@ -7,12 +7,13 @@ export const roles = [
   "developer",
 ];
 
-export const plans = ["free", "plus", "pro", "custom"];
+export const plans = ["free", "plus", "pro", "ultra"];
 
 export const label = (value) =>
   value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
-export const number = (value) => value?.toLocaleString("en-US") ?? "—";
+export const number = (value) =>
+  (Number.isFinite(value) ? value : 0).toLocaleString("en-US");
 
 export const date = (value) =>
   new Date(value).toLocaleDateString(undefined, {

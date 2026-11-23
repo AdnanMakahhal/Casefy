@@ -1,3 +1,5 @@
+import Span from "../ui/Span";
+import Button from "../ui/Button";
 import { useEffect, useId, useRef, useState } from "react";
 import {
   RiCheckLine as Check,
@@ -92,7 +94,7 @@ export default function SelectMenu({
 
   return (
     <div ref={root} className={`relative min-w-0 ${className}`}>
-      <button
+      <Button variant="unstyled"
         id={controlId}
         type="button"
         role="combobox"
@@ -110,22 +112,22 @@ export default function SelectMenu({
         className={`flex w-full cursor-pointer items-center border bg-white text-left text-[#294137] transition-colors hover:border-[#91a99a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50 ${compact ? "min-h-9 gap-2 rounded-md px-2.5 py-1.5 text-xs" : "min-h-11 gap-3 rounded-md px-3.5 py-2.5 text-sm shadow-sm"} ${open ? "border-[#91a99a] ring-2 ring-[#2941370d]" : "border-[#CFDDD5]"}`}
       >
         {selected?.initial && (
-          <span
+          <Span
             aria-hidden="true"
             className="flex size-6 shrink-0 items-center justify-center rounded-md bg-[#edf3ef] text-xs font-bold"
           >
             {selected.initial}
-          </span>
+          </Span>
         )}
-        <span className="min-w-0 flex-1 truncate font-medium">
+        <Span title={selected?.label} className="min-w-0 flex-1 truncate font-medium">
           {selected?.label || "Select an option"}
-        </span>
+        </Span>
         <ChevronDown
           size={16}
           aria-hidden="true"
           className={`shrink-0 text-[#718578] transition-transform motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
         />
-      </button>
+      </Button>
       {open && (
         <div
           ref={menu}
@@ -145,18 +147,19 @@ export default function SelectMenu({
               onClick={() => choose(option)}
               className={`flex cursor-pointer items-center gap-2 rounded-md px-3 py-2.5 text-sm ${active === index ? "bg-[#edf3ef] text-[#20332b]" : "text-[#526159]"}`}
             >
-              <span className="min-w-0 flex-1">
-                <span
-                  className={`block break-words ${value === option.value ? "font-semibold" : "font-medium"}`}
+              <Span className="min-w-0 flex-1">
+                <Span
+                  title={option.label}
+                  className={`block truncate ${value === option.value ? "font-semibold" : "font-medium"}`}
                 >
                   {option.label}
-                </span>
+                </Span>
                 {option.description && (
-                  <span className="mt-0.5 block text-xs leading-5 text-[#7c8c82] text-ellipsis text-overflow:ellipsis overflow-hidden whitespace-nowrap">
+                  <Span title={option.description} className="mt-0.5 block truncate text-xs leading-5 text-[#7c8c82]">
                     {option.description}
-                  </span>
+                  </Span>
                 )}
-              </span>
+              </Span>
               {value === option.value && (
                 <Check
                   size={16}

@@ -32,6 +32,10 @@ export function billingConfig() {
         monthly: process.env.STRIPE_PRICE_PRO_MONTHLY,
         annual: process.env.STRIPE_PRICE_PRO_ANNUAL,
       },
+      ultra: {
+        monthly: process.env.STRIPE_PRICE_ULTRA_MONTHLY,
+        annual: process.env.STRIPE_PRICE_ULTRA_ANNUAL,
+      },
     },
   };
 }

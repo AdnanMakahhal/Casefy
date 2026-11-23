@@ -1,3 +1,6 @@
+import P from "../ui/P";
+import Span from "../ui/Span";
+import Button from "../ui/Button";
 import { useState } from "react";
 import AccountModal from "./AccountModal";
 import { useAuth } from "../features/authentication/authContext";
@@ -92,20 +95,20 @@ export default function EditAccount({
             aria-describedby="email-password-hint"
             className={inputClass}
           />
-          <span
+          <Span
             id="email-password-hint"
             className="mt-2 block text-xs leading-5 text-[#526159]"
           >
             Confirm your password to change your email address.
-          </span>
+          </Span>
         </label>
       )}
       <label className="block text-sm font-medium">
         Role
         {privileged ? (
-          <span className="mt-2 block text-base text-[#526159]">
+          <Span className="mt-2 block text-base text-[#526159]">
             {roleLabels[user.role]}
-          </span>
+          </Span>
         ) : (
           <select
             name="role"
@@ -134,26 +137,26 @@ export default function EditAccount({
         />
       </label>}
       {error && (
-        <p role="alert" className="text-sm text-red-700">
+        <P variant="unstyled" role="alert" className="text-sm text-red-700">
           {error}
-        </p>
+        </P>
       )}
       <div className="flex justify-end gap-3 pt-2">
-        <button
+        <Button variant="unstyled"
           type="button"
           disabled={busy}
           onClick={onDismiss}
           className="min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-[#294137] disabled:opacity-50"
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button variant="primary" size="custom"
           type="submit"
           disabled={busy}
-          className="min-h-11 cursor-pointer rounded-md bg-[#294137] px-4 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-wait disabled:opacity-50"
+          className="min-h-11 px-4 disabled:cursor-wait"
         >
           {busy ? "Saving..." : "Save changes"}
-        </button>
+        </Button>
       </div>
     </form>
   );

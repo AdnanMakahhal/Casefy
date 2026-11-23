@@ -1,6 +1,8 @@
 import prisma from "../db.js";
 import { paymentView } from "../services/paymentService.js";
 import { requestCategories } from "../utils/supportDetails.js";
+import { supportRefundOperationId } from "../utils/supportBilling.js";
+import { canChangeTicketStatus } from "../utils/supportStatus.js";
 import { stripe as defaultStripe, billingConfig } from "../utils/stripe.js";
 import { createBillingService, objectId } from "../services/billingService.js";
 import {
@@ -66,6 +68,7 @@ const messageSelect = {
   supportRequestId: true,
   recipientId: true,
   sender: { select: { name: true } },
+  senderId: true,
 };
 
 export function createStaffController(
@@ -88,7 +91,7 @@ export function createStaffController(
         const { page, skip, take } = pageOptions(req.query);
         const { category, status } = req.query;
         if (
-          (category &&
+          (category && category !== "messages" &&
             !requestCategories.includes(category)) ||
           (status && !["open", "pending", "resolved"].includes(status))
         )
@@ -98,7 +101,7 @@ export function createStaffController(
             ? req.query.search.trim().slice(0, 160)
             : "";
         const where = {
-          ...(category ? { category } : {}),
+          ...(category === "messages" ? { category: { notIn: ["payment", "refund"] } } : category ? { category } : {}),
           ...(status ? { status } : {}),
           ...(search
             ? {
@@ -134,20 +137,21 @@ export function createStaffController(
         const request = await db.supportRequest.findUnique({
           where: { id: Number(req.params.id) },
           include: {
-            deals: { orderBy: { createdAt: "desc" } },
             assignedTo: { select: { id: true, name: true } },
-            user: { select: accountSelect },
+            user: { select: { id: true, name: true, email: true, plan: true } },
             messages: { orderBy: { createdAt: "asc" }, select: messageSelect },
           },
         });
         if (!request)
           return res.status(404).json({ message: "Request not found." });
+        if (request.status === "resolved") return res.status(409).json({ message: "Ticket is closed and cannot be opened." });
         return res.json({ request });
       } catch (error) {
         return staffFailure(res, error);
       }
     },
     async updateRequest(req, res) {
+      if (req.body?.assignToMe && !["admin", "manager"].includes(req.user?.role)) return res.status(403).json({ message: "Only administrators and managers can claim conversations." });
       if (
         !isId(req.params.id) ||
         (!req.body?.assignToMe && !["open", "pending", "resolved"].includes(req.body?.status))
@@ -158,10 +162,12 @@ export function createStaffController(
       try {
         const existing = await db.supportRequest.findUnique({ where: { id: Number(req.params.id) } });
         if (!existing) return res.status(404).json({ message: "Request not found." });
-        if (req.user.role === "employee" && ["refund", "custom"].includes(existing.category) && req.body.status === "resolved") return res.status(403).json({ message: "A manager or admin must approve financial and custom-plan requests." });
+        if (existing.status === "resolved") return res.status(409).json({ message: "Closed tickets cannot be changed or reopened." });
+        if (!req.body.assignToMe && (!["admin", "manager"].includes(req.user?.role) || existing.assignedToId !== req.userId)) return res.status(403).json({ message: "Only the assigned administrator or manager can change ticket status." });
+        if (!req.body.assignToMe && !canChangeTicketStatus(existing.status, req.body.status)) return res.status(409).json({ message: existing.status === "pending" ? "Open the pending ticket before closing it." : "An open ticket can only be closed; it cannot return to pending." });
         return res.json({
           request: await db.supportRequest.update({
-            where: { id: Number(req.params.id) },
+            where: { id: Number(req.params.id), status: existing.status, ...(!req.body.assignToMe ? { assignedToId: req.userId } : {}) },
             data: req.body.assignToMe ? { assignedToId: req.userId } : { status: req.body.status },
           }),
         });
@@ -170,6 +176,7 @@ export function createStaffController(
       }
     },
     async sendMessage(req, res) {
+      if (!["admin", "manager"].includes(req.user?.role)) return res.status(403).json({ message: "Only an assigned administrator or manager can reply." });
       const body = req.body || {};
       if (
         typeof body.subject !== "string" ||
@@ -193,6 +200,9 @@ export function createStaffController(
           });
           if (!support)
             return res.status(404).json({ message: "Conversation not found." });
+          if (support.assignedToId !== req.userId) return res.status(403).json({ message: "Assign this conversation to yourself before replying." });
+          if (support.status === "resolved") return res.status(409).json({ message: "Ticket is closed. Replies are disabled." });
+          if (support.status !== "open") return res.status(409).json({ message: "Open this pending ticket before replying." });
           if (support.userId)
             recipient = await db.user.findUnique({
               where: { id: support.userId },
@@ -224,7 +234,15 @@ export function createStaffController(
                 "Resend email and a verified sender must be configured first.",
             });
         }
-        let message = await db.userMessage.create({
+        let message = await db.$transaction(async (tx) => {
+          if (support) {
+            await tx.$queryRaw`SELECT id FROM support_requests WHERE id = ${support.id} FOR UPDATE`;
+            const current = await tx.supportRequest.findUnique({ where: { id: support.id }, select: { assignedToId: true, status: true } });
+            if (current?.assignedToId !== req.userId) throw Object.assign(new Error("This conversation is no longer assigned to you."), { status: 403 });
+            if (current.status === "resolved") throw Object.assign(new Error("Ticket is closed. Replies are disabled."), { status: 409 });
+            if (current.status !== "open") throw Object.assign(new Error("Open this pending ticket before replying."), { status: 409 });
+          }
+          return tx.userMessage.create({
           data: {
             recipientId: recipient?.id || null,
             senderId: req.userId,
@@ -235,6 +253,7 @@ export function createStaffController(
             channel: body.channel,
             deliveryStatus: body.channel === "email" ? "pending" : "sent",
           },
+          });
         });
         if (body.channel === "email") {
           try {
@@ -251,11 +270,6 @@ export function createStaffController(
             throw error;
           }
         }
-        if (support)
-          await db.supportRequest.update({
-            where: { id: support.id },
-            data: { status: "pending" },
-          });
         return res.status(201).json({
           message: { id: message.id, deliveryStatus: message.deliveryStatus },
           notice:
@@ -285,7 +299,7 @@ export function createStaffController(
               }
             : {}),
           ...(req.query.plan &&
-          ["free", "plus", "pro", "custom"].includes(req.query.plan)
+          ["free", "plus", "pro", "ultra"].includes(req.query.plan)
             ? { AND: [effectivePlanFilter(req.query.plan)] }
             : {}),
         };
@@ -431,6 +445,27 @@ export function createStaffController(
         return staffFailure(res, error);
       }
     },
+    async supportBilling(req, res) {
+      if (!["admin", "manager"].includes(req.user?.role)) return res.status(403).json({ message: "Billing access requires an administrator or manager." });
+      if (!isId(req.params.id)) return res.status(400).json({ message: "Invalid request." });
+      if (req.query.after && !/^[0-9a-f-]{36}$/i.test(req.query.after)) return res.status(400).json({ message: "Invalid payment cursor." });
+      try {
+        const request = await db.supportRequest.findUnique({ where: { id: Number(req.params.id) }, select: { id: true, category: true, userId: true } });
+        if (!request) return res.status(404).json({ message: "Request not found." });
+        if (!["payment", "refund"].includes(request.category)) return res.status(400).json({ message: "This is not a billing request." });
+        // Guest email addresses are unverified: never use them to match an account.
+        if (!request.userId) return res.json({ linked: false, payments: [], refunds: [], hasMore: false, operation: null });
+        const operationId = supportRefundOperationId(request.id);
+        const [rows, refunds, operation] = await Promise.all([
+          db.paymentRecord.findMany({ where: { userId: request.userId }, orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 21,
+            ...(req.query.after ? { cursor: { id: req.query.after }, skip: 1 } : {}), include: { user: { select: { id: true, name: true, email: true } } } }),
+          db.refundRecord.findMany({ where: { userId: request.userId }, orderBy: { createdAt: "desc" }, take: 10, include: { user: { select: { id: true, name: true, email: true } } } }),
+          db.refundRecord.findUnique({ where: { id: operationId }, include: { user: { select: { id: true, name: true, email: true } } } }),
+        ]);
+        return res.json({ linked: true, payments: rows.slice(0, 20).map(paymentView), refunds, operation,
+          hasMore: rows.length > 20, nextCursor: rows.slice(0, 20).at(-1)?.id });
+      } catch (error) { return staffFailure(res, error); }
+    },
     async payments(req, res) {
       try {
         if (req.query.userId && !isId(req.query.userId)) return res.status(400).json({ message: "Invalid customer." });
@@ -465,7 +500,17 @@ export function createStaffController(
       }
     },
     async refund(req, res) {
-      const body = req.body || {};
+      const body = { ...req.body };
+      if (body.supportRequestId !== undefined) {
+        if (!["admin", "manager"].includes(req.user?.role)) return res.status(403).json({ message: "Only administrators and managers can approve refunds." });
+        if (!isId(body.supportRequestId)) return res.status(400).json({ message: "Invalid support request." });
+        try {
+          const request = await db.supportRequest.findUnique({ where: { id: Number(body.supportRequestId) }, select: { userId: true, category: true } });
+          if (!request || request.category !== "refund" || !request.userId || request.userId !== Number(body.userId))
+            return res.status(403).json({ message: "Refund requests must be linked to this payment's account." });
+          body.operationId = supportRefundOperationId(Number(body.supportRequestId));
+        } catch (error) { return staffFailure(res, error); }
+      }
       if (
         !isId(body.userId) ||
         !/^ch_[a-zA-Z0-9]+$/.test(body.chargeId || "") ||

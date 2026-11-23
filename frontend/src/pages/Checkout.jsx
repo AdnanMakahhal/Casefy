@@ -1,4 +1,9 @@
-import Heading from "../components/Heading";
+import SupportButton from "../ui/SupportButton";
+import H2 from "../ui/H2";
+import P from "../ui/P";
+import Span from "../ui/Span";
+import Button from "../ui/Button";
+import Heading from "../ui/Heading";
 import { useEffect, useRef, useState } from "react";
 import {
   RiArrowLeftLine as ArrowLeft,
@@ -7,7 +12,6 @@ import {
   RiArrowRightSLine as ChevronRight,
   RiCheckboxCircleLine as CircleCheck,
   RiBankCardLine as CreditCard,
-  RiLifebuoyLine as LifeBuoy,
   RiLoader4Line as LoaderCircle,
   RiLock2Line as LockKeyhole,
   RiShieldCheckLine as ShieldCheck,
@@ -19,7 +23,7 @@ import { planLabels, planRank } from "../features/authentication/plans";
 import Avatar from "../components/Avatar";
 import CheckoutPlanPreview from "../features/checkout/CheckoutPlanPreview";
 import { formatCheckoutMoney } from "../features/checkout/pricing";
-import CheckoutSkeleton from "../components/skeletons/CheckoutSkeleton";
+import CheckoutSkeleton from "../ui/CheckoutSkeleton";
 
 const planDetails = {
   free: {
@@ -49,13 +53,13 @@ const planDetails = {
       "Live runs and CI/CD",
     ],
   },
-  custom: {
-    description: "A testing setup built around your organization.",
+  ultra: {
+    description: "Unlimited testing capacity for your organization.",
     features: [
-      "Custom seats and project limits",
-      "Custom credits",
+      "Unlimited seats and workspaces",
+      "Unlimited credits and projects",
       "Unlimited live testing",
-      "SSO, audit logs, and SLA",
+      "All testing workflows",
     ],
   },
 };
@@ -71,7 +75,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const pending = useRef(false);
-  const isPaid = ["plus", "pro"].includes(planKey);
+  const isPaid = ["plus", "pro", "ultra"].includes(planKey);
   const hasSubscription = Boolean(
     user.subscriptionStatus &&
     !["canceled", "incomplete_expired"].includes(user.subscriptionStatus),
@@ -119,9 +123,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
   const priceLabel =
     planKey === "free"
       ? "Free"
-      : planKey === "custom"
-        ? "Custom"
-        : amount || (loading ? "Loading..." : "Unavailable");
+      : amount || (loading ? "Loading..." : "Unavailable");
   const monthlyPrice = catalog?.plans?.[planKey]?.monthly;
   const annualBase = monthlyPrice ? monthlyPrice.amount * 12 : 0;
   const annualSavings =
@@ -195,13 +197,13 @@ function CheckoutPage({ planKey, billing, canceled }) {
         >
           Better testing starts here.
         </Heading>
-        <p className="mx-auto mt-5 max-w-lg text-base leading-7 text-[#526159]">
+        <P variant="unstyled" className="mx-auto mt-5 max-w-lg text-base leading-7 text-[#526159]">
           {isPaid
             ? "Review your plan, then choose a secure payment method."
             : planKey === "free"
               ? "Your testing workflow, ready when you are."
               : "Let’s find the right fit for your team."}
-        </p>
+        </P>
       </header>
 
       <ol
@@ -209,9 +211,9 @@ function CheckoutPage({ planKey, billing, canceled }) {
         className="mx-auto mt-6 flex max-w-lg items-center justify-center gap-3 text-xs font-semibold sm:gap-5 sm:text-sm"
       >
         <li className="flex flex-col items-center gap-2 text-[#526159] sm:flex-row">
-          <span className="flex size-6 items-center justify-center rounded-full bg-[#e2ece6] text-[#294137]">
+          <Span variant="accent" className="flex size-6 items-center justify-center rounded-full bg-[#e2ece6]">
             <Check size={14} aria-hidden="true" />
-          </span>
+          </Span>
           Choose plan
         </li>
         <ChevronRight
@@ -223,9 +225,9 @@ function CheckoutPage({ planKey, billing, canceled }) {
           aria-current="step"
           className="flex flex-col items-center gap-2 text-[#294137] sm:flex-row"
         >
-          <span className="flex size-6 items-center justify-center rounded-full bg-[#294137] text-white">
+          <Span className="flex size-6 items-center justify-center rounded-full bg-[#294137] text-white">
             2
-          </span>
+          </Span>
           Review
         </li>
         <ChevronRight
@@ -234,9 +236,9 @@ function CheckoutPage({ planKey, billing, canceled }) {
           aria-hidden="true"
         />
         <li className="flex flex-col items-center gap-2 text-[#526159] sm:flex-row">
-          <span className="flex size-6 items-center justify-center rounded-full border border-[#CFDDD5] bg-white">
+          <Span className="flex size-6 items-center justify-center rounded-full border border-[#CFDDD5] bg-white">
             3
-          </span>
+          </Span>
           {isPaid ? "Payment" : "Get started"}
         </li>
       </ol>
@@ -266,7 +268,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
           annualBase={annualBase}
           money={money}
           isFree={planKey === "free"}
-          isCustom={planKey === "custom"}
+
           busy={busy}
         />
 
@@ -276,22 +278,22 @@ function CheckoutPage({ planKey, billing, canceled }) {
           className="overflow-hidden rounded-md border border-[#CFDDD5] bg-white"
         >
           <div className="p-6 sm:p-8">
-            <h2
+            <H2 variant="unstyled"
               id="checkout-details-heading"
               className="text-xl font-bold tracking-tight"
             >
               Review your details
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-[#526159]">
+            </H2>
+            <P variant="unstyled" className="mt-2 text-sm leading-6 text-[#526159]">
               Your plan will be linked to this Casefy account.
-            </p>
+            </P>
             <div className="mt-6 flex items-center gap-4 rounded-md border border-[#CFDDD5] bg-[#f6f8f7] p-4">
               <Avatar user={user} className="size-11 text-sm" />
               <div className="min-w-0">
-                <p className="break-words text-sm font-semibold">{user.name}</p>
-                <p className="mt-1 break-all text-sm text-[#526159]">
+                <P variant="unstyled" className="break-words text-sm font-semibold">{user.name}</P>
+                <P variant="unstyled" className="mt-1 break-all text-sm text-[#526159]">
                   {user.email}
-                </p>
+                </P>
               </div>
               <CircleCheck
                 size={19}
@@ -318,9 +320,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
                 <dd className="text-right font-medium">
                   {planKey === "free"
                     ? "No payment required"
-                    : planKey === "custom"
-                      ? "Custom agreement"
-                      : billing === "annual"
+                    : billing === "annual"
                         ? "Annual subscription"
                         : "Monthly subscription"}
                 </dd>
@@ -348,13 +348,13 @@ function CheckoutPage({ planKey, billing, canceled }) {
                     : "Price"}
                 </dt>
                 <dd className="text-right">
-                  <span className="text-xl font-bold tracking-tight">
+                  <Span className="text-xl font-bold tracking-tight">
                     {priceLabel}
-                  </span>
+                  </Span>
                   {price && (
-                    <span className="ml-1 text-xs text-[#526159]">
+                    <Span className="ml-1 text-xs text-[#526159]">
                       / {period}
-                    </span>
+                    </Span>
                   )}
                 </dd>
               </div>
@@ -365,8 +365,8 @@ function CheckoutPage({ planKey, billing, canceled }) {
                 role="alert"
                 className="mt-3 rounded-md border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800"
               >
-                <p>{catalogError}</p>
-                <button
+                <P variant="unstyled">{catalogError}</P>
+                <Button variant="unstyled"
                   type="button"
                   onClick={() => {
                     setCatalogError("");
@@ -376,7 +376,7 @@ function CheckoutPage({ planKey, billing, canceled }) {
                   className="mt-2 min-h-9 cursor-pointer rounded-md font-semibold underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
                 >
                   Try loading prices again
-                </button>
+                </Button>
               </div>
             )}
             {!loading && catalog && isPaid && !price && (
@@ -398,15 +398,15 @@ function CheckoutPage({ planKey, billing, canceled }) {
             <div className="mt-4 border-t border-[#CFDDD5] pt-6">
               {alreadyIncluded ? (
                 <>
-                  <button
+                  <Button variant="secondary" size="custom"
                     type="button"
                     disabled
-                    className="mt-2 min-h-12 w-full cursor-not-allowed rounded-md border border-[#CFDDD5] bg-[#edf3ef] px-5 text-sm font-semibold text-[#526159]"
+                    className="mt-2 min-h-12 w-full cursor-not-allowed px-5 text-[#526159]"
                   >
                     {user.plan === planKey
                       ? "Current plan"
                       : "Included in your current plan"}
-                  </button>
+                  </Button>
                   <Link
                     to={homeForRole(user.role)}
                     className="mt-4 block text-center text-sm font-semibold text-[#294137] underline"
@@ -416,45 +416,34 @@ function CheckoutPage({ planKey, billing, canceled }) {
                 </>
               ) : isUpgrade ? (
                 <>
-                  <p className="text-sm leading-6 text-[#526159]">
+                  <P variant="unstyled" className="text-sm leading-6 text-[#526159]">
                     Upgrade your existing subscription from{" "}
                     {planLabels[user.plan]} to {planLabels[planKey]}. Stripe
                     will show the prorated amount and renewal details for your
                     confirmation.
-                  </p>
-                  <button
+                  </P>
+                  <Button variant="unstyled"
                     type="submit"
                     disabled={busy || loading || !price}
                     className={`${greenButton} mt-5 disabled:cursor-not-allowed disabled:opacity-50`}
                   >
                     {busy ? "Opening Stripe..." : "Review upgrade with Stripe"}
-                  </button>
+                  </Button>
                 </>
               ) : hasSubscription ? (
                 <>
-                  <p className="text-sm leading-6 text-[#526159]">
+                  <P variant="unstyled" className="text-sm leading-6 text-[#526159]">
                     Manage your existing subscription and payment details in
                     Stripe before changing this plan.
-                  </p>
-                  <button
+                  </P>
+                  <Button variant="unstyled"
                     type="button"
                     disabled={busy}
                     onClick={manageBilling}
                     className={`${greenButton} mt-5 disabled:cursor-wait disabled:opacity-50`}
                   >
                     {busy ? "Opening billing..." : "Manage billing"}
-                  </button>
-                </>
-              ) : planKey === "custom" ? (
-                <>
-                  <p className="text-sm leading-6 text-[#526159]">
-                    Tell us about your team and requirements. We’ll help you
-                    explore an Custom plan.
-                  </p>
-                  <Link to="/support" className={`${greenButton} mt-5`}>
-                    <LifeBuoy size={17} aria-hidden="true" />
-                    Contact support
-                  </Link>
+                  </Button>
                 </>
               ) : planKey === "free" ? (
                 <>
@@ -462,10 +451,10 @@ function CheckoutPage({ planKey, billing, canceled }) {
                     <CircleCheck size={18} aria-hidden="true" />
                     No payment details needed
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-[#526159]">
+                  <P variant="unstyled" className="mt-2 text-sm leading-6 text-[#526159]">
                     Continue to your workspace and start organizing your
                     testing.
-                  </p>
+                  </P>
                   <Link
                     to={homeForRole(user.role)}
                     className={`${greenButton} mt-5`}
@@ -480,10 +469,10 @@ function CheckoutPage({ planKey, billing, canceled }) {
                     <LockKeyhole size={17} aria-hidden="true" />
                     Secure payment with Stripe
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-[#526159]">
+                  <P variant="unstyled" className="mt-2 text-sm leading-6 text-[#526159]">
                     Enter your payment details on Stripe’s secure checkout page.
-                  </p>
-                  <button
+                  </P>
+                  <Button variant="unstyled"
                     type="submit"
                     disabled={busy || loading || !price}
                     aria-label={
@@ -499,69 +488,69 @@ function CheckoutPage({ planKey, billing, canceled }) {
                           className="animate-spin motion-reduce:animate-none"
                           aria-hidden="true"
                         />
-                        <span>Processing...</span>
+                        <Span>Processing...</Span>
                       </>
                     ) : (
-                      <span className="inline-flex items-center justify-center gap-1">
-                        <span>Continue to</span>
+                      <Span className="inline-flex items-center justify-center gap-1">
+                        <Span>Continue to</Span>
                         <img
                           src="/Payment_Logos/Strips_Logo.svg"
                           alt=""
                           aria-hidden="true"
                           className="h-9 w-[72px] object-contain brightness-0 invert"
                         />
-                      </span>
+                      </Span>
                     )}
-                  </button>
-                  <p role="status" className="sr-only">
+                  </Button>
+                  <P variant="unstyled" role="status" className="sr-only">
                     {busy
                       ? "Opening secure payment checkout. Please wait."
                       : ""}
-                  </p>
-                  <p className="mt-4 text-center text-xs leading-5 text-[#6c7771]">
+                  </P>
+                  <P variant="unstyled" className="mt-4 text-center text-xs leading-5 text-[#6c7771]">
                     Renews automatically each {period}. For plan changes or
                     cancellation,{" "}
-                    <Link
-                      to="/support"
+                    <SupportButton variant="unstyled"
+
                       className="rounded-md underline hover:text-[#294137] focus-visible:outline-2 focus-visible:outline-[#294137]"
                     >
                       contact support
-                    </Link>
+                    </SupportButton>
                     .
-                  </p>
+                  </P>
                 </>
               )}
               {error && (
-                <p
+                <P variant="unstyled"
                   role="alert"
                   className="mt-4 rounded-md border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800"
                 >
                   {error}
-                </p>
+                </P>
               )}
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 border-t border-[#CFDDD5] bg-[#f6f8f7] px-5 py-4 text-xs text-[#526159]">
-            <span className="inline-flex items-center gap-1.5">
+            <Span className="inline-flex items-center gap-1.5">
               <ShieldCheck size={15} aria-hidden="true" />
               Secure checkout
-            </span>
-            <span className="inline-flex items-center gap-1.5">
+            </Span>
+            <Span className="inline-flex items-center gap-1.5">
               <CreditCard size={15} aria-hidden="true" />
               Payment details stay with your payment provider
-            </span>
+            </Span>
           </div>
         </form>
       </div>
-      <p className="mt-7 text-center text-sm text-[#526159]">
+      <P variant="unstyled" className="mt-7 text-center text-sm text-[#526159]">
         Have a question?{" "}
-        <Link
-          to="/support"
+        <SupportButton variant="unstyled"
+
           className="rounded-md font-semibold text-[#294137] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
         >
           Contact support
-        </Link>
-      </p>
+        </SupportButton>
+      </P>
     </section>
   );
 }

@@ -1,5 +1,10 @@
+import H2 from "../../ui/H2";
+import P from "../../ui/P";
+import Span from "../../ui/Span";
+import Button from "../../ui/Button";
 import { useSearchParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import AdminTableSkeleton from "../../ui/AdminTableSkeleton";
 import { useStaffData } from "./api";
 import { formatMoney, displayDate } from "../../lib/format";
 import {
@@ -9,12 +14,12 @@ import {
   RiArrowRightUpLine as ArrowUpRight,
   RiRestartLine as RotateCcw,
 } from "react-icons/ri";
-import { Loading, ErrorMessage, Empty, Badge } from "./ui";
+import { ErrorMessage, Empty, Badge } from "./ui";
 import { panel } from "./styles";
 import RefundModal from "./RefundModal";
 import ComposeMessage from "./ComposeMessage";
 
-export default function Payments({ revision }) {
+export default function Payments({ revision = 0, onLoadingChange }) {
   const [params, setParams] = useSearchParams();
   const userId = params.get("userId") || "";
   const [cursors, setCursors] = useState([""]),
@@ -26,6 +31,7 @@ export default function Payments({ revision }) {
     `/payments?${new URLSearchParams({ userId, after: cursors.at(-1) })}`,
     revision + localRevision,
   );
+  useEffect(() => { onLoadingChange?.(loading); }, [loading, onLoadingChange]);
   function saved(text) {
     setSelected(null);
     setMessage(null);
@@ -35,35 +41,35 @@ export default function Payments({ revision }) {
   return (
     <div className="space-y-5">
       {notice && (
-        <p role="status" className="admin-notice">
+        <P variant="unstyled" role="status" className="admin-notice">
           {notice}
-        </p>
+        </P>
       )}
       {userId && (
-        <button
-          className="admin-button"
+        <Button variant="outline" size="md" type="submit"
+          className="border px-5 py-2.5 whitespace-nowrap"
           onClick={() => {
-            setParams({});
+            setParams((current) => { const next = new URLSearchParams(current); next.delete("userId"); return next; });
             setCursors([""]);
           }}
         >
           <X size={15} />
           Clear customer filter
-        </button>
+        </Button>
       )}
       {loading ? (
-        <Loading />
+        <AdminTableSkeleton label="Loading payments" columns={6} />
       ) : error ? (
         <ErrorMessage>{error}</ErrorMessage>
       ) : (
         <section className={`${panel} overflow-hidden`}>
           <header className="admin-panel-header">
             <div>
-              <h2>Payment history</h2>
-              <p>
+              <H2 variant="unstyled">Payment history</H2>
+              <P variant="unstyled">
                 Stored payment records · Amounts are shown in the original
                 currency.
-              </p>
+              </P>
             </div>
             <CreditCard size={20} />
           </header>
@@ -89,9 +95,9 @@ export default function Payments({ revision }) {
                         <strong className="block">
                           {payment.user?.name || "Unlinked customer"}
                         </strong>
-                        <span className="mt-1 block text-xs text-[#526159]">
+                        <Span className="mt-1 block text-xs text-[#526159]">
                           {payment.user?.email || payment.id}
-                        </span>
+                        </Span>
                       </td>
                       <td>{formatMoney(payment.amount, payment.currency)}</td>
                       <td>
@@ -100,28 +106,28 @@ export default function Payments({ revision }) {
                       <td>
                         <Badge value={payment.status} />
                         {payment.source === "synthetic" && (
-                          <span className="mt-1 block text-[10px] text-[#526159]">
+                          <Span className="mt-1 block text-[10px] text-[#526159]">
                             Synthetic record
-                          </span>
+                          </Span>
                         )}
                         {payment.disputed && (
-                          <span className="ml-2 text-xs text-red-700">
+                          <Span className="ml-2 text-xs text-red-700">
                             Disputed
-                          </span>
+                          </Span>
                         )}
                       </td>
                       <td>{displayDate(payment.createdAt)}</td>
                       <td>
                         <div className="flex gap-2">
                           {payment.user && (
-                            <button
+                            <Button variant="unstyled" type="submit"
                               className="admin-icon-button"
                               title="Message customer"
                               aria-label={`Message ${payment.user.email}`}
                               onClick={() => setMessage(payment.user)}
                             >
                               <Mail size={16} />
-                            </button>
+                            </Button>
                           )}
                           {payment.receiptUrl && (
                             <a
@@ -135,8 +141,8 @@ export default function Payments({ revision }) {
                               <ArrowUpRight size={16} />
                             </a>
                           )}
-                          <button
-                            className="admin-button"
+                          <Button variant="outline" size="md" type="submit"
+                            className="border px-5 py-2.5 whitespace-nowrap"
                             disabled={
                               !payment.user ||
                               !payment.refundable ||
@@ -148,7 +154,7 @@ export default function Payments({ revision }) {
                           >
                             <RotateCcw size={14} />
                             Refund
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -158,24 +164,24 @@ export default function Payments({ revision }) {
             </div>
           )}
           <footer className="admin-pagination">
-            <span>Page {cursors.length}</span>
+            <Span>Page {cursors.length}</Span>
             <div>
-              <button
-                className="admin-button"
+              <Button variant="outline" size="md" type="submit"
+                className="border px-5 py-2.5 whitespace-nowrap"
                 disabled={cursors.length === 1}
                 onClick={() => setCursors((values) => values.slice(0, -1))}
               >
                 Previous
-              </button>
-              <button
-                className="admin-button"
+              </Button>
+              <Button variant="outline" size="md" type="submit"
+                className="border px-5 py-2.5 whitespace-nowrap"
                 disabled={!data.hasMore}
                 onClick={() =>
                   setCursors((values) => [...values, data.nextCursor])
                 }
               >
                 Next
-              </button>
+              </Button>
             </div>
           </footer>
         </section>

@@ -19,7 +19,7 @@ enum Plan {
   free
   plus
   pro
-  custom
+  ultra @map("custom")
 }
 
 model User {

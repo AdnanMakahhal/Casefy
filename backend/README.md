@@ -4,7 +4,7 @@ The backend is an Express API using PostgreSQL and Prisma. It handles authentica
 
 ## Setup
 
-Use Node.js 24 or 26. Install dependencies from the repository root with npm ci; a separate backend install is unnecessary. The postinstall script generates the Prisma client in node_modules; the API imports it from @prisma/client.
+Use Node.js 24 or 26. Install dependencies from backend with `npm ci`, or from the repository root with `npm ci --prefix backend`. The postinstall script generates the Prisma client in node_modules; the API imports it from @prisma/client.
 
 ### Environment
 
@@ -21,7 +21,7 @@ Use DIRECT_URL when migrations need a separate direct database connection. Keep 
 
 ### AI configuration
 
-OpenRouter is the intended AI gateway. Keep `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` in `backend/.env` only. Set `OPENROUTER_MODEL` to your chosen OpenRouter model ID; there is no hard-coded model or fallback. The frontend's LLM and LLM + Playwright choices describe workflow modes, not provider model IDs.
+OpenRouter is the intended AI gateway. Keep `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` in `backend/.env` only. Set `OPENROUTER_MODEL` to your chosen OpenRouter model ID; there is no hard-coded model or fallback. The frontend uses one LLM + Playwright workflow, not a provider model selector. Live AI generation and browser execution are not connected in the current request preview.
 
 Test Generator currently prepares request previews. Saving OpenRouter settings does not enable generation or browser execution; the generation endpoint still needs to be connected.
 
@@ -84,7 +84,7 @@ Every account owns a primary workspace with a permanent UUID, even when several 
 
 Open **Workspaces**, select a workspace you own, then use **People and invitations**. Enter an email, choose Viewer or Editor access, and select **Send invitation**. Email invitations can only be accepted by an account with that email address. Each invitation expires after seven days and works for one signed-in account. The recipient explicitly accepts the invitation. The invitation survives the sign-in flow and new-account onboarding. A recipient keeps their own private primary workspace as well as access to the shared workspace.
 
-Only the owner can manage people, change viewer/editor access, revoke pending invitations, or delete additional workspaces. Editors can create, edit and delete projects; viewers can only read them. Removing a member prevents further access and a consumed invite cannot restore their access. A new invitation is required. Reaccepting an invite never silently upgrades an existing member's role. Configured owner seat limits include the owner. Configured project limits apply per workspace; otherwise Free allows 2 projects, Plus 10, and Pro/Enterprise have no default cap.
+Only the owner can manage people, change viewer/editor access, revoke pending invitations, or delete additional workspaces. Editors can create, edit and delete projects; viewers can only read them. Removing a member prevents further access and a consumed invite cannot restore their access. A new invitation is required. Reaccepting an invite never silently upgrades an existing member's role. Configured owner seat limits include the owner. Configured project limits apply per workspace; otherwise Free allows 2 projects, Plus 10, and Pro/Ultra have no default cap.
 
 Invites use 256-bit random tokens. Only SHA-256 hashes are stored; the raw token is delivered only in the invitation email and appears in a URL fragment so it is not included in server access logs or referrer headers. Email invitations use the existing Resend integration and require `FRONTEND_URL`, `RESEND_API_KEY` (or a saved integration), and a verified `EMAIL_FROM`. An email address is required for every invitation. Shareable invitation creation and copying are disabled. If email delivery fails, the invitation is revoked and an error is shown. Older invitations without an email address cannot be accepted. Owners can revoke pending invitations. Apply the `20261118000000_workspace_invite_email` migration before using email invitations.
 
@@ -110,7 +110,7 @@ Apply `npm run db:migrate` and regenerate the Prisma client before starting the 
 
 ## Staff panel
 
-Open `/admin` as an administrator or manager. Both roles use the same navigation: overview, users, support messages, Enterprise contacts, subscriptions, payments, and refunds. The customer dashboard design, sidebar, account menu, responsive layout, and skeleton loading states are shared.
+Open `/admin` as an administrator or manager. Both roles use the same navigation: overview, users, support messages, subscriptions, payments, and refunds. The customer dashboard design, sidebar, account menu, responsive layout, and skeleton loading states are shared.
 
 ### Permissions and blocking
 
@@ -126,11 +126,11 @@ Keep the existing `INTEGRATION_ENCRYPTION_KEY` stable when using saved encrypted
 
 ### Billing and refunds
 
-**Subscriptions → Dates & free access** grants Plus, Pro, or Enterprise access for one week, 14 days, one calendar month (clamped at month end), or a custom start/end period. Start and end inputs display the staff member's local timezone. Access starts and expires on authenticated requests, and an open client refreshes at scheduled boundaries. No payment or automatic renewal is created. Accounts without an ongoing Stripe subscription use Free as their underlying plan outside the grant period; existing paid Stripe access continues and cannot be reduced by a lower complimentary tier. Staff can edit the schedule or remove the grant.
+**Subscriptions → Dates & free access** grants Plus, Pro, or Ultra access for one week, 14 days, one calendar month (clamped at month end), or a custom start/end period. Start and end inputs display the staff member's local timezone. Access starts and expires on authenticated requests, and an open client refreshes at scheduled boundaries. No payment or automatic renewal is created. Accounts without an ongoing Stripe subscription use Free as their underlying plan outside the grant period; existing paid Stripe access continues and cannot be reduced by a lower complimentary tier. Staff can edit the schedule or remove the grant.
 
 Stripe's recorded subscription start and billing-period end are displayed separately from complimentary dates. The start date is populated when Stripe subscription state is next synchronized. Complimentary schedules do not move Stripe billing dates or cancel charges.
 
-Pricing disables the current plan and lower included tiers with a not-allowed cursor. Higher tiers link to the review screen. An active Plus subscriber can review an upgrade to Pro in a Stripe `subscription_update_confirm` portal flow using the existing subscription, trusted server price IDs, and the configured portal's proration behavior. No second subscription is created. Same-plan purchases, downgrades, and unhealthy or scheduled-to-cancel subscriptions are rejected by the upgrade endpoint. The effective plan changes through normal Stripe reconciliation after confirmation/payment. Enterprise upgrades go through the contact form.
+Pricing disables the current plan and lower included tiers with a not-allowed cursor. Higher tiers link to the review screen. An active Plus subscriber can review an upgrade to Pro in a Stripe `subscription_update_confirm` portal flow using the existing subscription, trusted server price IDs, and the configured portal's proration behavior. No second subscription is created. Same-plan purchases, downgrades, and unhealthy or scheduled-to-cancel subscriptions are rejected by the upgrade endpoint. The effective plan changes through normal Stripe reconciliation after confirmation/payment. Ultra uses the same Checkout and subscription upgrade flow.
 
 Subscriptions show each account's plan, status, renewal/end date, and scheduled cancellation. Staff can cancel at period end or remove that scheduled cancellation. This action does not issue a refund. Account plan overrides remain separate from Stripe prices and billing agreements.
 
@@ -138,15 +138,13 @@ Payments are read from Stripe and show customer mapping, charged/refunded amount
 
 Configure the Stripe webhook endpoint for the existing subscription/invoice events plus `refund.created`, `refund.updated`, and `refund.failed`. Refund events retrieve current provider state so out-of-order deliveries cannot restore an outdated refund status.
 
-No actual payment, refund, subscription cancellation, or outbound email is performed by the test suite or staff smoke script.
-
 ### Contacts and messaging
 
-The support form accepts Support, Enterprise, or Refund topics. Enterprise pricing links select the Enterprise topic automatically. Incoming contacts appear in their respective staff inbox, with contact identity, category, status, and conversation history. Staff can mark requests open, pending, or resolved.
+The floating Support widget accepts Support, Contact, Refund, and Live chat topics; there is no standalone support page. Custom-plan enquiries and offer endpoints have been removed. Incoming contacts appear in their respective staff inbox, with contact identity, category, status, and conversation history. Staff can mark requests open, pending, or resolved.
 
-Signed-in requests use the authenticated account ID and email, regardless of submitted identity fields. Guest submissions are not automatically attached to an account merely because the email matches. Normal users use a floating Support chat at the bottom-right of their dashboard, Home, Features, How it works, Use Cases, Pricing, and Docs. It is hidden on other pages and for staff accounts. The dashboard's Messages button opens that popup; bookmarked `/messages` links redirect to the dashboard and open it. Guests can open the launcher on the public pages and sign in to chat.
+Signed-in requests use the authenticated account ID and email, regardless of submitted identity fields. Guest submissions are not automatically attached to an account merely because the email matches. Normal users use a floating Support chat at the bottom-right of their dashboard, Home, Features, How it works, Use Cases, Pricing, and Docs. It is available across public and customer pages and hidden for administrators and managers. The dashboard's Messages button opens that popup; bookmarked `/messages` links redirect to the dashboard and open it. Guests can open the launcher on the public pages and sign in to chat.
 
-The widget supports ticket creation, support/refund/Enterprise topics, conversation history, threaded replies, unread indicators, and account messages. It preserves open state and drafts while navigating between the allowed pages. Open user conversations and staff conversation dialogs poll every five seconds; closed user inboxes poll every thirty seconds and staff ticket lists every fifteen seconds while the page is visible. Polling preserves draft replies and existing content. This is a human support interface; it does not invent bot responses, typing indicators, or staff online status. Request ownership remains checked server-side.
+The widget supports ticket creation, support/refund/contact/live-chat topics, conversation history, threaded replies, unread indicators, and account messages. It preserves open state and drafts while navigating between the allowed pages. Open user conversations and staff conversation dialogs poll every five seconds; closed user inboxes poll every thirty seconds and staff ticket lists every fifteen seconds while the page is visible. Polling preserves draft replies and existing content. This is a human support interface; it does not invent bot responses, typing indicators, or staff online status. Request ownership remains checked server-side.
 
 ### Customer reports
 
@@ -177,3 +175,15 @@ Run these from backend:
 | npm run db:migrate      | Apply committed database migrations                            |
 | npm run dev             | Start the API with file watching                               |
 | npm start               | Start the API                                                  |
+
+## Ultra plan rollout
+
+Ultra replaces Custom and includes unlimited seats, projects, workspaces, and credits for USD 699/month. Annual billing is USD 8,388/year, with no annual discount for Ultra. Other plan prices remain unchanged.
+
+Configure `STRIPE_PRICE_ULTRA_MONTHLY` with an active USD 699 monthly recurring price and `STRIPE_PRICE_ULTRA_ANNUAL` with an active USD 8,388 annual recurring price on the Casefy Ultra product. Enable that product in the existing Stripe billing portal configuration for upgrades. The API validates the Ultra price and interval before starting Checkout or an upgrade. Existing tax settings are unchanged.
+
+The Prisma `ultra` enum maps to the existing PostgreSQL `custom` value, so existing accounts load without renaming stored plans. Run `npm run prisma:generate` and restart the API after changing the schema. The optional `20261123000000_ultra_plan` migration clears stored Ultra limits, moves old custom enquiries to general support, and retires unpaid offers. It is not required to restore admin reads; the application already uses unlimited Ultra limits. No live database or Stripe subscription is changed by the source update or Prisma client generation. Review and authorize the data cleanup and the full pending migration queue before running `npm run db:migrate`.
+
+Historical agreements remain stored solely to reconcile existing paid subscriptions at their agreed price; this rollout does not reprice or cancel existing Stripe subscriptions. New purchases use the fixed Ultra catalog prices.
+
+Unlimited credits are represented as null allowance/balance with `unlimited: true` in the credits API. Usage is recorded with an `unlimited_` activity prefix, without creating a finite allowance or blocking on a balance. If the account later moves to a limited plan, activity performed on Ultra does not consume that plan's allowance. Request-size validation remains in place.

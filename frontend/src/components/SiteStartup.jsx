@@ -1,3 +1,4 @@
+import Span from "../ui/Span";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion as Motion, useReducedMotion } from "motion/react";
 
@@ -26,10 +27,10 @@ export default function SiteStartup({ children }) {
 
   useEffect(() => {
     if (!loading) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const alreadyLocked = document.body.classList.contains("overflow-hidden");
+    document.body.classList.add("overflow-hidden");
     return () => {
-      document.body.style.overflow = previousOverflow;
+      if (!alreadyLocked) document.body.classList.remove("overflow-hidden");
     };
   }, [loading]);
 
@@ -50,10 +51,10 @@ export default function SiteStartup({ children }) {
             exit={{ opacity: 0 }}
             transition={{ duration: reducedMotion ? 0 : 0.25 }}
           >
-            <span className="site-loader-label">Loading Casefy...</span>
+            <Span className="site-loader-label">Loading Casefy...</Span>
             <div className="site-loader-word" aria-hidden="true">
-              <span>Casefy</span>
-              <span>Casefy</span>
+              <Span>Casefy</Span>
+              <Span>Casefy</Span>
             </div>
           </Motion.div>
         )}

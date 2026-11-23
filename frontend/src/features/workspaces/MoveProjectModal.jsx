@@ -1,3 +1,5 @@
+import P from "../../ui/P";
+import Button from "../../ui/Button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AccountModal from "../../components/AccountModal";
@@ -33,8 +35,8 @@ export default function MoveProjectModal({ project, workspaceId, onDismiss }) {
 
   return (
     <AccountModal title="Move project" onDismiss={onDismiss} busy={busy}>
-      <p className="mb-5 break-words text-sm leading-6 text-[#526159]">Move “{project.name}” and its saved request to another workspace. Members of the destination workspace will have access, and its owner will own the project.</p>
-      {loading ? <p role="status" className="text-sm">Loading workspaces...</p> : loadError ? <p role="alert" className="text-sm text-red-700">{loadError}</p> : !destinations.length ? <p role="status" className="text-sm text-[#526159]">No other workspaces are available. You need Owner or Editor access in the destination workspace. Accept an Editor invitation or create another workspace to move this project.</p> : (
+      <P variant="unstyled" className="mb-5 break-words text-sm leading-6 text-[#526159]">Move “{project.name}” and its saved request to another workspace. Members of the destination workspace will have access, and its owner will own the project.</P>
+      {loading ? <P variant="unstyled" role="status" className="text-sm">Loading workspaces...</P> : loadError ? <P variant="unstyled" role="alert" className="text-sm text-red-700">{loadError}</P> : !destinations.length ? <P variant="unstyled" role="status" className="text-sm text-[#526159]">No other workspaces are available. You need Owner or Editor access in the destination workspace. Accept an Editor invitation or create another workspace to move this project.</P> : (
         <form onSubmit={submit}>
           <label className="block text-sm font-medium">
             Destination workspace
@@ -42,10 +44,10 @@ export default function MoveProjectModal({ project, workspaceId, onDismiss }) {
               {destinations.map((workspace) => <option key={workspace.id} value={workspace.id}>{workspace.name} ({workspace.role})</option>)}
             </select>
           </label>
-          {error && <p role="alert" className="mt-4 text-sm text-red-700">{error}</p>}
+          {error && <P variant="unstyled" role="alert" className="mt-4 text-sm text-red-700">{error}</P>}
           <div className="mt-6 flex justify-end gap-3">
-            <button type="button" onClick={onDismiss} disabled={busy} className="min-h-11 rounded-md border border-[#CFDDD5] px-4">Cancel</button>
-            <button disabled={busy || !destination} className="min-h-11 rounded-md bg-[#294137] px-4 text-white disabled:opacity-50">{busy ? "Moving..." : "Move project"}</button>
+            <Button variant="unstyled" type="button" onClick={onDismiss} disabled={busy} className="min-h-11 rounded-md border border-[#CFDDD5] px-4">Cancel</Button>
+            <Button variant="primary" size="custom" type="submit" disabled={busy || !destination} className="min-h-11 px-4">{busy ? "Moving..." : "Move project"}</Button>
           </div>
         </form>
       )}

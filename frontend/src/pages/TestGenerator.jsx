@@ -1,4 +1,7 @@
-import Heading from "../components/Heading";
+import P from "../ui/P";
+import Span from "../ui/Span";
+import Button from "../ui/Button";
+import Heading from "../ui/Heading";
 import { useRef, useState } from "react";
 import {
   RiBookOpenLine as BookOpen,
@@ -7,7 +10,6 @@ import {
   RiGlobalLine as Globe,
   RiLock2Line as LockKeyhole,
   RiMenuLine as Menu,
-  RiSettings3Line as Settings2,
   RiUploadCloud2Line as UploadCloud,
   RiCloseLine as X,
 } from "react-icons/ri";
@@ -15,7 +17,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import DashboardSidebar from "../components/DashboardSidebar";
 import AccountModal from "../components/AccountModal";
 import SelectMenu from "../components/SelectMenu";
-import { GENERATION_MODES } from "../features/test-generation/models";
+import { GENERATION_MODE, DEFAULT_MODEL_CONFIGURATION } from "../features/test-generation/models";
 import { ModelSelectorPrompt } from "../features/test-generation/ModelSelectorPrompt";
 import useWorkspaces from "../features/workspaces/useWorkspaces";
 import { workspacePath, workspaceRequest } from "../features/workspaces/api";
@@ -54,14 +56,10 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
       initialRequest?.prompt || project?.description || "",
   }));
   const [subject, setSubject] = useState(project?.name || "");
-  const [modelValue, setModelValue] = useState(
-    initialRequest?.generationMode?.value || GENERATION_MODES[0].value,
-  );
-  const [configurations, setConfigurations] = useState(() =>
-    initialRequest
-      ? { [initialRequest.generationMode.value]: initialRequest.configuration }
-      : {},
-  );
+  const [configuration, setConfiguration] = useState(() => ({
+    ...DEFAULT_MODEL_CONFIGURATION,
+    ...initialRequest?.configuration,
+  }));
   const [files, setFiles] = useState([]);
   const [url, setUrl] = useState(initialRequest?.url || "");
   const [compareWithDocuments, setCompareWithDocuments] = useState(
@@ -103,11 +101,10 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
   const uploadButton = useRef(null);
   const urlInput = useRef(null);
   const countInput = useRef(null);
-  const urlAllowed = ["plus", "pro", "custom"].includes(user.plan);
+  const urlAllowed = ["plus", "pro", "ultra"].includes(user.plan);
   const urlLocked = source === "url" && !urlAllowed;
   const comparisonActive = source === "url" && compareWithDocuments;
   const needsDocuments = source === "documents" || comparisonActive;
-  const models = GENERATION_MODES;
 
   function changeSource(next) {
     setSource(next);
@@ -153,7 +150,7 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
     );
     setError("");
   }
-  function review({ model, configuration, prompt, subject }) {
+  function review({ configuration, prompt, subject }) {
     setError("");
     if (urlLocked) return;
     if (!workspaceKey) {
@@ -227,7 +224,7 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
       preview: true,
       source,
       workspace: workspaces.find(({ key }) => key === workspaceKey) || null,
-      generationMode: { value: model.value, label: model.label },
+      generationMode: { value: GENERATION_MODE.value, label: GENERATION_MODE.label },
       configuration,
       prompt,
       subject,
@@ -306,16 +303,16 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
         )}
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-3">
-            <button
+            <Button variant="outline" size="custom"
               type="button"
               aria-label="Open navigation"
               aria-controls="dashboard-sidebar"
               aria-expanded={sidebarOpen}
               onClick={() => setSidebarOpen(true)}
-              className="flex size-11 shrink-0 items-center justify-center rounded-md border border-[#CFDDD5] bg-white text-[#294137] focus-visible:outline-2 focus-visible:outline-[#294137] lg:hidden"
+              className="flex size-11 shrink-0 lg:hidden"
             >
               <Menu size={20} aria-hidden="true" />
-            </button>
+            </Button>
             <div>
               <Heading
                 as="h1"
@@ -323,13 +320,13 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
               >
                 {project ? project.name : "Test generator"}
               </Heading>
-              <p className="mt-2 text-sm leading-6 text-[#526159]">
+              <P variant="unstyled" className="mt-2 text-sm leading-6 text-[#526159]">
                 {project
                   ? initialRequest
                     ? "Continue writing the test request for this project."
                     : "Write your first test request for this project."
                   : "Turn your requirements into a clear testing plan."}
-              </p>
+              </P>
             </div>
           </div>
           {!project && workspaces.length > 0 && (
@@ -350,19 +347,19 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
 
         <div className="mx-auto mt-8 max-w-6xl">
           {!project && workspaceError && (
-            <p role="alert" className="mb-4 text-sm text-red-700">
+            <P variant="unstyled" role="alert" className="mb-4 text-sm text-red-700">
               {workspaceError}
-            </p>
+            </P>
           )}
           {project && initialRequest?.documents?.length > 0 && (
-            <p className="mb-4 rounded-md border border-[#CFDDD5] bg-white p-4 text-sm text-[#526159]">
+            <P variant="unstyled" className="mb-4 rounded-md border border-[#CFDDD5] bg-white p-4 text-sm text-[#526159]">
               Reattach your documents to review a new request. Previously saved
               files:{" "}
               {initialRequest.documents.map(({ name }) => name).join(", ")}.
-            </p>
+            </P>
           )}
           {!workspacesLoading && !workspaceError && !workspaces.length && (
-            <p
+            <P variant="unstyled"
               role="status"
               className="mb-4 rounded-md border border-[#CFDDD5] bg-white p-4 text-sm text-[#526159]"
             >
@@ -374,7 +371,7 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
               >
                 View workspaces
               </Link>
-            </p>
+            </P>
           )}
           <div
             className="grid grid-cols-3 gap-1.5 rounded-md border border-[#dce6df] bg-[#eaf0ec] p-1.5"
@@ -382,7 +379,7 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
             aria-label="Requirement source"
           >
             {sources.map(({ value, label, icon: Icon }) => (
-              <button
+              <Button variant="unstyled"
                 key={value}
                 type="button"
                 aria-pressed={source === value}
@@ -394,36 +391,36 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                 {value === "url" && !urlAllowed && (
                   <LockKeyhole size={12} aria-label="Paid plans" />
                 )}
-              </button>
+              </Button>
             ))}
           </div>
 
           {urlLocked ? (
             <div className="mt-4 rounded-md border border-[#CFDDD5] bg-white p-8 text-center sm:p-12">
-              <span className="mx-auto flex size-12 items-center justify-center rounded-md bg-[#edf3ef] text-[#294137]">
+              <Span variant="accent" className="mx-auto flex size-12 items-center justify-center rounded-md bg-[#edf3ef]">
                 <LockKeyhole size={22} aria-hidden="true" />
-              </span>
+              </Span>
               <h3 className="mt-5 text-xl font-bold tracking-tight">
                 Go beyond requirements with a URL
               </h3>
-              <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#526159]">
-                Website URL input is included with Plus, Pro, and Custom. Your
+              <P variant="unstyled" className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#526159]">
+                Website URL input is included with Plus, Pro, and Ultra. Your
                 Free plan includes user stories and documents.
-              </p>
+              </P>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <Link
+                <Button variant="primary" size="custom"
                   to="/pricing"
-                  className="inline-flex min-h-11 items-center rounded-md bg-[#294137] px-5 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+                  className="min-h-11 px-5"
                 >
                   View plans
-                </Link>
-                <button
+                </Button>
+                <Button variant="unstyled"
                   type="button"
                   onClick={() => changeSource("story")}
                   className="min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] px-5 text-sm font-semibold text-[#294137] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]"
                 >
                   Use a user story
-                </button>
+                </Button>
               </div>
             </div>
           ) : (
@@ -441,13 +438,8 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                 showPrompt={source === "story"}
                 disabled={(!project && workspacesLoading) || !workspaceKey}
                 settingsPosition="top"
-                models={models}
-                value={modelValue}
-                configurations={configurations}
-                onConfigurationChange={(_model, _configuration, next) =>
-                  setConfigurations(next)
-                }
-                onModelChange={(model) => setModelValue(model.value)}
+                configuration={configuration}
+                onConfigurationChange={setConfiguration}
                 prompt={prompts[source]}
                 onPromptChange={(prompt) => {
                   setPrompts((current) => ({ ...current, [source]: prompt }));
@@ -467,10 +459,6 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                 }
                 settings={
                   <div className="border-b border-[#e1e9e4] px-5 py-3 sm:px-7">
-                    <div className="mb-3 flex items-center gap-2 text-[10px] font-semibold tracking-wider text-[#526159]">
-                      <Settings2 size={13} aria-hidden="true" />
-                      COVERAGE FILTERS
-                    </div>
                     <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-x-4 gap-y-3 lg:grid-cols-[6rem_11rem_minmax(0,1fr)]">
                       <div>
                         <label
@@ -497,9 +485,9 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                           aria-describedby="test-count-hint"
                           className="min-h-9 w-full rounded-md border border-[#CFDDD5] bg-white px-2.5 py-1.5 text-xs text-[#294137] tabular-nums focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"
                         />
-                        <p id="test-count-hint" className="sr-only">
+                        <P variant="unstyled" id="test-count-hint" className="sr-only">
                           Enter the number of test cases you need.
-                        </p>
+                        </P>
                       </div>
                       <div>
                         <label
@@ -544,7 +532,7 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                         </legend>
                         <div className="flex flex-wrap gap-1.5">
                           {testTypes.map(({ value, label }) => (
-                            <button
+                            <Button variant="unstyled"
                               key={value}
                               type="button"
                               aria-pressed={selectedTypes.includes(value)}
@@ -552,7 +540,7 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                               className={`inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] ${selectedTypes.includes(value) ? "border-[#294137] bg-[#294137] text-white hover:bg-[#20332b]" : "border-[#dce6df] bg-white text-[#6c8073] hover:border-[#a9bfb0] hover:bg-[#edf3ef]"}`}
                             >
                               {label}
-                            </button>
+                            </Button>
                           ))}
                         </div>
                       </fieldset>
@@ -563,22 +551,22 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                 {source === "url" && (
                   <div className="flex items-center justify-between gap-4 border-b border-[#e1e9e4] px-5 py-4 sm:px-7">
                     <div>
-                      <span
+                      <Span variant="accent"
                         id="compare-documents-label"
-                        className="text-sm font-semibold text-[#294137]"
+                        className="text-sm font-semibold"
                       >
                         Compare with documents
-                      </span>
+                      </Span>
                       {comparisonActive && (
-                        <p
+                        <P variant="unstyled"
                           role="status"
                           className="mt-1 text-xs font-medium text-[#294137]"
                         >
                           Comparison active
-                        </p>
+                        </P>
                       )}
                     </div>
-                    <button
+                    <Button variant="unstyled"
                       type="button"
                       role="switch"
                       aria-labelledby="compare-documents-label"
@@ -590,11 +578,11 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                       }}
                       className={`inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full p-1 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] ${compareWithDocuments ? "bg-[#294137]" : "bg-[#b9c9bf]"}`}
                     >
-                      <span
+                      <Span
                         aria-hidden="true"
                         className={`size-5 rounded-full bg-white shadow-sm transition-transform ${compareWithDocuments ? "translate-x-5" : "translate-x-0"}`}
                       />
-                    </button>
+                    </Button>
                   </div>
                 )}
                 {needsDocuments && (
@@ -636,22 +624,22 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                         aria-hidden="true"
                         className="mx-auto mb-3 text-[#526159]"
                       />
-                      <p className="text-sm font-semibold text-[#294137]">
+                      <P variant="unstyled" className="text-sm font-semibold text-[#294137]">
                         {comparisonActive
                           ? "Drop documents to compare with the URL"
                           : "Drop your requirements here"}
-                      </p>
-                      <p className="mt-1.5 text-xs leading-5 text-[#7c8c82]">
+                      </P>
+                      <P variant="unstyled" className="mt-1.5 text-xs leading-5 text-[#7c8c82]">
                         PDF, DOCX, TXT, or Markdown · Up to 5 files, 10 MB each
-                      </p>
-                      <button
+                      </P>
+                      <Button variant="outline" size="custom"
                         ref={uploadButton}
                         type="button"
                         onClick={() => fileInput.current.click()}
-                        className="mt-4 min-h-10 cursor-pointer rounded-md border border-[#CFDDD5] bg-white px-4 text-xs font-semibold text-[#294137] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+                        className="mt-4 min-h-10 px-4 text-xs"
                       >
                         Browse documents
-                      </button>
+                      </Button>
                     </div>
                     {files.length > 0 && (
                       <ul
@@ -668,18 +656,18 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                               aria-hidden="true"
                               className="shrink-0 text-[#526159]"
                             />
-                            <span className="min-w-0 flex-1">
-                              <span
+                            <Span className="min-w-0 flex-1">
+                              <Span
                                 className="block truncate text-sm font-medium"
                                 title={file.name}
                               >
                                 {file.name}
-                              </span>
-                              <span className="text-xs text-[#7c8c82]">
+                              </Span>
+                              <Span className="text-xs text-[#7c8c82]">
                                 {formatSize(file.size)}
-                              </span>
-                            </span>
-                            <button
+                              </Span>
+                            </Span>
+                            <Button variant="unstyled"
                               type="button"
                               aria-label={`Remove ${file.name}`}
                               onClick={() =>
@@ -690,7 +678,7 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                               className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-[#526159] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]"
                             >
                               <X size={16} aria-hidden="true" />
-                            </button>
+                            </Button>
                           </li>
                         ))}
                       </ul>
@@ -726,10 +714,10 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                         className={`${inputClass} pl-11`}
                       />
                     </div>
-                    <p className="mt-2 text-xs leading-5 text-[#7c8c82]">
+                    <P variant="unstyled" className="mt-2 text-xs leading-5 text-[#7c8c82]">
                       Add the page you want to cover. This preview does not
                       visit the website.
-                    </p>
+                    </P>
                   </div>
                 )}
               </ModelSelectorPrompt>
@@ -737,12 +725,12 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
           )}
 
           {error && (
-            <p
+            <P variant="unstyled"
               role="alert"
               className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
             >
               {error}
-            </p>
+            </P>
           )}
         </div>
 
@@ -752,19 +740,19 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
             busy={saving}
             onDismiss={() => setRequest(null)}
           >
-            <p className="mb-5 rounded-md bg-[#edf3ef] p-3 text-xs leading-5 text-[#526159]">
+            <P variant="unstyled" className="mb-5 rounded-md bg-[#edf3ef] p-3 text-xs leading-5 text-[#526159]">
               This is a request preview. No AI request has been sent and no
               credits have been used.
-            </p>
+            </P>
             {savedProject ? (
-              <p
+              <P variant="unstyled"
                 role="status"
                 className="mb-5 rounded-md bg-[#edf3ef] p-3 text-sm text-[#294137]"
               >
                 {project
                   ? "Test request saved to this project."
                   : `Project saved to ${request.workspace.name}.`}
-              </p>
+              </P>
             ) : request.source === "story" ? (
               <label className="mb-5 block text-sm font-medium">
                 Project description
@@ -778,11 +766,11 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                   disabled={saving}
                   className={`${inputClass} mt-2`}
                 />
-                <span className="mt-2 block text-xs font-normal text-[#526159]">
+                <Span className="mt-2 block text-xs font-normal text-[#526159]">
                   {project
                     ? "Saving updates this project with the reviewed request."
                     : `Saving creates a project named “${request.subject}” with this reviewed request.`}
-                </span>
+                </Span>
               </label>
             ) : null}
             <dl className="grid grid-cols-2 gap-x-4 gap-y-5 text-sm">
@@ -816,24 +804,24 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                 </div>
               ))}
             </dl>
-            <p className="mt-5 text-xs text-[#7c8c82]">Test types</p>
-            <p className="mt-1 text-sm leading-6">
+            <P variant="unstyled" className="mt-5 text-xs text-[#7c8c82]">Test types</P>
+            <P variant="unstyled" className="mt-1 text-sm leading-6">
               {request.filters.testTypes
                 .map(
                   (value) =>
                     testTypes.find((type) => type.value === value)?.label,
                 )
                 .join(", ")}
-            </p>
+            </P>
             {request.url && (
               <>
-                <p className="mt-5 text-xs text-[#7c8c82]">URL</p>
-                <p className="mt-1 break-all text-sm">{request.url}</p>
+                <P variant="unstyled" className="mt-5 text-xs text-[#7c8c82]">URL</P>
+                <P variant="unstyled" className="mt-1 break-all text-sm">{request.url}</P>
               </>
             )}
             {request.documents && (
               <>
-                <p className="mt-5 text-xs text-[#7c8c82]">Documents</p>
+                <P variant="unstyled" className="mt-5 text-xs text-[#7c8c82]">Documents</P>
                 <ul className="mt-2 space-y-1 text-sm">
                   {request.documents.map((file) => (
                     <li key={file.name} className="break-words">
@@ -841,69 +829,69 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                     </li>
                   ))}
                 </ul>
-                <p className="mt-2 text-xs leading-5 text-[#7c8c82]">
+                <P variant="unstyled" className="mt-2 text-xs leading-5 text-[#7c8c82]">
                   The downloaded request includes file names and sizes, without
                   document contents.
-                </p>
+                </P>
               </>
             )}
             {request.subject && (
               <>
-                <p className="mt-5 text-xs text-[#7c8c82]">Subject</p>
-                <p className="mt-1 break-words text-sm font-medium">
+                <P variant="unstyled" className="mt-5 text-xs text-[#7c8c82]">Subject</P>
+                <P variant="unstyled" className="mt-1 break-words text-sm font-medium">
                   {request.subject}
-                </p>
+                </P>
               </>
             )}
             {request.prompt && (
               <>
-                <p className="mt-5 text-xs text-[#7c8c82]">
+                <P variant="unstyled" className="mt-5 text-xs text-[#7c8c82]">
                   {request.subject
                     ? "Description"
                     : "Requirements / instructions"}
-                </p>
-                <p className="mt-2 max-h-52 overflow-y-auto whitespace-pre-wrap break-words rounded-md bg-[#f6f8f7] p-4 text-sm leading-6">
+                </P>
+                <P variant="unstyled" className="mt-2 max-h-52 overflow-y-auto whitespace-pre-wrap break-words rounded-md bg-[#f6f8f7] p-4 text-sm leading-6">
                   {request.prompt}
-                </p>
+                </P>
               </>
             )}
             {error && (
-              <p
+              <P variant="unstyled"
                 role="alert"
                 className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-800"
               >
                 {error}
-              </p>
+              </P>
             )}
             <div className="mt-6 flex flex-wrap justify-end gap-3">
-              <button
+              <Button variant="unstyled"
                 type="button"
                 onClick={downloadRequest}
                 className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold text-[#294137] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]"
               >
                 <Download size={16} aria-hidden="true" />
                 Download request
-              </button>
+              </Button>
               {savedProject ? (
-                <Link
+                <Button variant="primary" size="custom"
                   to={`/workspaces/${request.workspace.key}`}
-                  className="inline-flex min-h-11 items-center rounded-md bg-[#294137] px-5 text-sm font-semibold text-white"
+                  className="min-h-11 px-5"
                 >
                   View project in workspace
-                </Link>
+                </Button>
               ) : (
-                <button
+                <Button variant="primary" size="custom"
                   type="button"
                   onClick={saveProject}
                   disabled={saving}
-                  className="min-h-11 cursor-pointer rounded-md bg-[#294137] px-5 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+                  className="min-h-11 px-5"
                 >
                   {saving
                     ? "Saving..."
                     : project
                       ? "Save to project"
                       : "Save as project"}
-                </button>
+                </Button>
               )}
             </div>
           </AccountModal>

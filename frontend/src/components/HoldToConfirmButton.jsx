@@ -1,3 +1,5 @@
+import Span from "../ui/Span";
+import Button from "../ui/Button";
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import {
@@ -33,7 +35,7 @@ export default function HoldToConfirmButton({
     }, duration);
   }
   return (
-    <button
+    <Button variant="danger" size="custom"
       type="button"
       disabled={disabled || confirmed}
       onPointerDown={(event) => {
@@ -67,15 +69,15 @@ export default function HoldToConfirmButton({
         }
       }}
       aria-description="Press and hold for 1.6 seconds to confirm. Release to cancel."
-      className="relative isolate inline-flex min-h-11 touch-none select-none items-center justify-center gap-2 overflow-hidden rounded-md bg-red-700 px-4 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+      className="relative isolate min-h-11 touch-none select-none overflow-hidden px-4"
     >
       {!reduceMotion && (
-        <span
+        <Span
           aria-hidden="true"
-          className="absolute inset-0 -z-10 origin-left bg-red-900"
+          className={`absolute inset-0 -z-10 origin-left bg-red-900 [transform:scaleX(var(--hold-progress))] ${holding ? "[transition:transform_var(--hold-duration)_linear]" : "transition-none"}`}
           style={{
-            transform: `scaleX(${holding || confirmed ? 1 : 0})`,
-            transition: holding ? `transform ${duration}ms linear` : "none",
+            "--hold-progress": holding || confirmed ? 1 : 0,
+            "--hold-duration": `${duration}ms`,
           }}
         />
       )}
@@ -85,6 +87,6 @@ export default function HoldToConfirmButton({
         <Trash2 size={16} aria-hidden="true" />
       )}
       {confirmed ? "Confirmed" : holding ? "Keep holding..." : children}
-    </button>
+    </Button>
   );
 }

@@ -17,6 +17,7 @@ export function createMessagesController(db = prisma) {
             readAt: true,
             supportRequestId: true,
             sender: { select: { name: true } },
+            channel: true,
           },
         });
         return res.json({ messages });
@@ -48,7 +49,6 @@ export function createMessagesController(db = prisma) {
           orderBy: { id: "desc" },
           take: 100,
           include: {
-            deals: { orderBy: { createdAt: "desc" } },
             messages: {
               where: {
                 OR: [
@@ -62,6 +62,7 @@ export function createMessagesController(db = prisma) {
                 body: true,
                 createdAt: true,
                 senderId: true,
+                channel: true,
                 sender: { select: { name: true } },
               },
             },
@@ -88,8 +89,13 @@ export function createMessagesController(db = prisma) {
         });
         if (!request)
           return res.status(404).json({ message: "Request not found." });
-        await db.$transaction([
-          db.userMessage.create({
+        if (request.status === "resolved") return res.status(409).json({ message: "Ticket is closed. Please start a new conversation." });
+        await db.$transaction(async (tx) => {
+          await tx.$queryRaw`SELECT id FROM support_requests WHERE id = ${request.id} FOR UPDATE`;
+          const current = await tx.supportRequest.findFirst({ where: { id: request.id, userId: req.userId } });
+          if (!current) throw Object.assign(new Error("Request not found."), { status: 404 });
+          if (current.status === "resolved") throw Object.assign(new Error("Ticket is closed. Please start a new conversation."), { status: 409 });
+          await tx.userMessage.create({
             data: {
               senderId: req.userId,
               supportRequestId: request.id,
@@ -99,12 +105,8 @@ export function createMessagesController(db = prisma) {
               channel: "support_reply",
               deliveryStatus: "sent",
             },
-          }),
-          db.supportRequest.update({
-            where: { id: request.id },
-            data: { status: "open" },
-          }),
-        ]);
+          });
+        });
         return res.status(201).json({ message: "Reply sent to support." });
       } catch (error) {
         return staffFailure(res, error);

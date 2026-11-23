@@ -15,6 +15,7 @@ export function creditPeriod(user, now = new Date()) {
 
 export function creditAllowance(user) {
   const account = effectiveUser(user);
+  if (account.plan === "ultra") return null;
   return account.monthlyCreditLimit ?? planLimits[account.plan]?.credits ?? 100;
 }
 
@@ -24,7 +25,10 @@ export async function ensureCredits(tx, userId, now = new Date()) {
   const user = await tx.user.findUniqueOrThrow({ where: { id: userId } });
   const { start, end } = creditPeriod(user, now);
   const allowance = creditAllowance(user);
-  const where = { userId, periodStart: start };
+  if (allowance === null) {
+    return { user, allowance: null, balance: null, unlimited: true, periodStart: start, periodEnd: end };
+  }
+  const where = { userId, periodStart: start, NOT: { kind: { startsWith: "unlimited_" } } };
   const granted = await tx.creditEntry.aggregate({ where: { ...where, kind: "allowance" }, _sum: { amount: true } });
   const previous = granted._sum.amount || 0;
   if (previous < allowance) {
@@ -36,7 +40,7 @@ export async function ensureCredits(tx, userId, now = new Date()) {
     } });
   }
   const total = await tx.creditEntry.aggregate({ where, _sum: { amount: true } });
-  return { user, allowance, balance: total._sum.amount || 0, periodStart: start, periodEnd: end };
+  return { user, allowance, balance: total._sum.amount || 0, unlimited: false, periodStart: start, periodEnd: end };
 }
 
 export async function spendCredits(tx, { userId, amount, operationKey, description, kind = "generation_text", generationRunId }, now = new Date()) {
@@ -47,6 +51,7 @@ export async function spendCredits(tx, { userId, amount, operationKey, descripti
     if (existing.userId !== userId || existing.amount !== -amount) throw Object.assign(new Error("Credit operation conflicts with an earlier request."), { status: 409 });
     return existing;
   }
-  if (state.balance < amount) throw Object.assign(new Error("Not enough credits. Upgrade your plan or contact support."), { status: 402 });
-  return tx.creditEntry.create({ data: { userId, amount: -amount, kind, operationKey, description, generationRunId, periodStart: state.periodStart, periodEnd: state.periodEnd } });
+  if (!state.unlimited && state.balance < amount) throw Object.assign(new Error("Not enough credits. Upgrade your plan or contact support."), { status: 402 });
+  // Track usage without charging a later, limited plan for activity performed on Ultra.
+  return tx.creditEntry.create({ data: { userId, amount: -amount, kind: state.unlimited ? `unlimited_${kind}` : kind, operationKey, description, generationRunId, periodStart: state.periodStart, periodEnd: state.periodEnd } });
 }

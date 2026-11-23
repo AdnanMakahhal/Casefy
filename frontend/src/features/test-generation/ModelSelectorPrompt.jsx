@@ -1,17 +1,16 @@
+import Span from "../../ui/Span";
+import Button from "../../ui/Button";
 import { useId } from "react";
 import {
   RiLoader4Line as LoaderCircle,
   RiSendPlane2Line as Send
 } from "react-icons/ri";
-import ModelPicker from "./ModelPicker";
-import { GENERATION_MODES, DEFAULT_MODEL_CONFIGURATION } from "./models";
+import GenerationSettings from "./GenerationSettings";
+import { GENERATION_MODE, DEFAULT_MODEL_CONFIGURATION } from "./models";
 
 export function ModelSelectorPrompt({
-  models = GENERATION_MODES,
-  value,
-  configurations = {},
+  configuration = DEFAULT_MODEL_CONFIGURATION,
   onConfigurationChange,
-  onModelChange,
   prompt,
   onPromptChange,
   subject = "",
@@ -28,20 +27,19 @@ export function ModelSelectorPrompt({
   disabled = false,
 }) {
   const id = useId();
-  const model = models.find((item) => item.value === value) || models[0];
-  const configuration = {
+  const currentConfiguration = {
     ...DEFAULT_MODEL_CONFIGURATION,
-    ...configurations[model?.value],
+    ...configuration,
   };
   const sidebar = settingsPosition === "left" && settings;
   const hasSubject = typeof onSubjectChange === "function";
 
   function submit(event) {
     event.preventDefault();
-    if (disabled || isSubmitting || !model) return;
+    if (disabled || isSubmitting) return;
     onSubmit?.({
-      model,
-      configuration,
+      model: GENERATION_MODE,
+      configuration: currentConfiguration,
       prompt: showPrompt ? prompt.trim() : "",
       ...(hasSubject ? { subject: subject.trim() } : {}),
     });
@@ -120,25 +118,22 @@ export function ModelSelectorPrompt({
               id={`${id}-hint`}
               className="mb-4 mt-2 flex justify-end text-[11px] leading-5 text-[#8a9890]"
             >
-              <span className="tabular-nums">
+              <Span className="tabular-nums">
                 {prompt.length.toLocaleString()} / 20,000
-              </span>
+              </Span>
             </div>
             </>}
           </div>}
           {!sidebar && settingsPosition !== "top" && settings}
           <div className="relative mx-3 mb-3 flex flex-wrap items-center justify-between gap-3 rounded-md bg-[#f6f8f7] p-3 sm:mx-4 sm:mb-4">
-            <ModelPicker
-              models={models}
-              model={model}
-              configurations={configurations}
-              onModelChange={onModelChange}
+            <GenerationSettings
+              configuration={currentConfiguration}
               onConfigurationChange={onConfigurationChange}
               disabled={disabled || isSubmitting}
             />
-            <button
+            <Button variant="primary" size="custom"
               type="submit"
-              className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-[#20332b] bg-[#294137] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50"
+              className="min-h-11 border border-[#20332b] px-4 shadow-sm"
             >
               {isSubmitting ? (
                 <LoaderCircle
@@ -150,11 +145,8 @@ export function ModelSelectorPrompt({
                 <Send size={16} aria-hidden="true" />
               )}
               {isSubmitting ? "Preparing..." : submitLabel}
-            </button>
+            </Button>
           </div>
-          {showPrompt && <p className="mb-4 text-center text-[10px] text-[#8a9890]">
-            Ctrl / Cmd + Enter to review
-          </p>}
         </fieldset>
       </form>
     </div>

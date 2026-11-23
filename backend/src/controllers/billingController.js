@@ -28,6 +28,16 @@ export function createBillingController(
   stripe = stripeClient,
   getConfig = billingConfig,
 ) {
+  async function validatePrice(plan, billing, id) {
+    if (plan !== "ultra") return;
+    const price = await stripe.prices.retrieve(id);
+    const expected = billing === "annual" ? 838800 : 69900;
+    if (!price.active || price.currency !== "usd" || price.unit_amount !== expected ||
+        price.recurring?.interval !== (billing === "annual" ? "year" : "month") ||
+        price.recurring?.interval_count !== 1 || price.recurring?.usage_type === "metered") {
+      throw Object.assign(new Error("Ultra billing is not configured with the correct USD price. Please contact support."), { status: 503 });
+    }
+  }
   function ready(res) {
     if (stripe) return true;
     res.status(503).json({ message: "Billing is not configured yet" });
@@ -58,7 +68,7 @@ export function createBillingController(
     const { plan, billing = "monthly" } = req.body || {};
     const config = getConfig();
     const price =
-      ["plus", "pro"].includes(plan) && ["monthly", "annual"].includes(billing)
+      ["plus", "pro", "ultra"].includes(plan) && ["monthly", "annual"].includes(billing)
         ? config.prices[plan]?.[billing]
         : null;
     if (!price)
@@ -67,6 +77,7 @@ export function createBillingController(
         .json({ message: "This plan or billing interval is not available" });
     const service = createBillingService(db, stripe, config);
     try {
+      await validatePrice(plan, billing, price);
       const session = await service.withAccount(
         req.user.id,
         async (tx, user) => {
@@ -171,7 +182,7 @@ export function createBillingController(
     const { plan, billing = "monthly" } = req.body || {};
     const config = getConfig();
     const price =
-      ["plus", "pro"].includes(plan) && ["monthly", "annual"].includes(billing)
+      ["plus", "pro", "ultra"].includes(plan) && ["monthly", "annual"].includes(billing)
         ? config.prices[plan]?.[billing]
         : null;
     if (!price)
@@ -181,6 +192,7 @@ export function createBillingController(
           message: "This upgrade plan or billing interval is not available.",
         });
     try {
+      await validatePrice(plan, billing, price);
       const service = createBillingService(db, stripe, config);
       const session = await service.withAccount(
         req.user.id,
@@ -275,6 +287,7 @@ export function createBillingController(
         for (const [billing, id] of Object.entries(intervals)) {
           if (!id) continue;
           const price = await stripe.prices.retrieve(id);
+          if (plan === "ultra") await validatePrice(plan, billing, id);
           if (price.active && price.recurring)
             plans[plan][billing] = {
               amount: price.unit_amount,
@@ -329,11 +342,8 @@ export function createBillingController(
 
   const history = async (req, res) => {
     try {
-      const [payments, deals] = await Promise.all([
-        db.paymentRecord.findMany({ where: { userId: req.userId }, orderBy: { createdAt: "desc" }, take: 100 }),
-        db.customDeal.findMany({ where: { userId: req.userId }, orderBy: { createdAt: "desc" } }),
-      ]);
-      return res.json({ payments: payments.map(paymentView), deals });
+      const payments = await db.paymentRecord.findMany({ where: { userId: req.userId }, orderBy: { createdAt: "desc" }, take: 100 });
+      return res.json({ payments: payments.map(paymentView) });
     } catch (error) { return failure(res, error); }
   };
 

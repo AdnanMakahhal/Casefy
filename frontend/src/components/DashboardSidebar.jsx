@@ -1,5 +1,9 @@
+import P from "../ui/P";
+import Span from "../ui/Span";
+import Button from "../ui/Button";
 import {
   RiBarChartBoxLine as BarChart3,
+  RiBuildingLine as Building,
   RiDashboardLine as LayoutDashboard,
   RiPlayCircleLine as PlayCircle,
   RiSparklingLine as Sparkles,
@@ -8,7 +12,6 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import BrandLogo from "./BrandLogo";
 import WorkspaceMenu from "./WorkspaceMenu";
-import SidebarCredits from "./SidebarCredits";
 import { homeForRole } from "../features/authentication/authContext";
 import { adminNavigation } from "../features/admin/navigation";
 import { settingsNavigation } from "../features/settings/navigation";
@@ -19,6 +22,7 @@ const navigation = [
   { label: "Test generator", icon: Sparkles, to: "/test-generator" },
   { label: "Executions", icon: PlayCircle, to: "/executions" },
   { label: "Reports", icon: BarChart3, to: "/reports" },
+  { label: "Workspaces", icon: Building, to: "/settings/workspaces" },
   ...settingsNavigation,
 ];
 
@@ -31,7 +35,7 @@ function DashboardSidebar({ isOpen, onClose, user, items }) {
   return (
     <>
       {isOpen && (
-        <button
+        <Button variant="unstyled"
           type="button"
           onClick={onClose}
           aria-label="Close navigation"
@@ -56,22 +60,22 @@ function DashboardSidebar({ isOpen, onClose, user, items }) {
           >
             <BrandLogo />
           </Link>
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={onClose}
             aria-label="Close navigation"
             className="absolute -right-4 top-0 flex size-8 items-center justify-center rounded-md text-[#294137] hover:bg-[#edf3ef] lg:hidden"
           >
             <X size={20} />
-          </button>
+          </Button>
         </div>
         <nav className="mt-6 space-y-2" aria-label="Dashboard navigation">
           {links.map(({ label, icon: Icon, active, to, selected, section }) => (
             <Fragment key={label}>
               {section && (
-                <p className="px-3 pt-4 pb-1 text-[10px] font-semibold tracking-widest text-[#718578]">
+                <P variant="unstyled" className="px-3 pt-4 pb-1 text-[10px] font-semibold tracking-widest text-[#718578]">
                   {section.toUpperCase()}
-                </p>
+                </P>
               )}
               {active || to ? (
                 <Link
@@ -87,7 +91,7 @@ function DashboardSidebar({ isOpen, onClose, user, items }) {
                   {!to && home === "/admin" ? "Admin" : label}
                 </Link>
               ) : (
-                <button
+                <Button variant="unstyled"
                   key={label}
                   type="button"
                   disabled
@@ -96,20 +100,15 @@ function DashboardSidebar({ isOpen, onClose, user, items }) {
                 >
                   <Icon size={19} aria-hidden="true" />
                   {label}
-                  <span className="ml-auto text-[10px] text-[#526159]">
+                  <Span className="ml-auto text-[10px] text-[#526159]">
                     Soon
-                  </span>
-                </button>
+                  </Span>
+                </Button>
               )}
             </Fragment>
           ))}
         </nav>
         <div className="mt-auto">
-          {user &&
-            !["admin", "manager"].includes(user.role) &&
-            !user.isSupportAgent && (
-              <SidebarCredits user={user} onClose={onClose} />
-            )}
           {user?.isSupportAgent && (
             <Link
               to="/staff-support"

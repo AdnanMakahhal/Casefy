@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "./authContext";
 import { destinationAfterAuth } from "./navigation";
-import AuthSkeleton from "../../components/AuthSkeleton";
+import AuthSkeleton from "../../ui/AuthSkeleton";
 
 function GuestRoute() {
   const { user, isLoading } = useAuth();

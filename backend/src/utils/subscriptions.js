@@ -1,13 +1,14 @@
-export const planRank = { free: 0, plus: 1, pro: 2, custom: 3 };
+export const planRank = { free: 0, plus: 1, pro: 2, ultra: 3 };
 export const planLimits = {
   free: { seats: 1, projects: 2, credits: 100 },
   plus: { seats: 1, projects: 10, credits: 1500 },
   pro: { seats: 2, projects: null, credits: 6000 },
-  custom: { seats: 2, projects: 25, credits: 10000 },
+  ultra: { seats: null, projects: null, credits: null },
 };
 function withLimits(user) {
   if (!user) return user;
   const limits = planLimits[user.plan] || planLimits.free;
+  if (user.plan === "ultra") return { ...user, seatLimit: null, projectLimit: null, monthlyCreditLimit: null };
   return { ...user, seatLimit: user.seatLimit ?? limits.seats, projectLimit: user.projectLimit ?? limits.projects, monthlyCreditLimit: user.monthlyCreditLimit ?? limits.credits };
 }
 
@@ -88,9 +89,9 @@ export function accessSchedule(body, now = new Date()) {
       complimentaryEndsAt: null,
     };
 
-  if (!["plus", "pro", "custom"].includes(body.plan))
+  if (!["plus", "pro", "ultra"].includes(body.plan))
     throw new Error(
-      "Choose Plus, Pro, or Custom for complimentary access.",
+      "Choose Plus, Pro, or Ultra for complimentary access.",
     );
 
   const starts = body.startsAt ? parseTimestamp(body.startsAt) : new Date(now);

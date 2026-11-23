@@ -1,11 +1,14 @@
-import { useState } from "react";
+import P from "../../ui/P";
+import Span from "../../ui/Span";
+import Button from "../../ui/Button";
+import { useEffect, useState } from "react";
+import AdminTableSkeleton from "../../ui/AdminTableSkeleton";
 import { adminRequest, useStaffData } from "./api";
 import { titleCase, displayDate } from "../../lib/format";
 import AccountModal from "../../components/AccountModal";
 import {
   ErrorMessage,
   SearchForm,
-  Loading,
   Badge,
   Empty,
   Pagination,
@@ -48,19 +51,19 @@ function SubscriptionAction({ account, onClose, onSaved }) {
       onDismiss={onClose}
       busy={busy}
     >
-      <p className="text-sm leading-7 text-[#526159]">
+      <P >
         {account.email} · {titleCase(account.plan)}.{" "}
         {account.cancelAtPeriodEnd
           ? "Recurring billing will continue on the existing schedule."
           : "Access continues until the current paid period ends. No refund will be issued by this action."}
-      </p>
+      </P>
       <ErrorMessage>{error}</ErrorMessage>
       <div className="mt-6 flex justify-end gap-3">
-        <button className="admin-button" disabled={busy} onClick={onClose}>
+        <Button variant="outline" size="md" type="submit" className="border px-5 py-2.5 whitespace-nowrap" disabled={busy} onClick={onClose}>
           Back
-        </button>
-        <button
-          className="admin-button primary"
+        </Button>
+        <Button variant="primary" size="md" type="submit"
+          className="border px-5 py-2.5 whitespace-nowrap border-[#294137]"
           disabled={busy}
           onClick={submit}
         >
@@ -69,13 +72,13 @@ function SubscriptionAction({ account, onClose, onSaved }) {
             : account.cancelAtPeriodEnd
               ? "Keep subscription active"
               : "Cancel at period end"}
-        </button>
+        </Button>
       </div>
     </AccountModal>
   );
 }
 
-export default function Subscriptions({ revision }) {
+export default function Subscriptions({ revision = 0, onLoadingChange }) {
   const navigate = useNavigate();
   const [page, setPage] = useState(1),
     [search, setSearch] = useState(""),
@@ -89,6 +92,7 @@ export default function Subscriptions({ revision }) {
     `/subscriptions?${new URLSearchParams({ page, search, plan })}`,
     revision + localRevision,
   );
+  useEffect(() => { onLoadingChange?.(loading); }, [loading, onLoadingChange]);
   function saved(text) {
     setNotice(text);
     setChanging(null);
@@ -99,9 +103,9 @@ export default function Subscriptions({ revision }) {
   return (
     <>
       {notice && (
-        <p role="status" className="admin-notice">
+        <P variant="unstyled" role="status" className="admin-notice">
           {notice}
-        </p>
+        </P>
       )}
       <section className={`${panel} overflow-visible`}>
         <div className="flex flex-col items-stretch gap-4 border-b border-[#CFDDD5] p-5 sm:flex-row sm:flex-wrap sm:items-center">
@@ -122,7 +126,7 @@ export default function Subscriptions({ revision }) {
             }}
             options={[
               { value: "", label: "All plans" },
-              ...["free", "plus", "pro", "custom"].map((value) => ({
+              ...["free", "plus", "pro", "ultra"].map((value) => ({
                 value,
                 label: titleCase(value),
               })),
@@ -130,18 +134,18 @@ export default function Subscriptions({ revision }) {
           />
         </div>
         {loading ? (
-          <Loading />
+          <AdminTableSkeleton />
         ) : error ? (
           <div className="p-5">
             <ErrorMessage>{error}</ErrorMessage>
           </div>
         ) : (
           <>
-            <p className="border-b border-[#CFDDD5] bg-[#f6f8f7] px-6 py-3 text-xs text-[#526159]">
+            <P variant="unstyled" className="border-b border-[#CFDDD5] bg-[#f6f8f7] px-6 py-3 text-xs text-[#526159]">
               {data.configured
                 ? `${data.liveMode ? "Live" : "Sandbox"} Stripe billing. Subscription status is synchronized by webhooks.`
                 : "Stripe is not configured. Account plans are shown below."}
-            </p>
+            </P>
             <div className="admin-table-scroll">
               <table className="admin-table">
                 <thead>
@@ -158,17 +162,17 @@ export default function Subscriptions({ revision }) {
                     <tr key={account.id}>
                       <td>
                         <strong className="block">{account.name}</strong>
-                        <span className="mt-1 block text-xs text-[#526159]">
+                        <Span className="mt-1 block text-xs text-[#526159]">
                           {account.email}
-                        </span>
+                        </Span>
                       </td>
                       <td>
                         {titleCase(account.plan)}
                         {account.complimentaryStatus && (
-                          <p className="mt-1 text-xs text-[#718578]">
+                          <P variant="unstyled" className="mt-1 text-xs text-[#718578]">
                             Complimentary:{" "}
                             {titleCase(account.complimentaryStatus)}
-                          </p>
+                          </P>
                         )}
                       </td>
                       <td>
@@ -177,42 +181,40 @@ export default function Subscriptions({ revision }) {
                             account.subscriptionStatus ||
                             (account.complimentaryStatus
                               ? `complimentary_${account.complimentaryStatus}`
-                              : account.plan === "custom"
-                                ? "manual_plan"
-                                : "no_subscription")
+                              : "no_subscription")
                           }
                         />
                         {account.cancelAtPeriodEnd && (
-                          <p className="mt-2 text-xs text-[#8e3530]">
+                          <P variant="unstyled" className="mt-2 text-xs text-[#8e3530]">
                             Cancels at period end
-                          </p>
+                          </P>
                         )}
                       </td>
                       <td>
-                        <p className="text-xs text-[#526159]">
+                        <P variant="unstyled" className="text-xs text-[#526159]">
                           Start:{" "}
                           {displayDate(
                             account.complimentaryStartsAt ||
                               account.subscriptionStartedAt,
                           )}
-                        </p>
-                        <p className="mt-1 text-xs text-[#526159]">
+                        </P>
+                        <P variant="unstyled" className="mt-1 text-xs text-[#526159]">
                           End:{" "}
                           {displayDate(
                             account.complimentaryEndsAt ||
                               account.subscriptionPeriodEnd,
                           )}
-                        </p>
+                        </P>
                       </td>
                       <td>
                         <div className="flex items-center gap-1">
-                          <button
-                            className="admin-button"
+                          <Button variant="outline" size="md" type="submit"
+                            className="border px-5 py-2.5 whitespace-nowrap"
                             onClick={() => setAccess(account)}
                           >
                             Dates & free access
-                          </button>
-                          <button
+                          </Button>
+                          <Button variant="unstyled" type="submit"
                             className="admin-icon-button"
                             title="View payments"
                             aria-label={`Payments for ${account.email}`}
@@ -223,27 +225,27 @@ export default function Subscriptions({ revision }) {
                             }
                           >
                             <CreditCard size={17} />
-                          </button>
-                          <button
+                          </Button>
+                          <Button variant="unstyled" type="submit"
                             className="admin-icon-button"
                             title="Message customer"
                             aria-label={`Message ${account.email}`}
                             onClick={() => setMessage(account)}
                           >
                             <Mail size={17} />
-                          </button>
+                          </Button>
                           {account.stripeSubscriptionId &&
                             !["canceled", "incomplete_expired"].includes(
                               account.subscriptionStatus,
                             ) && (
-                              <button
-                                className="admin-button"
+                              <Button variant="outline" size="md" type="submit"
+                                className="border px-5 py-2.5 whitespace-nowrap"
                                 onClick={() => setChanging(account)}
                               >
                                 {account.cancelAtPeriodEnd
                                   ? "Keep active"
                                   : "Cancel"}
-                              </button>
+                              </Button>
                             )}
                         </div>
                       </td>

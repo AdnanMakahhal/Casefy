@@ -1,4 +1,6 @@
+import Button from "../ui/Button";
 import { useEffect, useId, useRef, useState } from "react";
+import { motion as Motion, useReducedMotion } from "motion/react";
 import {
   RiDashboardLine as LayoutDashboard,
   RiLogoutBoxRLine as LogOut
@@ -9,6 +11,7 @@ import Avatar from "./Avatar";
 import LogoutDialog from "./LogoutDialog";
 
 export default function HeaderAccountMenu({ user, onOpen }) {
+  const reducedMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const container = useRef(null);
@@ -45,7 +48,7 @@ export default function HeaderAccountMenu({ user, onOpen }) {
         }
       }}
     >
-      <button
+      <Button variant="unstyled"
         ref={trigger}
         type="button"
         aria-label="Open account options"
@@ -58,12 +61,17 @@ export default function HeaderAccountMenu({ user, onOpen }) {
         className="flex cursor-pointer items-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
       >
         <Avatar user={user} />
-      </button>
-      {isOpen && (
-        <nav
+      </Button>
+        <Motion.nav
           id={menuId}
           aria-label="Header account options"
           className="absolute top-full right-0 z-50 mt-6 w-56 max-w-[calc(100vw-2rem)] rounded-md border border-[#CFDDD5] bg-white p-1.5 shadow-lg shadow-[#102019]/10"
+          initial={false}
+          animate={{ opacity: isOpen ? 1 : 0, y: isOpen || reducedMotion ? 0 : -10, scale: isOpen || reducedMotion ? 1 : 0.94 }}
+          transition={reducedMotion ? { duration: 0 } : { type: "spring", duration: 0.32, bounce: 0.1, delay: 0.06, opacity: { type: "tween", duration: 0.2, delay: 0.06, ease: "easeInOut" } }}
+          style={{ transformOrigin: "top right", pointerEvents: isOpen ? "auto" : "none" }}
+          inert={!isOpen}
+          aria-hidden={!isOpen}
         >
           <Link
             ref={firstOption}
@@ -74,7 +82,7 @@ export default function HeaderAccountMenu({ user, onOpen }) {
             <LayoutDashboard size={18} aria-hidden="true" />
             {home === "/admin" ? "Go to admin" : "Go to dashboard"}
           </Link>
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => {
               setIsOpen(false);
@@ -84,9 +92,8 @@ export default function HeaderAccountMenu({ user, onOpen }) {
           >
             <LogOut size={18} aria-hidden="true" />
             Log out
-          </button>
-        </nav>
-      )}
+          </Button>
+        </Motion.nav>
       {isLoggingOut && (
         <LogoutDialog
           onDismiss={() => {

@@ -1,81 +1,60 @@
 # Casefy
 
-Casefy combines a React frontend with an Express API backed by PostgreSQL and Prisma. It includes account dashboards, private workspaces, support messaging, Stripe billing, and staff tools for account management.
+Casefy contains a React frontend and an Express API backed by PostgreSQL and Prisma. It includes accounts, private workspaces, support messaging, Stripe billing, and staff tools.
 
-## Documentation
+## Installation
 
-- [Frontend README](frontend/README.md): browser setup, page structure, authentication, support UI, and production builds.
-- [Backend README](backend/README.md): API setup, database commands, routes, private workspaces, staff operations, and integrations.
-
-## Requirements and installation
-
-Use Node.js 24 or 26 and npm. The root package.json defines frontend and backend as npm workspaces. Install all three folders' dependencies once from the repository root:
+Use Node.js 24 or 26 and npm. Install dependencies separately:
 
 ```sh
-npm ci
+npm ci --prefix backend
+npm ci --prefix frontend
 ```
 
-The root package-lock.json is the single dependency lockfile. Installation also generates the backend Prisma client.
+Each application has its own package.json and package-lock.json. Backend installation generates the Prisma client.
 
-## Run locally
+## Local development
 
-Create backend/.env with DATABASE_URL, JWT_SECRET, and FRONTEND_URL. See the [backend setup](backend/README.md#environment) for details. Preserve existing local environment files and keep credentials out of source control.
+Configure backend/.env with DATABASE_URL, JWT_SECRET, and FRONTEND_URL. Keep credentials private. See the [backend README](backend/README.md) for configuration and migration details. Review pending migrations before applying them to an existing database.
 
-Apply committed migrations to your configured database:
-
-```sh
-npm run db:migrate
-```
-
-Start the API and frontend in separate terminals from the root:
+Start the API and frontend in separate terminals:
 
 ```sh
-npm run server
+npm run dev --prefix backend
 ```
 
 ```sh
-npm run dev
+npm run dev --prefix frontend
 ```
 
-The API defaults to port 8000 and Vite to 5173. Vite forwards /api requests to the API.
+The API defaults to port 8000. Vite defaults to port 5173 and forwards /api requests to the API.
 
-## Repository structure
+## Structure
 
 ```text
-Casefy/
-  README.md           project setup and shared commands
-  package.json        npm workspaces and shared scripts
-  package-lock.json   shared dependency lockfile
+casefy/
   backend/
-    README.md         backend documentation
-    src/              Express API
-    prisma/           database schema and migrations
+    src/           Express API
+    prisma/        database schema and migration history
   frontend/
-    README.md         frontend documentation
-    src/              React application
-    public/           static assets
+    src/
+      ui/          application layout
+      components/  shared components, header, and footer
+      pages/       route screens and static JSX legal pages
+      features/    feature-specific UI and logic
+    public/        static assets
 ```
 
-## Shared commands
+## Validation and production build
 
-Run these from the repository root:
+```sh
+npm run lint --prefix frontend
+npm run build --prefix frontend
+npm run prisma:validate --prefix backend
+```
 
-| Command              | Purpose                                        |
-| -------------------- | ---------------------------------------------- |
-| npm run lint         | Check frontend lint rules                      |
-| npm run format:check | Check source formatting                        |
-| npm run format       | Format source files                            |
-| npm run build        | Generate Prisma client and build frontend/dist |
-| npm start            | Start the backend API                          |
+The frontend build writes frontend/dist. Host it with /api forwarded to the API, or configure VITE_API_URL at build time. Set the backend FRONTEND_URL to the public frontend origin. Start the API with `npm start --prefix backend`.
 
-When hosting the built frontend separately, forward /api to the API and configure a public HTTPS FRONTEND_URL for billing return URLs.
+Generation currently prepares and saves request previews. AI generation and browser execution still require implementation. Removing demo content does not enable those integrations.
 
-Customer generation remains a request preview; browser test execution is not connected.
-
-## Deploy to Render
-
-The root `render.yaml` defines one free Node web service that serves both the frontend and API. Create a Render Blueprint from this repository and supply `DATABASE_URL` and the existing `JWT_SECRET` as secret environment variables. Reuse the existing `INTEGRATION_ENCRYPTION_KEY` too if encrypted integration settings depend on it. Never commit these values.
-
-The build command installs each folder's dependencies and builds the frontend. The start command is `npm start --prefix backend`, and `/health` is the health check. `VITE_API_URL=/api` keeps browser requests on the same host. On Render, `FRONTEND_URL` defaults to `RENDER_EXTERNAL_URL`; set `FRONTEND_URL` explicitly when using a custom domain. Add the existing Stripe and Resend environment variables to enable billing and invitation emails.
-
-Database migrations are deliberately excluded from the deploy commands: the pending legacy billing migration deletes PayPal data and must be reviewed before applying the migration queue. The project-generation and email-invitation migrations must also be applied before using those features.
+See the [frontend README](frontend/README.md) and [backend README](backend/README.md) for application behavior and configuration.

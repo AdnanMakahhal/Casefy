@@ -1,3 +1,7 @@
+import H2 from "../../ui/H2";
+import P from "../../ui/P";
+import Span from "../../ui/Span";
+import Button from "../../ui/Button";
 import useReportData from "./useReportData";
 import { titleCase, displayDate } from "../../lib/format";
 import AccountModal from "../../components/AccountModal";
@@ -43,21 +47,21 @@ export default function ReportsSection({ revision = 0 }) {
           ["Generated test cases", completed?._sum.testCount || 0],
         ].map(([name, count]) => (
           <article key={name} className={`${panel} p-5`}>
-            <h2 className="text-sm font-semibold text-[#526159]">{name}</h2>
-            <p className="mt-4 text-3xl font-extrabold">
+            <H2 variant="unstyled" className="text-sm font-semibold text-[#526159]">{name}</H2>
+            <P variant="unstyled" className="mt-4 text-3xl font-extrabold">
               {count.toLocaleString()}
-            </p>
+            </P>
           </article>
         ))}
       </div>
       <section className={`${panel} overflow-hidden`}>
         <header className="admin-panel-header">
           <div>
-            <h2>Generation history</h2>
-            <p>
+            <H2 variant="unstyled">Generation history</H2>
+            <P variant="unstyled">
               Saved AI generation results. These are not execution or pass-rate
               reports.
-            </p>
+            </P>
           </div>
         </header>
         {!data.runs.length ? (
@@ -83,9 +87,9 @@ export default function ReportsSection({ revision = 0 }) {
                       <strong className="block max-w-52 truncate">
                         {run.subject}
                       </strong>
-                      <span className="mt-1 block text-xs text-[#718578]">
+                      <Span variant="muted" className="mt-1 block text-xs">
                         #{run.id} · {titleCase(run.source)}
-                      </span>
+                      </Span>
                     </td>
                     <td>{run.user.name}</td>
                     <td>{run.model}</td>
@@ -97,13 +101,13 @@ export default function ReportsSection({ revision = 0 }) {
                     </td>
                     <td>{displayDate(run.createdAt)}</td>
                     <td>
-                      <button
+                      <Button variant="unstyled" type="submit"
                         className="admin-icon-button"
                         aria-label={`Open report ${run.id}`}
                         onClick={() => setSelected(run.id)}
                       >
                         <ArrowUpRight size={17} />
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}

@@ -1,5 +1,6 @@
 import prisma, { isDatabaseConfigured } from "../db.js";
 import { requestCategories, supportDetails } from "../utils/supportDetails.js";
+import { supportGreeting } from "../utils/supportGreeting.js";
 
 export function createSupportController(db = prisma) {
   return async (req, res) => {
@@ -25,14 +26,13 @@ export function createSupportController(db = prisma) {
       return res
         .status(400)
         .json({ message: "Please enter a valid email address" });
-    const category =
-      req.body?.category ||
-      (/custom/i.test(data.subject) ? "custom" : "support");
+    const category = req.body?.category || "support";
     if (!requestCategories.includes(category))
       return res
         .status(400)
-        .json({ message: "Choose support, Custom, or refund." });
+        .json({ message: "Choose support, contact, payments, refund, or live chat." });
     data.category = category;
+    data.status = "pending";
     try { data.details = supportDetails(category, req.body?.details); }
     catch (error) { return res.status(400).json({ message: error.message }); }
     if (req.user) {
@@ -48,10 +48,17 @@ export function createSupportController(db = prisma) {
         });
     try {
       const request = await db.supportRequest.create({
-        data,
+        data: { ...data, messages: { create: {
+          recipientId: data.userId || null,
+          toEmail: data.email,
+          subject: "Casefy assistant",
+          body: supportGreeting,
+          channel: "support_bot",
+          deliveryStatus: "sent",
+        } } },
         select: { id: true },
       });
-      return res.status(201).json({ id: request.id });
+      return res.status(201).json({ id: request.id, autoReply: supportGreeting });
     } catch (error) {
       console.error("Support request failed:", error.code || error.name);
       return res

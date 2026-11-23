@@ -1,4 +1,7 @@
+import H2 from "../ui/H2";
+import Button from "../ui/Button";
 import { useEffect, useId, useRef } from "react";
+import { twMerge } from "tailwind-merge";
 import {
   RiCloseLine as X
 } from "react-icons/ri";
@@ -8,6 +11,10 @@ export default function AccountModal({
   children,
   onDismiss,
   busy = false,
+  icon: Icon,
+  className = "",
+  descriptionId,
+  closeLabel,
 }) {
   const dialog = useRef(null);
   const titleId = useId();
@@ -24,25 +31,28 @@ export default function AccountModal({
     <dialog
       ref={dialog}
       aria-labelledby={titleId}
+      aria-describedby={descriptionId}
       onCancel={(event) => {
         event.preventDefault();
         if (!busy) onDismiss();
       }}
-      className="fixed inset-0 m-auto max-h-[calc(100svh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-md border border-[#CFDDD5] bg-white p-6 text-[#102019] shadow-xl backdrop:bg-[#102019]/40 sm:p-8"
+      className={twMerge("fixed inset-0 m-auto max-h-[calc(100svh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-md border border-[#CFDDD5] bg-white p-6 text-[#102019] shadow-xl backdrop:bg-[#102019]/40 sm:p-8", className)}
     >
       <div className="mb-5 flex items-center justify-between gap-4">
-        <h2 id={titleId} className="text-xl font-bold tracking-tight">
+        <div className="flex min-w-0 items-center gap-3">
+        {Icon && <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-[#edf3ef] text-[#294137]"><Icon size={21} aria-hidden="true" /></span>}
+        <H2 variant="unstyled" id={titleId} className="text-xl font-bold tracking-tight">
           {title}
-        </h2>
-        <button
+        </H2>
+        </div>
+        <Button variant="outline" size="icon"
           type="button"
-          aria-label={`Close ${title.toLowerCase()}`}
+          aria-label={closeLabel || `Close ${title.toLowerCase()}`}
           disabled={busy}
           onClick={onDismiss}
-          className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-md hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137] disabled:opacity-50"
         >
           <X size={20} aria-hidden="true" />
-        </button>
+        </Button>
       </div>
       {children}
     </dialog>

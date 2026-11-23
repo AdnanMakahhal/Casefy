@@ -1,4 +1,8 @@
-import Heading from "../components/Heading";
+import H2 from "../ui/H2";
+import P from "../ui/P";
+import Span from "../ui/Span";
+import Button from "../ui/Button";
+import Heading from "../ui/Heading";
 import { useRef, useState } from "react";
 import {
   RiCameraLine as Camera,
@@ -73,25 +77,25 @@ function Profile({ user }) {
       />
       <main className="mx-auto max-w-[1440px] px-4 py-6 sm:px-8 lg:p-10">
         <header className="flex items-start gap-3">
-          <button
+          <Button variant="outline" size="custom"
             type="button"
             aria-label="Open navigation"
             aria-controls="dashboard-sidebar"
             aria-expanded={isSidebarOpen}
             onClick={() => setIsSidebarOpen(true)}
-            className="flex size-11 shrink-0 items-center justify-center rounded-md border border-[#CFDDD5] bg-white text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] lg:hidden"
+            className="flex size-11 shrink-0 lg:hidden"
           >
             <Menu size={20} aria-hidden="true" />
-          </button>
+          </Button>
           <div>
             <Heading as="h1" className="text-3xl font-extrabold tracking-tight sm:text-4xl">
               Profile
             </Heading>
-            <p className="mt-3 text-sm leading-6 text-[#526159]">
+            <P variant="unstyled" className="mt-3 text-sm leading-6 text-[#526159]">
               {staff
                 ? "Your personal details and account information."
                 : "Your personal details and workspace information."}
-            </p>
+            </P>
           </div>
         </header>
 
@@ -109,7 +113,7 @@ function Profile({ user }) {
               className="sr-only"
               tabIndex={-1}
             />
-            <button
+            <Button variant="unstyled"
               type="button"
               onClick={() => fileInput.current.click()}
               disabled={photoBusy}
@@ -117,32 +121,32 @@ function Profile({ user }) {
               className="group relative shrink-0 cursor-pointer rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137] disabled:opacity-50"
             >
               <Avatar user={user} className="size-20 text-2xl" />
-              <span
+              <Span
                 aria-hidden="true"
                 className="absolute right-0 bottom-0 flex size-7 items-center justify-center rounded-full border-2 border-white bg-[#294137] text-white group-hover:bg-[#20332b]"
               >
                 <Camera size={14} />
-              </span>
-            </button>
+              </Span>
+            </Button>
             <div className="min-w-0 flex-1">
-              <h2
+              <H2 variant="unstyled"
                 id="profile-details-heading"
                 className="break-words text-xl font-semibold"
               >
                 {profile.name || "Your profile"}
-              </h2>
-              <p className="mt-1 text-sm text-[#526159]">
+              </H2>
+              <P variant="unstyled" className="mt-1 text-sm text-[#526159]">
                 {role || "No role selected"}
-              </p>
+              </P>
               {user.avatarImage && (
-                <button
+                <Button variant="unstyled"
                   type="button"
                   disabled={photoBusy}
                   onClick={removePhoto}
                   className="mt-3 cursor-pointer rounded-md text-xs font-semibold text-[#526159] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
                 >
                   {photoBusy ? "Removing..." : "Remove photo"}
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -173,19 +177,19 @@ function Profile({ user }) {
           {modal !== "edit" && (
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#CFDDD5] px-6 py-5 sm:px-8">
               <div className="flex flex-wrap gap-3">
-                <button
+                <Button variant="primary" size="custom"
                   type="button"
                   disabled={photoBusy}
                   onClick={() => {
                     setError("");
                     setModal("edit");
                   }}
-                  className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md bg-[#294137] px-4 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+                  className="min-h-11 px-4"
                 >
                   <Pencil size={16} aria-hidden="true" />
                   Edit account
-                </button>
-                <button
+                </Button>
+                <Button variant="unstyled"
                   type="button"
                   disabled
                   title="Choose Edit account to make changes, then save them here"
@@ -193,9 +197,9 @@ function Profile({ user }) {
                 >
                   <Save size={16} aria-hidden="true" />
                   Save changes
-                </button>
+                </Button>
               </div>
-              <button
+              <Button variant="unstyled"
                 type="button"
                 disabled={photoBusy}
                 onClick={() => {
@@ -206,14 +210,14 @@ function Profile({ user }) {
               >
                 <Trash2 size={16} aria-hidden="true" />
                 Delete account
-              </button>
+              </Button>
             </div>
           )}
         </section>
         {error && (
-          <p role="alert" className="mt-4 text-sm text-red-700">
+          <P variant="unstyled" role="alert" className="mt-4 text-sm text-red-700">
             {error}
-          </p>
+          </P>
         )}
         {modal === "delete" && (
           <DeleteAccount onDismiss={() => setModal(null)} />

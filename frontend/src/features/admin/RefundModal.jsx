@@ -1,3 +1,5 @@
+import P from "../../ui/P";
+import Button from "../../ui/Button";
 import { useState } from "react";
 import { currencyDigits, titleCase, formatMoney } from "../../lib/format";
 import { adminRequest } from "./api";
@@ -5,7 +7,7 @@ import AccountModal from "../../components/AccountModal";
 import { input } from "./styles";
 import { ErrorMessage } from "./ui";
 
-export default function RefundModal({ payment, retry, onClose, onSaved }) {
+export default function RefundModal({ payment, retry, request, onClose, onSaved }) {
   const [operationId] = useState(() => retry?.id || crypto.randomUUID());
   const currency = retry?.currency || payment.currency;
   const remaining = retry?.amount || payment.amount - payment.amountRefunded;
@@ -37,6 +39,7 @@ export default function RefundModal({ payment, retry, onClose, onSaved }) {
         method: "POST",
         body: JSON.stringify({
           operationId,
+          ...(request ? { supportRequestId: request.id } : {}),
           userId: account.id,
           chargeId: retry?.chargeId || payment.id,
           amount,
@@ -44,7 +47,7 @@ export default function RefundModal({ payment, retry, onClose, onSaved }) {
         }),
       });
       onSaved(
-        `Refund ${titleCase(result.refund.status)}. Reference: ${result.refund.stripeRefundId}.`,
+        `Refund ${titleCase(result.refund.status)}. Reference: ${result.refund.stripeRefundId || result.refund.id}.`,
       );
     } catch (err) {
       setError(err.message);
@@ -54,15 +57,15 @@ export default function RefundModal({ payment, retry, onClose, onSaved }) {
   }
   return (
     <AccountModal
-      title={retry ? "Retry pending refund" : "Issue a refund"}
+      title={retry ? "Retry pending refund" : request ? "Approve refund request" : "Issue a refund"}
       onDismiss={onClose}
       busy={busy}
     >
-      <p className="mb-5 text-sm leading-6 text-[#526159]">
+      <P variant="unstyled" className="mb-5 text-sm leading-6 text-[#526159]">
         Refund {account.email} to the original payment method. Available:{" "}
         <strong>{formatMoney(remaining, currency)}</strong>. This changes the
         payment; it does not cancel the subscription.
-      </p>
+      </P>
       <form onSubmit={submit} className="space-y-4">
         <label className="block text-sm font-medium">
           Amount ({currency.toUpperCase()})
@@ -72,7 +75,7 @@ export default function RefundModal({ payment, retry, onClose, onSaved }) {
             step={1 / factor}
             min={1 / factor}
             max={remaining / factor}
-            defaultValue={(remaining / factor).toFixed(digits)}
+            defaultValue={((!retry && request?.details?.refundAmount && currency.toLowerCase() === "usd" ? Math.min(request.details.refundAmount, remaining) : remaining) / factor).toFixed(digits)}
             required
             readOnly={Boolean(retry)}
             disabled={busy}
@@ -85,7 +88,7 @@ export default function RefundModal({ payment, retry, onClose, onSaved }) {
             name="reason"
             maxLength={500}
             rows={3}
-            defaultValue={retry?.reason || ""}
+            defaultValue={retry?.reason || (request ? (request.details?.reason || request.description || "").slice(0, 500) : "")}
             readOnly={Boolean(retry)}
             required
             disabled={busy}
@@ -94,21 +97,21 @@ export default function RefundModal({ payment, retry, onClose, onSaved }) {
         </label>
         <ErrorMessage>{error}</ErrorMessage>
         <div className="flex justify-end gap-3">
-          <button
+          <Button variant="outline" size="md"
             type="button"
-            className="admin-button"
+            className="border px-5 py-2.5 whitespace-nowrap"
             disabled={busy}
             onClick={onClose}
           >
             Back
-          </button>
-          <button className="admin-button danger" disabled={busy}>
+          </Button>
+          <Button variant="danger" size="md" type="submit" className="border px-5 py-2.5 whitespace-nowrap border-red-700" disabled={busy}>
             {busy
               ? "Processing..."
               : retry
                 ? "Retry same refund"
-                : "Confirm refund"}
-          </button>
+                : request ? "Approve refund" : "Confirm refund"}
+          </Button>
         </div>
       </form>
     </AccountModal>

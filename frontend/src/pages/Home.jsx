@@ -1,10 +1,12 @@
-import Heading from "../components/Heading";
-import { Link } from "react-router-dom";
-import { motion as Motion, useReducedMotion } from "motion/react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { A11y, Autoplay } from "swiper/modules";
-import "swiper/css";
+import Reveal from "../ui/Reveal";
+import H2 from "../ui/H2";
+import P from "../ui/P";
+import Span from "../ui/Span";
+import Button from "../ui/Button";
+import Heading from "../ui/Heading";
+import Partners from "../components/Partners";
 import PrecisionQA from "../components/PrecisionQA";
+
 
 const team = [
   {
@@ -30,7 +32,6 @@ const team = [
 ];
 
 function Home() {
-  const reduceMotion = useReducedMotion();
 
   return (
     <section className="mx-auto max-w-6xl px-4 pt-12 pb-10 text-center sm:px-8 sm:pt-14">
@@ -38,162 +39,79 @@ function Home() {
         Turn Requirements Into
         <br className="hidden sm:block" /> Reliable Test Cases.
       </Heading>
-      <p className="mx-auto mt-6 max-w-[600px] text-base leading-6 font-medium text-[#526159]">
-        Casefy helps QA engineers generate, discover, and execute test cases
-        from requirements, diagrams, user stories, and real web pages.
-      </p>
+      <Reveal delay={0.08}><P variant="unstyled" className="mx-auto mt-6 max-w-[600px] text-base leading-6 font-medium text-[#526159]">
+        Casefy helps QA engineers organize requirements, manage test projects,
+        and prepare test requests in shared workspaces.
+      </P></Reveal>
 
-      <div className="mt-8 flex flex-wrap justify-center gap-3.5">
-        <Link
+      <Reveal delay={0.16} className="mt-8 flex flex-wrap justify-center gap-3.5">
+        <Button variant="primary" size="custom"
           to="/signup"
-          className="inline-flex min-h-[52px] min-w-[172px] items-center justify-center rounded-md border border-[#2941372e] bg-[#294137] px-8 text-sm font-semibold text-[#ffffff] transition-colors hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
+          className="min-h-[52px] min-w-[172px] border border-[#2941372e] px-8 focus-visible:outline-offset-4"
         >
           Start free
-        </Link>
-        <Link
+        </Button>
+        <Button variant="secondary" size="custom"
           to="/how-it-works"
-          className="inline-flex min-h-[52px] min-w-[140px] items-center justify-center rounded-md border border-[#CFDDD5] bg-[#edf3ef] px-8 text-sm font-medium text-[#14231c] transition-colors hover:bg-[#e2ece6] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294137]"
+          className="min-h-[52px] min-w-[140px] px-8 font-medium focus-visible:outline-offset-4"
         >
           Learn more
-        </Link>
-      </div>
+        </Button>
+      </Reveal>
 
-      <figure
-        id="dashboard-preview"
-        aria-label="Casefy dashboard preview"
-        className="mx-auto mt-12 max-w-[1040px] scroll-mt-24 overflow-hidden rounded-md border border-[#CFDDD5] bg-[#ffffff]"
-      >
-        <div className="flex h-10 items-center gap-3 border-b border-[#CFDDD5] px-4 text-left">
-          <div aria-hidden="true" className="flex shrink-0 items-center gap-2">
-            <span className="h-3 w-3 rounded-full border border-[#e0443e] bg-[#ff5f57]" />
-            <span className="h-3 w-3 rounded-full border border-[#dea123] bg-[#febc2e]" />
-            <span className="h-3 w-3 rounded-full border border-[#1aab29] bg-[#28c840]" />
+      <Reveal as="figure" delay={0.2} className="mx-auto mt-12 max-w-[1040px] text-left sm:mt-14">
+        <div className="overflow-hidden rounded-md border border-[#CFDDD5] bg-[#edf3ef] p-2 shadow-[0_16px_48px_-24px_#29413755] sm:p-3">
+          <div className="flex items-center justify-between gap-3 px-2 pt-1 pb-3 sm:px-3">
+            <div aria-hidden="true" className="flex shrink-0 gap-1.5">
+              <Span className="size-2 rounded-full bg-[#91a99a]" />
+              <Span className="size-2 rounded-full bg-[#b4c8bc]" />
+              <Span className="size-2 rounded-full bg-[#CFDDD5]" />
+            </div>
+            <Span className="text-[10px] font-semibold tracking-widest text-[#526159] sm:text-xs">
+              CASEFY / DASHBOARD
+            </Span>
           </div>
-          <span className="text-[10px] font-medium tracking-wide text-[#6c7771]">
-            CASEFY / DASHBOARD
-          </span>
+          <img
+            src="/Hero_Bg/Casefy.png"
+            alt="Casefy dashboard after sign-in, showing workspace navigation, testing overview, projects, and recent activity"
+            width="1909"
+            height="917"
+            fetchPriority="high"
+            decoding="async"
+            className="block h-auto w-full rounded-md border border-[#CFDDD5] bg-white"
+          />
         </div>
-        <img
-          src="/Hero_Bg/Casefy.png"
-          alt="Casefy dashboard showing testing overview, projects, and recent activity"
-          width="2528"
-          height="1274"
-          fetchPriority="high"
-          className="block h-auto w-full"
-        />
-      </figure>
-      <section
-        aria-label="Partner logos"
-        className="mx-auto mt-12 max-w-[1040px] py-8"
-      >
-        <h2 className="mb-12 text-4xl leading-[1.12] font-extrabold tracking-tight text-[#102019] sm:text-5xl">
-          Partners
-        </h2>
-        <Swiper
-          modules={[Autoplay, A11y]}
-          slidesPerView={2}
-          spaceBetween={24}
-          breakpoints={{
-            640: { slidesPerView: 3, spaceBetween: 32 },
-            1024: { slidesPerView: 4, spaceBetween: 48 },
-          }}
-          loop
-          speed={4000}
-          autoplay={{
-            delay: 0,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: true,
-          }}
-          onSwiper={(swiper) => {
-            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-              swiper.autoplay.stop();
-            }
-          }}
-          className="partners-swiper"
-        >
-          <SwiperSlide>
-            <img
-              src="/Partners/Google_Logo.svg"
-              alt="Google"
-              className="mx-auto h-16 w-40 object-contain"
-            />
-          </SwiperSlide>
-          <SwiperSlide>
-            <img
-              src="/Partners/Github_Logo.svg"
-              alt="GitHub"
-              className="mx-auto h-16 w-40 object-contain"
-            />
-          </SwiperSlide>
-          <SwiperSlide>
-            <img
-              src="/Partners/Amazon_Logo.svg"
-              alt="Amazon"
-              className="mx-auto h-16 w-40 object-contain"
-            />
-          </SwiperSlide>
-          <SwiperSlide>
-            <img
-              src="/Partners/Notion_Logo.svg"
-              alt="Notion"
-              className="mx-auto h-16 w-40 object-contain"
-            />
-          </SwiperSlide>
-          <SwiperSlide>
-            <img
-              src="/Partners/Subway_Logo.svg"
-              alt="Subway"
-              className="mx-auto h-16 w-40 object-contain"
-            />
-          </SwiperSlide>
-          <SwiperSlide>
-            <img
-              src="/Partners/Tamara_Logo.svg"
-              alt="Tamara"
-              className="mx-auto h-16 w-40 object-contain"
-            />
-          </SwiperSlide>
-          <SwiperSlide>
-            <img
-              src="/Partners/Youtube_Logo.svg"
-              alt="YouTube"
-              className="mx-auto h-16 w-40 object-contain"
-            />
-          </SwiperSlide>
-        </Swiper>
-      </section>
+      </Reveal>
+
+      <Partners />
       <section
         aria-labelledby="team-heading"
         className="mx-auto mt-16 max-w-[1040px] py-8 sm:mt-24"
       >
-        <div className="mx-auto max-w-[700px] text-center">
-          <h2
+        <Reveal className="mx-auto max-w-[700px] text-center">
+          <H2 variant="unstyled"
             id="team-heading"
             className="mx-auto max-w-[700px] text-4xl leading-[1.12] font-extrabold tracking-tight text-[#102019] sm:text-5xl"
           >
             Meet our dedicated team
-          </h2>
-          <p className="mx-auto mt-6 max-w-[600px] text-base leading-6 font-medium text-[#526159]">
+          </H2>
+          <P variant="unstyled" className="mx-auto mt-6 max-w-[600px] text-base leading-6 font-medium text-[#526159]">
             Our team of innovative professionals works tirelessly to deliver
             exceptional experiences and drive successful outcomes for every
             project.
-          </p>
-        </div>
+          </P>
+        </Reveal>
         <ul
           role="list"
           className="mt-16 grid grid-cols-1 gap-x-4 gap-y-16 text-center sm:grid-cols-2 lg:mt-24 lg:grid-cols-4"
         >
           {team.map((member, index) => (
-            <Motion.li
+            <Reveal as="li" delay={index * 0.1}
               key={member.name}
-              initial={reduceMotion ? false : { opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{
-                duration: reduceMotion ? 0 : 0.6,
-                delay: reduceMotion ? 0 : index * 0.42,
-                ease: "easeOut",
-              }}
+
+
+
+
             >
               {member.avatar ? (
                 <img
@@ -216,14 +134,14 @@ function Home() {
                 <h3 className="text-xl leading-tight font-extrabold tracking-tight text-[#102019]">
                   {member.name}
                 </h3>
-                <p className="mt-2 text-base leading-6 font-medium text-[#526159]">
+                <P variant="unstyled" className="mt-2 text-base leading-6 font-medium text-[#526159]">
                   Founder of Casefy
-                </p>
-                <p className="mt-1 text-sm leading-6 font-medium text-[#526159]">
+                </P>
+                <P variant="unstyled" className="mt-1 text-sm leading-6 font-medium text-[#526159]">
                   {member.description}
-                </p>
+                </P>
               </div>
-            </Motion.li>
+            </Reveal>
           ))}
         </ul>
       </section>

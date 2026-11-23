@@ -1,3 +1,4 @@
+import Span from "../ui/Span";
 export default function Avatar({ user, className = "size-10" }) {
   const initials =
     user?.name
@@ -8,7 +9,7 @@ export default function Avatar({ user, className = "size-10" }) {
       .join("")
       .toUpperCase() || "C";
   return (
-    <span
+    <Span
       aria-hidden="true"
       className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#edf3ef] font-bold text-[#294137] ${className}`}
     >
@@ -21,6 +22,6 @@ export default function Avatar({ user, className = "size-10" }) {
       ) : (
         initials
       )}
-    </span>
+    </Span>
   );
 }

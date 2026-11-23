@@ -4,6 +4,7 @@ import { publicUserSelect } from "../utils/roles.js";
 import { normalizeWorkspaceName } from "../utils/workspaces.js";
 import { canAddWorkspace } from "../utils/plans.js";
 import { effectiveUser } from "../utils/subscriptions.js";
+import { GENERATION_MODE, currentGenerationRequest } from "../utils/generation.js";
 import { deliverEmail } from "../utils/integrations.js";
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -201,8 +202,7 @@ export function createWorkspaceController(db = prisma, emailSender = deliverEmai
       if (!request || typeof request !== "object" || Array.isArray(request) ||
           !["story", "documents", "url"].includes(request.source) ||
           typeof request.prompt !== "string" || request.prompt.length > 20000 ||
-          !["llm", "llm-playwright"].includes(request.generationMode?.value) ||
-          typeof request.generationMode?.label !== "string" || request.generationMode.label.length > 100 ||
+          request.generationMode?.value !== GENERATION_MODE.value ||
           !["concise", "standard", "detailed"].includes(request.configuration?.detail) ||
           !["low", "medium", "high"].includes(request.configuration?.reasoning) ||
           !Number.isSafeInteger(request.filters?.count) || request.filters.count < 1 ||
@@ -225,7 +225,7 @@ export function createWorkspaceController(db = prisma, emailSender = deliverEmai
         source: request.source,
         prompt: request.prompt,
         subject: data.name,
-        generationMode: { value: request.generationMode.value, label: request.generationMode.label },
+        generationMode: { ...GENERATION_MODE },
         configuration: { detail: request.configuration.detail, reasoning: request.configuration.reasoning },
         filters: { count: request.filters.count, priority: request.filters.priority, testTypes: request.filters.testTypes },
         ...(request.source === "url" ? { url: request.url } : {}),
@@ -257,7 +257,7 @@ export function createWorkspaceController(db = prisma, emailSender = deliverEmai
       const current = await tx.project.findUnique({ where: { id } });
       if (!current || current.workspaceId !== project.workspaceId)
         fail(409, "Project changed. Refresh before opening it");
-      return current;
+      return { ...current, generationRequest: currentGenerationRequest(current.generationRequest) };
     }));
   });
   const createProject = handle(async (req, res) => {

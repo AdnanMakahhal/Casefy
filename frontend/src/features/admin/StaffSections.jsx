@@ -1,17 +1,13 @@
 import Subscriptions from "./Subscriptions";
-import Payments from "./Payments";
-import Refunds from "./Refunds";
 import Inbox from "./Inbox";
 
-export default function StaffSections({ view, revision }) {
-  if (view === "subscriptions") return <Subscriptions revision={revision} />;
-  if (view === "payments") return <Payments revision={revision} />;
-  if (view === "refunds") return <Refunds revision={revision} />;
+export default function StaffSections({ view, revision, onLoadingChange }) {
+  if (view === "subscriptions") return <Subscriptions revision={revision} onLoadingChange={onLoadingChange} />;
   return (
     <Inbox
       key={view}
-      category={view === "custom" ? "custom" : ""}
       revision={revision}
+      onLoadingChange={onLoadingChange}
     />
   );
 }

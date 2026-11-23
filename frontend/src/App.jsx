@@ -1,13 +1,14 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { lazy, useCallback, useMemo, useState } from "react";
 import TestGenerator from "./pages/TestGenerator";
-import AppLayout from "./layouts/AppLayout";
+import AppLayout from "./ui/AppLayout";
+import ScrollToTop from "./ui/ScrollToTop";
 import Home from "./pages/Home";
 import Features from "./pages/Features";
 import HowItWorks from "./pages/HowItWorks";
 import UseCases from "./pages/UseCases";
 import Pricing from "./pages/Pricing";
-import Support from "./pages/Support";
+import SupportRedirect from "./features/support-chat/SupportRedirect";
 import Docs from "./pages/Docs";
 import Policy from "./pages/Policy";
 import Privacy from "./pages/Privacy";
@@ -20,6 +21,7 @@ import Settings from "./pages/Settings";
 import StaffSupport from "./pages/StaffSupport";
 import SubscriptionHistoryPage from "./pages/SubscriptionHistoryPage";
 import Admin from "./features/admin/AdminPage";
+import SupportFilterRedirect from "./features/admin/SupportFilterRedirect";
 import Workspaces from "./pages/Workspaces";
 import WorkspaceProjects from "./pages/WorkspaceProjects";
 import Project from "./pages/Project";
@@ -42,14 +44,21 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 function App() {
   const { user } = useAuth();
   const [supportOpen, setSupportOpen] = useState(false);
-  const openChat = useCallback(() => setSupportOpen(true), []);
+  const [requestedTopic, setRequestedTopic] = useState(null);
+  const openChat = useCallback((category) => {
+    setSupportOpen(true);
+    if (["support", "payment", "refund", "contact", "live_chat"].includes(category)) {
+      setRequestedTopic((current) => ({ category, id: (current?.id || 0) + 1 }));
+    }
+  }, []);
   const closeChat = useCallback(() => setSupportOpen(false), []);
   const supportChat = useMemo(
-    () => ({ open: supportOpen, openChat, closeChat }),
-    [supportOpen, openChat, closeChat],
+    () => ({ open: supportOpen, openChat, closeChat, requestedTopic }),
+    [supportOpen, openChat, closeChat, requestedTopic],
   );
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <SupportChatContext.Provider value={supportChat}>
         <Routes>
           <Route element={<AppLayout />}>
@@ -58,7 +67,7 @@ function App() {
             <Route path="how-it-works" element={<HowItWorks />} />
             <Route path="use-cases" element={<UseCases />} />
             <Route path="pricing" element={<Pricing />} />
-            <Route path="support" element={<Support />} />
+            <Route path="support" element={<SupportRedirect />} />
             <Route path="docs" element={<Docs />} />
             <Route path="policy" element={<Policy />} />
             <Route path="privacy" element={<Privacy />} />
@@ -126,6 +135,8 @@ function App() {
             />
           </Route>
           <Route element={<ProtectedRoute roles={["admin", "manager"]} />}>
+            <Route path="admin/refunds" element={<SupportFilterRedirect category="refund" />} />
+            <Route path="admin/payments" element={<SupportFilterRedirect category="payment" />} />
             <Route path="admin/*" element={<Admin />} />
           </Route>
           <Route element={<ProtectedRoute />}>

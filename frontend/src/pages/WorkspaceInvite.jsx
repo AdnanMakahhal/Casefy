@@ -1,4 +1,6 @@
-import Heading from "../components/Heading";
+import P from "../ui/P";
+import Button from "../ui/Button";
+import Heading from "../ui/Heading";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { RiLock2Line as LockKeyhole } from "react-icons/ri";
@@ -48,27 +50,27 @@ export default function WorkspaceInvite() {
         <Heading as="h1" className="mt-5 text-3xl font-bold">
           Workspace invitation
         </Heading>
-        <p className="mt-4 text-sm leading-6 text-[#526159]">
+        <P variant="unstyled" className="mt-4 text-sm leading-6 text-[#526159]">
           Join this private workspace using the permission selected by its
           owner. Your own workspace stays private.
-        </p>
+        </P>
         {error && (
-          <p role="alert" className="mt-5 text-sm text-red-700">
+          <P variant="unstyled" role="alert" className="mt-5 text-sm text-red-700">
             {error}
-          </p>
+          </P>
         )}
-        <button
+        <Button variant="primary" size="custom"
           type="button"
           disabled={busy || !/^[a-f0-9]{64}$/.test(token)}
           onClick={join}
-          className="mt-6 min-h-12 w-full cursor-pointer rounded-md bg-[#294137] px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-6 min-h-12 w-full px-5"
         >
           {busy ? "Joining…" : "Accept invitation and join"}
-        </button>
+        </Button>
         {!/^[a-f0-9]{64}$/.test(token) && (
-          <p className="mt-4 text-sm text-red-700">
+          <P variant="unstyled" className="mt-4 text-sm text-red-700">
             This invite link is incomplete. Ask the owner for a new link.
-          </p>
+          </P>
         )}
         <Link
           to="/settings/workspaces"

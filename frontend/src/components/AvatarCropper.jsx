@@ -1,3 +1,5 @@
+import P from "../ui/P";
+import Button from "../ui/Button";
 import { useEffect, useRef, useState } from "react";
 import AccountModal from "./AccountModal";
 import { clampPosition, cropGeometry } from "../features/authentication/crop";
@@ -80,9 +82,9 @@ export default function AvatarCropper({ file, onDismiss, onSave }) {
       onDismiss={onDismiss}
       busy={busy}
     >
-      <p className="mb-5 text-sm leading-6 text-[#526159]">
+      <P variant="unstyled" className="mb-5 text-sm leading-6 text-[#526159]">
         Drag the image and zoom to choose the frame for your avatar.
-      </p>
+      </P>
       <div
         role="img"
         aria-label="Avatar crop preview. Use the sliders below to adjust the image."
@@ -138,17 +140,17 @@ export default function AvatarCropper({ file, onDismiss, onSave }) {
             alt=""
             draggable={false}
             style={{
-              width: `${width * 100}%`,
-              height: `${height * 100}%`,
-              left: `${50 - ((width - 1) * position.x) / 2}%`,
-              top: `${50 - ((height - 1) * position.y) / 2}%`,
+              "--crop-width": `${width * 100}%`,
+              "--crop-height": `${height * 100}%`,
+              "--crop-left": `${50 - ((width - 1) * position.x) / 2}%`,
+              "--crop-top": `${50 - ((height - 1) * position.y) / 2}%`,
             }}
-            className="pointer-events-none absolute max-w-none -translate-x-1/2 -translate-y-1/2 cursor-grab"
+            className="pointer-events-none absolute top-[var(--crop-top)] left-[var(--crop-left)] h-[var(--crop-height)] w-[var(--crop-width)] max-w-none -translate-x-1/2 -translate-y-1/2 cursor-grab"
           />
         ) : (
-          <p role="status" className="p-6 text-center text-sm text-[#526159]">
+          <P variant="unstyled" role="status" className="p-6 text-center text-sm text-[#526159]">
             {error ? "Preview unavailable" : "Loading image..."}
-          </p>
+          </P>
         )}
         <div
           aria-hidden="true"
@@ -207,27 +209,27 @@ export default function AvatarCropper({ file, onDismiss, onSave }) {
         </label>
       </div>
       {error && (
-        <p role="alert" className="mt-4 text-sm text-red-700">
+        <P variant="unstyled" role="alert" className="mt-4 text-sm text-red-700">
           {error}
-        </p>
+        </P>
       )}
       <div className="mt-6 flex justify-end gap-3">
-        <button
+        <Button variant="unstyled"
           type="button"
           disabled={busy}
           onClick={onDismiss}
           className="min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-[#294137] disabled:opacity-50"
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button variant="primary" size="custom"
           type="button"
           disabled={!image || busy}
           onClick={saveAvatar}
-          className="min-h-11 cursor-pointer rounded-md bg-[#294137] px-4 text-sm font-semibold text-white hover:bg-[#20332b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] disabled:cursor-not-allowed disabled:opacity-50"
+          className="min-h-11 px-4"
         >
           {busy ? "Saving..." : "Save photo"}
-        </button>
+        </Button>
       </div>
     </AccountModal>
   );

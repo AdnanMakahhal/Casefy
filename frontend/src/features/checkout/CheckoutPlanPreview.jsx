@@ -1,3 +1,7 @@
+import H2 from "../../ui/H2";
+import P from "../../ui/P";
+import Span from "../../ui/Span";
+import Button from "../../ui/Button";
 import { useState } from "react";
 import { useReducedMotion } from "motion/react";
 import {
@@ -30,7 +34,6 @@ export default function CheckoutPlanPreview({
   annualBase,
   money,
   isFree,
-  isCustom,
   busy,
 }) {
   const [printed, setPrinted] = useState(false);
@@ -43,14 +46,10 @@ export default function CheckoutPlanPreview({
         : "printing";
   const interval = isFree
     ? "No payment required"
-    : isCustom
-      ? "Custom quote"
-      : period === "year"
+    : period === "year"
         ? "Annual subscription"
         : "Monthly subscription";
-  const totalLabel = isCustom
-    ? "CUSTOM PRICE"
-    : isFree
+  const totalLabel = isFree
       ? "PLAN PRICE"
       : period === "year"
         ? "ANNUAL TOTAL"
@@ -71,31 +70,31 @@ export default function CheckoutPlanPreview({
               height="50"
               className="block h-[50px] w-[150px] shrink-0 self-center object-contain"
             />
-            <Link
+            <Button variant="unstyled"
               to="/"
               className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-white/15 bg-white/10 px-3 text-xs font-semibold text-[#edf3ef] shadow-[0_3px_0_#10201966,inset_0_1px_0_#ffffff12] transition-[background-color,transform] hover:bg-white/20 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none"
             >
               <House size={13} aria-hidden="true" />
               Home
-            </Link>
+            </Button>
           </ReceiptPrinterHeader>
           <ReceiptPrinterScreen>
             <div className="mb-5 flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
               <div className="min-w-0">
-                <p className="break-words text-base font-semibold leading-6 text-white">
+                <P variant="unstyled" className="break-words text-base font-semibold leading-6 text-white">
                   {planName}
-                </p>
-                <p className="mt-1 text-xs leading-5 text-[#a9c0b1]">
+                </P>
+                <P variant="unstyled" className="mt-1 text-xs leading-5 text-[#a9c0b1]">
                   {interval}
-                </p>
+                </P>
               </div>
               <div className="min-w-0 text-right">
-                <p className="text-[10px] tracking-wider text-[#a9c0b1]">
-                  {isCustom ? "PRICE" : "TOTAL"}
-                </p>
-                <p className="mt-1 break-words text-xl font-bold tracking-tight text-white tabular-nums">
+                <P variant="unstyled" className="text-[10px] tracking-wider text-[#a9c0b1]">
+                  {"TOTAL"}
+                </P>
+                <P variant="unstyled" className="mt-1 break-words text-xl font-bold tracking-tight text-white tabular-nums">
                   {priceLabel}
-                </p>
+                </P>
               </div>
             </div>
             <ReceiptPrinterStatus error={Boolean(error)}>
@@ -121,20 +120,20 @@ export default function CheckoutPlanPreview({
                 height="50"
                 className="mx-auto block h-[50px] w-[150px] bg-white object-contain"
               />
-              <p className="mt-4 text-[10px] tracking-[0.18em] text-[#7a8d7f]">
+              <P variant="unstyled" className="mt-4 text-[10px] tracking-[0.18em] text-[#7a8d7f]">
                 CASEFY / PLAN SUMMARY
-              </p>
+              </P>
             </div>
             <div className="flex flex-wrap items-start justify-between gap-3 border-b border-dashed border-[#bfcfc3] py-5">
               <div>
-                <h2 className="text-xs font-bold tracking-wide uppercase">
+                <H2 variant="unstyled" className="text-xs font-bold tracking-wide uppercase">
                   {planName}
-                </h2>
-                <p className="mt-1.5 text-[11px] leading-5 text-[#7a8d7f]">
+                </H2>
+                <P variant="unstyled" className="mt-1.5 text-[11px] leading-5 text-[#7a8d7f]">
                   {interval}
-                </p>
+                </P>
               </div>
-              <p className="text-sm font-semibold tabular-nums">{priceLabel}</p>
+              <P variant="unstyled" className="text-sm font-semibold tabular-nums">{priceLabel}</P>
             </div>
             {annualSavings > 0 && (
               <dl className="space-y-2.5 pt-5 text-[11px] leading-5">
@@ -153,17 +152,17 @@ export default function CheckoutPlanPreview({
               </dl>
             )}
             <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-dashed border-[#bfcfc3] py-5">
-              <span className="text-[11px] font-bold tracking-wider">
+              <Span className="text-[11px] font-bold tracking-wider">
                 {totalLabel}
-              </span>
-              <span className="text-right text-2xl font-bold tracking-tight tabular-nums">
+              </Span>
+              <Span className="text-right text-2xl font-bold tracking-tight tabular-nums">
                 {priceLabel}
                 {hasPrice && (
-                  <span className="ml-1 text-[10px] font-normal tracking-normal">
+                  <Span className="ml-1 text-[10px] font-normal tracking-normal">
                     / {period}
-                  </span>
+                  </Span>
                 )}
-              </span>
+              </Span>
             </div>
             <dl className="mt-5 space-y-3 text-[11px] leading-5">
               <div className="flex items-start justify-between gap-3">
@@ -179,9 +178,9 @@ export default function CheckoutPlanPreview({
                 </div>
               )}
             </dl>
-            <p className="mt-6 text-[10px] tracking-widest text-[#7a8d7f]">
+            <P variant="unstyled" className="mt-6 text-[10px] tracking-widest text-[#7a8d7f]">
               INCLUDED WITH YOUR PLAN
-            </p>
+            </P>
             <ul className="mt-3 space-y-2.5">
               {features.map((feature) => (
                 <li
@@ -193,21 +192,19 @@ export default function CheckoutPlanPreview({
                     aria-hidden="true"
                     className="mt-1 shrink-0"
                   />
-                  <span>{feature}</span>
+                  <Span>{feature}</Span>
                 </li>
               ))}
             </ul>
             <div className="mt-6 border-t border-dashed border-[#bfcfc3] pt-5 text-center">
-              <p className="text-[10px] leading-5 text-[#7a8d7f]">
+              <P variant="unstyled" className="text-[10px] leading-5 text-[#7a8d7f]">
                 {isFree
                   ? "Your Free plan needs no payment."
-                  : isCustom
-                    ? "Contact support for your custom quote."
-                    : "Payment is completed securely with Stripe."}
-              </p>
-              <p className="mt-2 text-[9px] tracking-wider text-[#7a8d7f]">
+                  : "Payment is completed securely with Stripe."}
+              </P>
+              <P variant="unstyled" className="mt-2 text-[9px] tracking-wider text-[#7a8d7f]">
                 PLAN PREVIEW / NOT A PAYMENT RECEIPT
-              </p>
+              </P>
             </div>
           </ReceiptPrinterPaper>
         </ReceiptPrinterOutput>

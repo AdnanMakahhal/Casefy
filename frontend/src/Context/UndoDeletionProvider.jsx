@@ -1,3 +1,5 @@
+import P from "../ui/P";
+import Button from "../ui/Button";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   RiCloseLine as X
@@ -74,12 +76,12 @@ export default function UndoDeletionProvider({ children, sessionKey }) {
         <div className="fixed right-4 bottom-5 left-4 z-[100] mx-auto max-w-md sm:right-6 sm:left-auto sm:w-[380px]">
           {pending &&
             (committing ? (
-              <p
+              <P variant="unstyled"
                 role="status"
                 className="rounded-md border border-[#cfddd5] bg-white p-4 text-sm text-[#526159] shadow-lg"
               >
                 Deleting...
-              </p>
+              </P>
             ) : (
               <UndoNotice
                 message={pending.message}
@@ -92,15 +94,15 @@ export default function UndoDeletionProvider({ children, sessionKey }) {
               role="alert"
               className="flex items-center justify-between gap-3 rounded-md border border-red-200 bg-white p-4 text-sm text-red-700 shadow-lg"
             >
-              <p>{error}</p>
-              <button
+              <P variant="unstyled">{error}</P>
+              <Button variant="unstyled"
                 type="button"
                 aria-label="Dismiss deletion error"
                 onClick={() => setError("")}
                 className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-md hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-700"
               >
                 <X size={16} />
-              </button>
+              </Button>
             </div>
           )}
         </div>

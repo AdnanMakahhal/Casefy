@@ -1,4 +1,8 @@
-import Heading from "../components/Heading";
+import H2 from "../ui/H2";
+import P from "../ui/P";
+import Span from "../ui/Span";
+import Button from "../ui/Button";
+import Heading from "../ui/Heading";
 import { useEffect, useState } from "react";
 import {
   RiArrowLeftLine as ArrowLeft,
@@ -6,8 +10,14 @@ import {
   RiFolderChartLine as FolderKanban,
   RiMenuLine as Menu,
   RiDeleteBin6Line as Trash2,
+  RiSearchLine as Search,
+  RiAddLine as Plus,
+  RiGroupLine as Users,
+  RiEditLine as Edit,
+  RiFolderTransferLine as Move,
+  RiArrowRightLine as ArrowRight,
 } from "react-icons/ri";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import DashboardSidebar from "../components/DashboardSidebar";
 import { useAuth } from "../features/authentication/authContext";
 import WorkspaceAccess from "../features/workspaces/WorkspaceAccess";
@@ -32,6 +42,9 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [attempt, setAttempt] = useState(0);
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState("newest");
+  const [showAccess, setShowAccess] = useState(false);
   const workspace = result?.workspace;
   const canEdit = !error && ["owner", "editor"].includes(workspace?.role);
   const projects = (result?.projects || []).filter(
@@ -39,6 +52,11 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
       pendingId !== `project:${project.id}` &&
       !deletedProjectIds.includes(`project:${project.id}`),
   );
+  const visibleProjects = projects.filter((project) =>
+    `${project.name} ${project.description || ""}`.toLowerCase().includes(query.trim().toLowerCase()),
+  ).sort((a, b) => sort === "name"
+    ? a.name.localeCompare(b.name)
+    : (new Date(b.createdAt).getTime() || 0) - (new Date(a.createdAt).getTime() || 0));
 
   useEffect(() => {
     let active = true;
@@ -65,32 +83,32 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
         onClose={() => setIsSidebarOpen(false)}
       />
       <main className="mx-auto max-w-[1440px] px-4 py-6 sm:px-8 lg:p-10">
-        <Link
+        <Button variant="outline" size="sm"
           to="/settings/workspaces"
-          className="mb-6 inline-flex min-h-10 items-center gap-2 rounded-md text-sm font-semibold text-[#294137] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+          className="mb-6 min-h-10"
         >
           <ArrowLeft size={16} aria-hidden="true" />
           All workspaces
-        </Link>
-        <header className="flex items-start gap-3">
-          <button
+        </Button>
+        <header className="flex flex-wrap items-start gap-3">
+          <Button variant="outline" size="custom"
             type="button"
             aria-label="Open navigation"
             aria-controls="dashboard-sidebar"
             aria-expanded={isSidebarOpen}
             onClick={() => setIsSidebarOpen(true)}
-            className="flex size-11 shrink-0 items-center justify-center rounded-md border border-[#CFDDD5] bg-white text-[#294137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] lg:hidden"
+            className="flex size-11 shrink-0 lg:hidden"
           >
             <Menu size={20} aria-hidden="true" />
-          </button>
-          <div className="min-w-0">
+          </Button>
+          <div className="min-w-0 flex-1">
             <div className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-widest text-[#526159]">
               <Building2 size={16} aria-hidden="true" />
               WORKSPACE
               {workspace?.isPrimary && (
-                <span className="ml-2 rounded-full bg-[#edf3ef] px-3 py-1 text-xs tracking-normal text-[#294137]">
+                <Span variant="accent" className="ml-2 rounded-md bg-[#edf3ef] px-3 py-1 text-xs tracking-normal">
                   Primary
-                </span>
+                </Span>
               )}
             </div>
             <Heading
@@ -101,61 +119,55 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
                 ? "Workspace not found"
                 : workspace?.name || "Workspace projects"}
             </Heading>
-            <p className="mt-3 text-sm leading-6 text-[#526159]">
-              Private | {workspace?.role || "Members only"}
-            </p>
-            {workspace?.id && (
-              <p className="mt-2 break-all text-xs text-[#526159]">
-                Workspace ID: {workspace.id}
-              </p>
-            )}
+            <P variant="unstyled" className="mt-3 text-sm leading-6 text-[#526159]">
+              {workspace ? "Your projects and team, in one place." : "Loading workspace details..."}
+            </P>
+            {workspace && <div className="mt-3 flex flex-wrap gap-2 text-xs text-[#526159]"><Span className="rounded-md border border-[#dce6df] bg-white px-2 py-1 capitalize">{workspace.role}</Span><Span className="px-2 py-1">Private workspace</Span></div>}
           </div>
+          {!error && workspace?.role === "owner" && <Button variant="outline" onClick={() => setShowAccess((open) => !open)} aria-expanded={showAccess} aria-controls="workspace-access-panel" className="w-full sm:w-auto"><Users size={17} aria-hidden="true" />Manage access</Button>}
         </header>
 
-        {!error && workspace?.role === "owner" && (
-          <WorkspaceAccess workspace={workspace} />
+        {!error && workspace?.role === "owner" && showAccess && (
+          <div id="workspace-access-panel"><WorkspaceAccess workspace={workspace} /></div>
         )}
         <section
           aria-labelledby="workspace-projects-heading"
           aria-busy={isLoading}
-          className="mt-9"
+          className="mt-7"
         >
-          {canEdit && (
-            <div className="mb-5 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => setAdding(true)}
-                className="min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] bg-white px-5 text-sm font-semibold text-[#294137]"
-              >
-                New project
-              </button>
-            </div>
-          )}
-          <h2
+          <div className="flex items-center justify-between gap-3">
+          <H2 variant="unstyled"
             id="workspace-projects-heading"
-            className="mb-5 text-lg font-bold tracking-tight"
+            className="text-lg font-bold tracking-tight"
           >
             Projects
             {result && !error && (
-              <span className="ml-2 text-sm font-medium text-[#526159]">
+              <Span className="ml-2 text-sm font-medium text-[#526159]">
                 ({projects.length})
-              </span>
+              </Span>
             )}
-          </h2>
+          </H2>
+          {canEdit && <Button onClick={() => setAdding(true)}><Plus size={17} aria-hidden="true" />New project</Button>}
+          </div>
+          {!isLoading && !error && projects.length > 0 && <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <div className="relative min-w-0 flex-1"><Search size={18} aria-hidden="true" className="pointer-events-none absolute left-3 top-3 text-[#718578]" /><input type="search" aria-label="Search projects" placeholder="Search projects..." value={query} onChange={(event) => setQuery(event.target.value)} className="min-h-11 w-full rounded-md border border-[#cfddd5] bg-white pl-10 pr-3 text-sm focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]" /></div>
+            <select aria-label="Sort projects" value={sort} onChange={(event) => setSort(event.target.value)} className="min-h-11 rounded-md border border-[#cfddd5] bg-white px-3 text-sm text-[#294137] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]"><option value="newest">Newest first</option><option value="name">Name A–Z</option></select>
+          </div>}
+          <div className="mt-4">
           {isLoading ? (
-            <p
+            <P variant="unstyled"
               role="status"
               className="rounded-md border border-[#CFDDD5] bg-white p-8 text-sm text-[#526159]"
             >
               Loading projects...
-            </p>
+            </P>
           ) : error ? (
             <div className="rounded-md border border-[#CFDDD5] bg-white p-8">
-              <p role="alert" className="text-sm text-red-700">
+              <P variant="unstyled" role="alert" className="text-sm text-red-700">
                 {error.message}
-              </p>
+              </P>
               {error.status !== 404 && (
-                <button
+                <Button variant="unstyled"
                   type="button"
                   onClick={() => {
                     setError(null);
@@ -165,77 +177,76 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
                   className="mt-4 min-h-11 cursor-pointer rounded-md border border-[#CFDDD5] px-4 text-sm font-semibold text-[#294137] hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-[#294137]"
                 >
                   Try again
-                </button>
+                </Button>
               )}
             </div>
-          ) : projects.length ? (
+          ) : visibleProjects.length ? (
             <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {projects.map((project) => (
+              {visibleProjects.map((project) => (
                 <li
                   key={project.id}
-                  className="rounded-md border border-[#CFDDD5] bg-white p-6"
+                  className="flex min-w-0 flex-col rounded-md border border-[#CFDDD5] bg-white p-5 transition-shadow hover:shadow-sm"
                 >
-                  <span className="flex size-11 items-center justify-center rounded-md bg-[#edf3ef] text-[#294137]">
+                  <Span variant="accent" className="flex size-11 items-center justify-center rounded-md bg-[#edf3ef]">
                     <FolderKanban size={22} aria-hidden="true" />
-                  </span>
-                  <h3 className="mt-5 break-words text-lg font-semibold">
+                  </Span>
+                  <h3 className="mt-4 break-words text-base font-semibold">
                     {project.name}
                   </h3>
                   {project.description && (
-                    <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-[#526159]">
+                    <P variant="unstyled" className="mt-2 line-clamp-2 whitespace-pre-wrap break-words text-sm leading-6 text-[#526159]">
                       {project.description}
-                    </p>
+                    </P>
                   )}
-                  <p className="mt-5 text-xs text-[#526159]">
+                  <P variant="unstyled" className="mt-auto pt-5 text-xs text-[#526159]">
                     Created{" "}
                     <time dateTime={project.createdAt}>
                       {new Date(project.createdAt).toLocaleDateString()}
                     </time>
-                  </p>
+                  </P>
+                  <div className="mt-4 flex flex-wrap items-center gap-1.5 border-t border-[#e1e9e4] pt-3">
                   {canEdit ? (
-                    <Link
+                    <Button variant="primary" size="custom"
                       to={`/workspaces/${workspaceKey}/projects/${project.id}`}
-                      className="mt-4 mr-2 inline-flex min-h-9 items-center rounded-md bg-[#294137] px-3 text-xs font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137]"
+                      className="mr-auto min-h-10 px-3 text-xs"
                     >
-                      Open project
-                    </Link>
+                      Open project<ArrowRight size={14} aria-hidden="true" />
+                    </Button>
                   ) : (
-                    <button
+                    <Button variant="unstyled"
                       type="button"
                       onClick={() => setViewing(project)}
-                      className="mt-4 mr-2 min-h-9 cursor-pointer rounded-md border border-[#CFDDD5] px-3 text-xs font-semibold"
+                      className="min-h-10 cursor-pointer rounded-md border border-[#CFDDD5] px-3 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-[#294137]"
                     >
                       View project
-                    </button>
+                    </Button>
                   )}
                   {canEdit && (
                     <>
-                      <button
+                      <Button variant="ghost" size="icon" aria-label={`Edit ${project.name}`} title="Edit project"
                         type="button"
                         onClick={() => setEditing(project)}
-                        className="mt-4 mr-2 min-h-9 cursor-pointer rounded-md border border-[#CFDDD5] px-3 text-xs font-semibold"
                       >
-                        Edit project
-                      </button>
-                      <button
+                        <Edit size={17} aria-hidden="true" />
+                      </Button>
+                      <Button variant="ghost" size="icon" aria-label={`Move ${project.name}`} title="Move project"
                         type="button"
                         disabled={deletionBusy}
                         onClick={() => setMoving(project)}
-                        className="mt-4 mr-2 min-h-9 cursor-pointer rounded-md border border-[#CFDDD5] px-3 text-xs font-semibold disabled:opacity-50"
                       >
-                        Move project
-                      </button>
-                      <button
+                        <Move size={17} aria-hidden="true" />
+                      </Button>
+                      <Button variant="ghost" size="icon" aria-label={`Delete ${project.name}`} title="Delete project"
                         type="button"
                         disabled={deletionBusy}
                         onClick={() => setDeleting(project)}
-                        className="mt-4 inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-md px-2 text-xs font-medium text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="text-red-700 focus-visible:outline-red-700"
                       >
-                        <Trash2 size={14} aria-hidden="true" />
-                        Delete project
-                      </button>
+                        <Trash2 size={17} aria-hidden="true" />
+                      </Button>
                     </>
                   )}
+                  </div>
                 </li>
               ))}
             </ul>
@@ -246,12 +257,14 @@ function WorkspaceProjectsView({ user, workspaceKey }) {
                 className="mb-4 text-[#526159]"
                 aria-hidden="true"
               />
-              <h3 className="text-lg font-semibold">No projects yet</h3>
-              <p className="mt-2 max-w-sm text-sm leading-6 text-[#526159]">
-                This workspace has no projects yet.
-              </p>
+              <h3 className="text-lg font-semibold">{projects.length ? "No matching projects" : "No projects yet"}</h3>
+              <P variant="unstyled" className="mt-2 max-w-sm text-sm leading-6 text-[#526159]">
+                {projects.length ? "Try another name or description." : canEdit ? "Create your first project to start organizing your test coverage." : "Projects will appear here when your team adds them."}
+              </P>
+              {projects.length > 0 && <Button variant="outline" size="sm" className="mt-4" onClick={() => setQuery("")}>Clear search</Button>}
             </div>
           )}
+          </div>
         </section>
         {(adding || editing) && (
           <ProjectForm

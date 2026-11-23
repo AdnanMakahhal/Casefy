@@ -1,3 +1,6 @@
+import P from "../../ui/P";
+import Span from "../../ui/Span";
+import Button from "../../ui/Button";
 import {
   RiDownloadLine as Download
 } from "react-icons/ri";
@@ -18,27 +21,27 @@ export default function GenerationResults({ run }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="font-bold text-[#102019]">{run.subject}</h3>
-          <p className="mt-1 text-xs text-[#526159]">
+          <P variant="unstyled" className="mt-1 text-xs text-[#526159]">
             {run.testCount} generated cases · {run.model} · Report #{run.id}
-          </p>
+          </P>
         </div>
-        <button
+        <Button variant="unstyled"
           type="button"
           onClick={download}
           className="inline-flex min-h-10 items-center gap-2 rounded-md border border-[#CFDDD5] px-3 text-sm font-semibold text-[#294137]"
         >
           <Download size={16} />
           Export JSON
-        </button>
+        </Button>
       </div>
-      <p className="rounded-md bg-[#edf3ef] p-3 text-xs leading-5 text-[#526159]">
+      <P variant="unstyled" className="rounded-md bg-[#edf3ef] p-3 text-xs leading-5 text-[#526159]">
         These are generated test cases. Review them before use; they have not
         been executed.
-      </p>
+      </P>
       {run.error && (
-        <p role="alert" className="text-sm text-red-700">
+        <P variant="unstyled" role="alert" className="text-sm text-red-700">
           {run.error}
-        </p>
+        </P>
       )}
       <div className="max-h-[60vh] space-y-3 overflow-y-auto">
         {(Array.isArray(run.result) ? run.result : []).map((test, index) => (
@@ -48,19 +51,19 @@ export default function GenerationResults({ run }) {
           >
             <summary className="cursor-pointer text-sm font-semibold text-[#102019]">
               {index + 1}. {test.title}
-              <span className="ml-2 text-xs font-normal text-[#526159]">
+              <Span className="ml-2 text-xs font-normal text-[#526159]">
                 {test.priority} · {test.type}
-              </span>
+              </Span>
             </summary>
             <ol className="mt-4 ml-5 list-decimal space-y-2 text-sm leading-6 text-[#526159]">
               {test.steps.map((step, at) => (
                 <li key={at}>{step}</li>
               ))}
             </ol>
-            <p className="mt-4 border-t border-[#e5ece7] pt-3 text-sm leading-6">
+            <P variant="unstyled" className="mt-4 border-t border-[#e5ece7] pt-3 text-sm leading-6">
               <strong>Expected result: </strong>
               {test.expectedResult}
-            </p>
+            </P>
           </details>
         ))}
       </div>

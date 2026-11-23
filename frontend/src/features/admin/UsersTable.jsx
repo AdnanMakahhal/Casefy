@@ -1,3 +1,5 @@
+import Span from "../../ui/Span";
+import Button from "../../ui/Button";
 import { label, number, date } from "./userOptions";
 import {
   RiPencilLine as Pencil,
@@ -39,62 +41,62 @@ export default function UsersTable({
               <tr key={account.id}>
                 <td>
                   <div className="admin-person">
-                    <span className="admin-avatar">
+                    <Span className="admin-avatar">
                       {account.name.slice(0, 1).toUpperCase()}
-                    </span>
+                    </Span>
                     <div>
                       <strong>
                         {account.name}
                         {account.id === currentId && (
-                          <span className="admin-you">You</span>
+                          <Span className="admin-you">You</Span>
                         )}
                       </strong>
-                      <span>{account.email}</span>
+                      <Span>{account.email}</Span>
                     </div>
                   </div>
                 </td>
                 <td>
-                  <span
+                  <Span
                     className={`admin-role ${account.role === "admin" ? "is-admin" : ""}`}
                   >
                     {label(account.role)}
-                  </span>
+                  </Span>
                 </td>
                 <td>
-                  {staff ? <span className="admin-muted">Not applicable</span> : <span className={`admin-plan plan-${account.plan}`}>
+                  {staff ? <Span className="admin-muted">Not applicable</Span> : <Span className={`admin-plan plan-${account.plan}`}>
                     <i />
                     {label(account.plan)}
-                  </span>}
+                  </Span>}
                 </td>
                 <td>
-                  <span
+                  <Span
                     title={account.blockedReason || "Can sign in"}
                     className={`staff-badge ${account.blockedAt ? "negative" : "positive"}`}
                   >
                     {account.blockedAt ? "Blocked" : "Active"}
-                  </span>
+                  </Span>
                 </td>
                 <td>
                   {staff ? "Not applicable" : number(account._count.projects)}
                   {!staff && account.projectLimit && (
-                    <span className="admin-muted">
+                    <Span className="admin-muted">
                       {" "}
                       / {number(account.projectLimit)}
-                    </span>
+                    </Span>
                   )}
                 </td>
                 <td className="admin-date">{date(account.createdAt)}</td>
                 <td>
                   <div className="admin-row-actions">
-                    <button
+                    <Button variant="unstyled" type="submit"
                       className="admin-icon-button"
                       disabled={!editable}
                       aria-label={`Edit ${account.email}`}
                       onClick={() => onEdit(account)}
                     >
                       <Pencil size={16} />
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="unstyled" type="submit"
                       className="admin-icon-button"
                       disabled={!editable || account.id === currentId}
                       title={account.blockedAt ? "Unblock user" : "Block user"}
@@ -106,15 +108,15 @@ export default function UsersTable({
                       ) : (
                         <ShieldBan size={17} />
                       )}
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="unstyled" type="submit"
                       className="admin-icon-button delete"
                       aria-label={`Delete ${account.email}`}
                       disabled={!editable || account.id === currentId}
                       onClick={() => onDelete(account)}
                     >
                       <Trash2 size={16} />
-                    </button>
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -125,7 +127,7 @@ export default function UsersTable({
               <td colSpan={7} className="admin-empty">
                 <Users size={28} />
                 <strong>No users found</strong>
-                <span>Try a different search or filter.</span>
+                <Span>Try a different search or filter.</Span>
               </td>
             </tr>
           )}

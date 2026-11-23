@@ -1,3 +1,5 @@
+import P from "../../ui/P";
+import Button from "../../ui/Button";
 import { useState } from "react";
 import { adminRequest } from "./api";
 import AccountModal from "../../components/AccountModal";
@@ -42,9 +44,9 @@ export default function ComposeMessage({ account, request, onClose, onSaved }) {
       onDismiss={onClose}
       busy={busy}
     >
-      <p className="mb-5 text-sm text-[#526159]">
+      <P variant="unstyled" className="mb-5 text-sm text-[#526159]">
         To: <strong>{account?.email || request.email}</strong>
-      </p>
+      </P>
       <form onSubmit={submit} className="space-y-4">
         <fieldset disabled={busy} className="space-y-4">
           <label className="block text-xs font-semibold text-[#526159]">
@@ -99,18 +101,18 @@ export default function ComposeMessage({ account, request, onClose, onSaved }) {
         </fieldset>
         <ErrorMessage>{error}</ErrorMessage>
         <div className="flex justify-end gap-3 pt-2">
-          <button
+          <Button variant="outline" size="md"
             type="button"
             disabled={busy}
-            className="admin-button"
+            className="border px-5 py-2.5 whitespace-nowrap"
             onClick={onClose}
           >
             Cancel
-          </button>
-          <button disabled={busy} className="admin-button primary">
+          </Button>
+          <Button variant="primary" size="md" type="submit" disabled={busy} className="border px-5 py-2.5 whitespace-nowrap border-[#294137]">
             <Send size={16} />
             {busy ? "Sending..." : "Send message"}
-          </button>
+          </Button>
         </div>
       </form>
     </AccountModal>
