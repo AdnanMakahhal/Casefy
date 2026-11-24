@@ -74,7 +74,7 @@ Customers manage workspaces, projects, and one-use invitation links through Work
 
 Support is available through the floating Support button across public and customer pages. There is no standalone support page. Shared `ui/SupportButton.jsx` actions open the widget directly; refund actions select the refund topic. Old `/support` URLs redirect home and open the widget. Guests can sign in for account conversations or send a request inside the widget for sign-in help. Staff handle replies in the shared admin panel at /admin. Administrators and managers share navigation for users, support, subscriptions, payments, and refunds. See the [staff guide](../backend/README.md#staff-panel) for permissions and configuration.
 
-New subscriptions use Stripe checkout. Higher eligible tiers use the existing subscription's upgrade flow. Ultra costs $699/month, or $8,388 billed annually at the same monthly rate, and includes unlimited seats, projects, workspaces, and credits. Custom-plan support enquiries and negotiated offers have been removed. Customer generation currently previews a request. Test generation and reports are customer-only pages.
+New subscriptions use Stripe checkout. Higher eligible tiers use the existing subscription's upgrade flow. Ultra costs $299/month, or $3,588 billed annually at the same monthly rate, and includes unlimited seats, projects, workspaces, and credits. Custom-plan support enquiries and negotiated offers have been removed. Customer generation currently previews a request. Test generation and reports are customer-only pages.
 
 ## Checks and production build
 

@@ -52,7 +52,7 @@ function DashboardSidebar({ isOpen, onClose, user, items }) {
         }}
         className={`${isOpen ? "flex" : "hidden"} fixed inset-y-0 left-0 z-50 w-64 flex-col overflow-y-auto border-r border-[#CFDDD5] bg-white p-5 lg:flex`}
       >
-        <div className="relative flex justify-center">
+        <div className="flex items-center justify-between gap-2 lg:justify-center">
           <Link
             to="/"
             aria-label="Casefy home"
@@ -60,13 +60,14 @@ function DashboardSidebar({ isOpen, onClose, user, items }) {
           >
             <BrandLogo />
           </Link>
-          <Button variant="unstyled"
+          <Button variant="outline" size="icon"
             type="button"
             onClick={onClose}
             aria-label="Close navigation"
-            className="absolute -right-4 top-0 flex size-8 items-center justify-center rounded-md text-[#294137] hover:bg-[#edf3ef] lg:hidden"
+            title="Close navigation"
+            className="size-11 shrink-0 border-[#CFDDD5] bg-[#edf3ef] text-[#294137] hover:border-[#91a99a] hover:bg-[#e2ece6] active:bg-[#d5e3da] lg:hidden"
           >
-            <X size={20} />
+            <X size={22} aria-hidden="true" />
           </Button>
         </div>
         <nav className="mt-6 space-y-2" aria-label="Dashboard navigation">

@@ -76,9 +76,9 @@ const plans = [
       "Unlimited credits",
       "All testing workflows",
     ],
-    monthly: "699",
-    annual: "699",
-    yearly: "8388",
+    monthly: "299",
+    annual: "299",
+    yearly: "3588",
     action: "Start Ultra",
   },
 ];

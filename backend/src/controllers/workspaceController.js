@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import prisma from "../db.js";
+import { TEST_TYPES } from "../utils/testTypes.js";
 import { publicUserSelect } from "../utils/roles.js";
 import { normalizeWorkspaceName } from "../utils/workspaces.js";
 import { canAddWorkspace } from "../utils/plans.js";
@@ -208,8 +209,8 @@ export function createWorkspaceController(db = prisma, emailSender = deliverEmai
           !Number.isSafeInteger(request.filters?.count) || request.filters.count < 1 ||
           !["all", "low", "medium", "high"].includes(request.filters?.priority) ||
           !Array.isArray(request.filters?.testTypes) || !request.filters.testTypes.length ||
-          request.filters.testTypes.length > 6 || request.filters.testTypes.some((type) =>
-            !["functional", "positive", "negative", "edge", "security", "accessibility"].includes(type)) ||
+          request.filters.testTypes.length > TEST_TYPES.size || request.filters.testTypes.some((type) =>
+            !TEST_TYPES.has(type)) ||
           (request.source === "story" && !request.prompt.trim()) ||
           (request.source === "url" && (typeof request.url !== "string" || request.url.length > 2048 || !/^https?:\/\//i.test(request.url))) ||
           (request.source === "url" && request.compareWithDocuments !== undefined && typeof request.compareWithDocuments !== "boolean") ||

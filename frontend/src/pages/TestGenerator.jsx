@@ -17,6 +17,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import DashboardSidebar from "../components/DashboardSidebar";
 import AccountModal from "../components/AccountModal";
 import SelectMenu from "../components/SelectMenu";
+import TestTypeSelect from "../features/test-generation/TestTypeSelect";
+import { TEST_TYPES as testTypes, normalizeTestTypes } from "../features/test-generation/testTypes";
 import { DEFAULT_MODEL_CONFIGURATION } from "../features/test-generation/models";
 import { ModelSelectorPrompt } from "../features/test-generation/ModelSelectorPrompt";
 import useWorkspaces from "../features/workspaces/useWorkspaces";
@@ -27,14 +29,6 @@ const sources = [
   { value: "story", label: "User story", icon: BookOpen },
   { value: "documents", label: "Documents", icon: FileText },
   { value: "url", label: "URL", icon: Globe },
-];
-const testTypes = [
-  { value: "functional", label: "Functional" },
-  { value: "positive", label: "Positive" },
-  { value: "negative", label: "Negative" },
-  { value: "edge", label: "Edge cases" },
-  { value: "security", label: "Security" },
-  { value: "accessibility", label: "Accessibility" },
 ];
 const inputClass =
   "min-h-11 w-full rounded-md border border-[#CFDDD5] bg-white px-3 py-2 text-sm text-[#102019] focus:outline-2 focus:outline-offset-2 focus:outline-[#294137]";
@@ -74,9 +68,10 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
   const [priority, setPriority] = useState(
     initialRequest?.filters?.priority || "all",
   );
-  const [selectedTypes, setSelectedTypes] = useState(
-    initialRequest?.filters?.testTypes || ["functional", "negative", "edge"],
-  );
+  const [selectedTypes, setSelectedTypes] = useState(() => {
+    const saved = normalizeTestTypes(initialRequest?.filters?.testTypes || []);
+    return saved.length ? saved : ["functional", "positive-negative", "edge"];
+  });
   const [error, setError] = useState("");
   const [request, setRequest] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -143,14 +138,6 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
       return;
     }
     setFiles(next);
-  }
-  function toggleType(type) {
-    setSelectedTypes((current) =>
-      current.includes(type)
-        ? current.filter((value) => value !== type)
-        : [...current, type],
-    );
-    setError("");
   }
   function review({ prompt, subject }) {
     setError("");
@@ -487,24 +474,12 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
                           ]}
                         />
                       </div>
-                      <fieldset className="col-span-2 min-w-0 lg:col-span-1">
-                        <legend className="mb-1.5 text-[11px] font-medium text-[#526159]">
-                          Test types
-                        </legend>
-                        <div className="flex flex-wrap gap-1.5">
-                          {testTypes.map(({ value, label }) => (
-                            <Button variant="unstyled"
-                              key={value}
-                              type="button"
-                              aria-pressed={selectedTypes.includes(value)}
-                              onClick={() => toggleType(value)}
-                              className={`inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294137] ${selectedTypes.includes(value) ? "border-[#294137] bg-[#294137] text-white hover:bg-[#20332b]" : "border-[#dce6df] bg-white text-[#6c8073] hover:border-[#a9bfb0] hover:bg-[#edf3ef]"}`}
-                            >
-                              {label}
-                            </Button>
-                          ))}
-                        </div>
-                      </fieldset>
+                      <div className="col-span-2 min-w-0 lg:col-span-1">
+                        <TestTypeSelect
+                          value={selectedTypes}
+                          onChange={(types) => { setSelectedTypes(types); setError(""); }}
+                        />
+                      </div>
                     </div>
                   </div>
                 }

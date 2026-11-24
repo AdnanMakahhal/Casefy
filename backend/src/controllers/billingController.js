@@ -31,7 +31,7 @@ export function createBillingController(
   async function validatePrice(plan, billing, id) {
     if (plan !== "ultra") return;
     const price = await stripe.prices.retrieve(id);
-    const expected = billing === "annual" ? 838800 : 69900;
+    const expected = billing === "annual" ? 358800 : 29900;
     if (!price.active || price.currency !== "usd" || price.unit_amount !== expected ||
         price.recurring?.interval !== (billing === "annual" ? "year" : "month") ||
         price.recurring?.interval_count !== 1 || price.recurring?.usage_type === "metered") {

@@ -178,9 +178,9 @@ Run these from backend:
 
 ## Ultra plan rollout
 
-Ultra replaces Custom and includes unlimited seats, projects, workspaces, and credits for USD 699/month. Annual billing is USD 8,388/year, with no annual discount for Ultra. Other plan prices remain unchanged.
+Ultra replaces Custom and includes unlimited seats, projects, workspaces, and credits for USD 299/month. Annual billing is USD 3,588/year, with no annual discount for Ultra. Other plan prices remain unchanged.
 
-Configure `STRIPE_PRICE_ULTRA_MONTHLY` with an active USD 699 monthly recurring price and `STRIPE_PRICE_ULTRA_ANNUAL` with an active USD 8,388 annual recurring price on the Casefy Ultra product. Enable that product in the existing Stripe billing portal configuration for upgrades. The API validates the Ultra price and interval before starting Checkout or an upgrade. Existing tax settings are unchanged.
+Configure `STRIPE_PRICE_ULTRA_MONTHLY` with an active USD 299 monthly recurring price and `STRIPE_PRICE_ULTRA_ANNUAL` with an active USD 3,588 annual recurring price on the Casefy Ultra product. Enable that product in the existing Stripe billing portal configuration for upgrades. The API validates the Ultra price and interval before starting Checkout or an upgrade. Existing tax settings are unchanged.
 
 The Prisma `ultra` enum maps to the existing PostgreSQL `custom` value, so existing accounts load without renaming stored plans. Run `npm run prisma:generate` and restart the API after changing the schema. The optional `20261123000000_ultra_plan` migration clears stored Ultra limits, moves old custom enquiries to general support, and retires unpaid offers. It is not required to restore admin reads; the application already uses unlimited Ultra limits. No live database or Stripe subscription is changed by the source update or Prisma client generation. Review and authorize the data cleanup and the full pending migration queue before running `npm run db:migrate`.
 

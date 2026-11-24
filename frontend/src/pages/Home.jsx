@@ -11,7 +11,7 @@ import PrecisionQA from "../components/PrecisionQA";
 const team = [
   {
     name: "Adnan Makahhal",
-    avatar: "/Dedicated_Team/Adnan_Pic.jpg",
+    initials: "AM",
     description: "Front-end development",
   },
   {
