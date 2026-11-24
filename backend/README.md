@@ -21,7 +21,7 @@ Use DIRECT_URL when migrations need a separate direct database connection. Keep 
 
 ### AI configuration
 
-OpenRouter is the intended AI gateway. Keep `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` in `backend/.env` only. Set `OPENROUTER_MODEL` to your chosen OpenRouter model ID; there is no hard-coded model or fallback. The frontend uses one LLM + Playwright workflow, not a provider model selector. Live AI generation and browser execution are not connected in the current request preview.
+OpenRouter is the intended AI gateway. Keep `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` in `backend/.env` only. Set `OPENROUTER_MODEL` to your chosen OpenRouter model ID; there is no hard-coded model or fallback. The frontend uses one AI-assisted workflow, not a provider model selector. Live AI generation is not connected in the current request preview.
 
 Test Generator currently prepares request previews. Saving OpenRouter settings does not enable generation or browser execution; the generation endpoint still needs to be connected.
 

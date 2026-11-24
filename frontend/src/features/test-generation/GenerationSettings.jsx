@@ -38,9 +38,9 @@ export default function GenerationSettings({ configuration, onConfigurationChang
     <div ref={root} className="relative min-w-0" onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }} onKeyDown={(event) => {
       if (event.key === "Escape" && open) { event.preventDefault(); event.stopPropagation(); close(); }
     }}>
-      <Button ref={trigger} variant="outline" size="custom" disabled={disabled} aria-label="LLM + Playwright settings" aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={() => setOpen((value) => !value)} className="min-h-11 max-w-full gap-2 px-3 py-2 font-medium">
+      <Button ref={trigger} variant="outline" size="custom" disabled={disabled} aria-label="AI generation settings" aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={() => setOpen((value) => !value)} className="min-h-11 max-w-full gap-2 px-3 py-2 font-medium">
         <ModeIcon size={20} aria-hidden="true" className="shrink-0" />
-        <Span className="truncate">LLM + Playwright</Span>
+        <Span className="truncate">AI-assisted generation</Span>
         <RiEqualizerLine size={16} aria-hidden="true" className="shrink-0" />
       </Button>
       {open && (
@@ -49,9 +49,9 @@ export default function GenerationSettings({ configuration, onConfigurationChang
             <h3 id={`${id}-heading`} ref={heading} tabIndex={-1} className="text-sm font-semibold text-[#294137] outline-none">Generation settings</h3>
             <Button variant="ghost" size="icon" onClick={close} aria-label="Close generation settings"><RiCloseLine size={17} aria-hidden="true" /></Button>
           </div>
-          <P variant="unstyled" className="px-4 pb-4 text-xs leading-5 text-[#718578]">Your request uses LLM + Playwright together.</P>
+          <P variant="unstyled" className="px-4 pb-4 text-xs leading-5 text-[#718578]">Choose the reasoning and output detail for your request.</P>
           <fieldset disabled={disabled} className="space-y-4 border-t border-[#e1e9e4] p-4">
-            <legend className="sr-only">LLM + Playwright configuration</legend>
+            <legend className="sr-only">AI generation configuration</legend>
             <fieldset>
               <legend className="mb-2 text-xs font-medium text-[#526159]">Reasoning</legend>
               <div className="grid grid-cols-3 gap-1 rounded-md bg-[#eaf0ec] p-1">

@@ -17,10 +17,11 @@ import { Link, useSearchParams } from "react-router-dom";
 import DashboardSidebar from "../components/DashboardSidebar";
 import AccountModal from "../components/AccountModal";
 import SelectMenu from "../components/SelectMenu";
-import { GENERATION_MODE, DEFAULT_MODEL_CONFIGURATION } from "../features/test-generation/models";
+import { DEFAULT_MODEL_CONFIGURATION } from "../features/test-generation/models";
 import { ModelSelectorPrompt } from "../features/test-generation/ModelSelectorPrompt";
 import useWorkspaces from "../features/workspaces/useWorkspaces";
 import { workspacePath, workspaceRequest } from "../features/workspaces/api";
+import { useToast } from "../Context/toastContext";
 
 const sources = [
   { value: "story", label: "User story", icon: BookOpen },
@@ -45,6 +46,7 @@ function formatSize(size) {
 }
 
 export default function TestGenerator({ user, project, projectWorkspace }) {
+  const showToast = useToast();
   const initialRequest = project?.generationRequest;
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [source, setSource] = useState(initialRequest?.source || "story");
@@ -150,7 +152,7 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
     );
     setError("");
   }
-  function review({ configuration, prompt, subject }) {
+  function review({ prompt, subject }) {
     setError("");
     if (urlLocked) return;
     if (!workspaceKey) {
@@ -205,48 +207,7 @@ export default function TestGenerator({ user, project, projectWorkspace }) {
       setError("Select at least one test type.");
       return;
     }
-    if (source !== "story") {
-      subject =
-        project?.name ||
-        (source === "url"
-          ? targetUrl.hostname
-          : files[0].name.replace(/\.[^.]+$/, "")
-        )
-          .slice(0, 100)
-          .trim() ||
-        "Document tests";
-    }
-    setSavedProject(null);
-    setProjectDescription(
-      source === "story" ? prompt.slice(0, 5000) : project?.description || "",
-    );
-    setRequest({
-      preview: true,
-      source,
-      workspace: workspaces.find(({ key }) => key === workspaceKey) || null,
-      generationMode: { value: GENERATION_MODE.value, label: GENERATION_MODE.label },
-      configuration,
-      prompt,
-      subject,
-      description: prompt,
-      filters: {
-        count: Number(count),
-        priority,
-        testTypes: [...selectedTypes],
-      },
-      ...(targetUrl ? { url: targetUrl.href } : {}),
-      ...(source === "url" ? { compareWithDocuments } : {}),
-      ...(needsDocuments
-        ? {
-            documents: files.map((file) => ({
-              name: file.name,
-              size: file.size,
-              type: file.type,
-            })),
-            documentContentsIncluded: false,
-          }
-        : {}),
-    });
+    showToast("Testing is coming soon.");
   }
   async function saveProject() {
     if (saving || savedProject || !request?.workspace) return;

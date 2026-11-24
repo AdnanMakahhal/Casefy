@@ -29,7 +29,7 @@ export default function HowItWorks() {
         <Reveal as="li" delay={0.2} className="rounded-md border border-[#CFDDD5] bg-white p-6 sm:p-8">
           <Span className="mb-6 flex size-12 items-center justify-center rounded-md bg-[#294137] text-lg font-bold text-white">03</Span>
           <H2>Shape the coverage</H2>
-          <P className="mt-3">Enter your test-case count, set priority, and choose the types of tests you want. Configure LLM + Playwright and adjust reasoning or output detail.</P>
+          <P className="mt-3">Enter your test-case count, set priority, and choose the types of tests you want. Configure AI-assisted generation and adjust reasoning or output detail.</P>
           <P variant="muted" className="mt-5 border-t border-[#e1e9e4] pt-4">Your source drafts and model configurations stay separate while you work.</P>
         </Reveal>
         <Reveal as="li" delay={0.3} className="rounded-md border border-[#CFDDD5] bg-white p-6 sm:p-8">

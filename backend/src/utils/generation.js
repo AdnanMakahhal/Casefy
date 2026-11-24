@@ -1,6 +1,6 @@
 export const GENERATION_MODE = Object.freeze({
-  value: "llm-playwright",
-  label: "LLM + Playwright",
+  value: "ai-assisted",
+  label: "AI-assisted generation",
 });
 
 export function currentGenerationRequest(request) {

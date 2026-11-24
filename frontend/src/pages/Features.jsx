@@ -55,7 +55,7 @@ export default function Features() {
             icon={BrainCircuit}
             title="Preview your generation setup"
           >
-            Use LLM + Playwright together and adjust reasoning and output settings. The
+            Use AI-assisted generation and adjust reasoning and output settings. The
             AI model is configured through OpenRouter on the server. AI calls
             are not connected yet.
           </MarketingCard>
@@ -121,7 +121,7 @@ export default function Features() {
             planned
           >
             Run test cases against your local app with a local runner.
-            Playwright, Cypress, and Selenium workflows are planned.
+            Cypress and Selenium workflows are planned.
           </MarketingCard>
           <MarketingCard
             delay={0.0}

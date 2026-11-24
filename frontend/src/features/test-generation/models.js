@@ -1,9 +1,9 @@
 import { RiVideoOnLine as MonitorPlay } from "react-icons/ri";
 
 export const GENERATION_MODE = {
-  value: "llm-playwright",
-  label: "LLM + Playwright",
-  description: "LLM planning paired with Playwright browser automation.",
+  value: "ai-assisted",
+  label: "AI-assisted generation",
+  description: "AI planning for structured test cases.",
   icon: MonitorPlay,
 };
 

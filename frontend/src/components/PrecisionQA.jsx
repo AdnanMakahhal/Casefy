@@ -14,13 +14,6 @@ import {
 import Button from "../ui/Button";
 
 const examples = {
-  Playwright: `import { test, expect } from '@playwright/test';
-
-test('Checkout flow', async ({ page }) => {
-  await page.goto('/checkout');
-  await expect(page.getByTestId('cart-total'))
-    .toHaveText('$149.99');
-});`,
   Cypress: `describe('Checkout flow', () => {
   it('shows the correct total', () => {
     cy.visit('/checkout');
@@ -42,7 +35,7 @@ const cardClass = "min-w-0 rounded-md border border-[#CFDDD5] bg-white p-5 sm:p-
 const iconClass = "mb-6 flex size-12 items-center justify-center rounded-md bg-[#294137] text-white";
 
 export default function PrecisionQA() {
-  const [framework, setFramework] = useState("Playwright");
+  const [framework, setFramework] = useState("Cypress");
   const highlightId = useId();
   const reducedMotion = useReducedMotion();
 
@@ -113,7 +106,7 @@ export default function PrecisionQA() {
             <P variant="unstyled" className="mt-3 text-sm leading-6 text-[#526159]">
               Take your test cases into the tools you already use. Preview an example in your preferred framework.
             </P>
-            <div className="mt-5 grid w-full min-w-0 grid-cols-3 gap-1 rounded-md border border-[#CFDDD5] bg-[#edf3ef] p-1 sm:mt-6" role="group" aria-label="Preview framework">
+            <div className="mt-5 grid w-full min-w-0 grid-cols-2 gap-1 rounded-md border border-[#CFDDD5] bg-[#edf3ef] p-1 sm:mt-6" role="group" aria-label="Preview framework">
               {Object.keys(examples).map((name) => (
                 <Button
                   key={name}

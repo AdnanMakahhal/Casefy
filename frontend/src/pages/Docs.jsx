@@ -79,7 +79,7 @@ export default function Docs() {
             </li>
             <li className="flex gap-3 text-sm leading-6 text-[#526159]">
               <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">3</Span>
-              <Span>Set the number of test cases, priorities, and test types. Configure LLM + Playwright and review your request.</Span>
+              <Span>Set the number of test cases, priorities, and test types. Configure AI-assisted generation and review your request.</Span>
             </li>
             <li className="flex gap-3 text-sm leading-6 text-[#526159]">
               <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">4</Span>
@@ -97,7 +97,7 @@ export default function Docs() {
             </li>
             <li className="flex gap-3 text-sm leading-6 text-[#526159]">
               <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">3</Span>
-              <Span>Open LLM + Playwright settings to adjust reasoning and output detail. Both work together in one workflow.</Span>
+              <Span>Open the generation settings to adjust reasoning and output detail.</Span>
             </li>
             <li className="flex gap-3 text-sm leading-6 text-[#526159]">
               <Span variant="accent" className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#edf3ef] text-xs font-semibold">4</Span>
